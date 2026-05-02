@@ -1,0 +1,59 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Ignore folders:
+backup_graphs
+bash_logs
+build
+dataset
+bash
+results
+include/python_file/__pycache__
+include/python_file/nohup_logs
+include/python_file/backup_clusterGroups
+
+# Ignore files:
+include/python_file/bash.log_now
+
+# Ignore jupyternotebok, process
+*.ipynb
+*.graph
+*.ivecs
+*.fvecs
+*.sh
+
+# Ignore evne
+pythonEnv_ForSI
+
+# Ignore txt
+*.txt
