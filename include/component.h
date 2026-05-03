@@ -1,21 +1,17 @@
-//
-// Created by mengtong-x on 2026/04/30.
-//
-
-#ifndef WEAVESS_COMPONENT_H
-#define WEAVESS_COMPONENT_H
+#ifndef XMT_COMPONENT_H
+#define XMT_COMPONENT_H
 
 #include "index.h"
-# include "builder.h"
-# include "policy.h"
-# include <map>
+#include "builder.h"
+#include "policy.h"
+#include <map>
 
 
 #include <fstream>
 #include <stdexcept>
 #include <cstdint>
 
-namespace weavess {
+namespace xmt {
     template<typename T>
     void load_data(const char *filename, T *&data, unsigned &num, unsigned &dim) {
         std::ifstream in(filename, std::ios::binary);
@@ -111,23 +107,23 @@ namespace weavess {
 
 
     // ---------------------------------------------------------------------
-    // For SmartIndex
+    // For MultiIndex
     // ---------------------------------------------------------------------
     class Component_smart {
     public:
-        explicit Component_smart(SmartIndex *smart_index) : smart_index(smart_index) {}
+        explicit Component_smart(MultiIndex *smart_index) : smart_index(smart_index) {}
 
         virtual ~Component_smart() { delete smart_index; }
 
     protected:
-        SmartIndex *smart_index = nullptr;
+        MultiIndex *smart_index = nullptr;
     };
 
     // ===== load data ===== 
     //                  ---> component_load.cpp
     class ComponentLoad_smart : public Component_smart {
     public:
-        explicit ComponentLoad_smart(SmartIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentLoad_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
 
         virtual void LoadInner_smart(Parameters &parameters);
         
@@ -143,7 +139,7 @@ namespace weavess {
     //                  ---> component_init.cpp
     class ComponentPreliminary_smart : public Component_smart {
     public:
-        explicit ComponentPreliminary_smart(SmartIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentPreliminary_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
 
         // seperate group
         void SeperateInner_smart_ClusterGroup(Parameters &parameters);
@@ -157,7 +153,7 @@ namespace weavess {
         void PrepareParameter_smart_Equal(Parameters &parameters);
     private:
         float calMaxNorm(unsigned len, std::vector<float*> base_data_list, std::vector<unsigned> dim_list,
-                            std::vector<int> &relaField, weavess::TYPE dist_type);
+                            std::vector<int> &relaField, xmt::TYPE dist_type);
 
         float cal_corr(const std::vector<float>& X, const std::vector<float>& Y) {
             if (X.size() != Y.size() || X.empty()) {
@@ -197,44 +193,44 @@ namespace weavess {
     //                  ---> construct/component_init.cpp
     class ComponentInit_smart : public Component_smart {
     public:
-        explicit ComponentInit_smart(SmartIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentInit_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
 
-        virtual void InitInner_smart(TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) = 0;
+        virtual void InitInner_smart(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;
     };
     
     class ComponentInitRand_smart : public ComponentInit_smart {
     public:
-        explicit ComponentInitRand_smart(SmartIndex *smart_index) : ComponentInit_smart(smart_index) {}
+        explicit ComponentInitRand_smart(MultiIndex *smart_index) : ComponentInit_smart(smart_index) {}
 
-        void InitInner_smart(TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) override;
+        void InitInner_smart(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
 
     private:
-        void InitInner_smart_4group(int group, std::mt19937 &rng, std::vector<std::vector<unsigned>> &initON, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+        void InitInner_smart_4group(int group, std::mt19937 &rng, std::vector<std::vector<unsigned>> &initON, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
         void SetConfigs_smart(int group);
     };
     
     class ComponentInitHNSW_Fusion : public ComponentInit_smart {
     public:
-        explicit ComponentInitHNSW_Fusion(SmartIndex *smart_index) : ComponentInit_smart(smart_index) {}
+        explicit ComponentInitHNSW_Fusion(MultiIndex *smart_index) : ComponentInit_smart(smart_index) {}
 
-        void InitInner_smart(TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) override;
+        void InitInner_smart(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
 
     private:
         void SetConfigs();
 
-        void Build(bool reverse, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+        void Build(bool reverse, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
         static int GetRandomSeedPerThread();
 
         int GetRandomNodeLevel();
 
-        void InsertNode(SmartIndex::HnswNode *qnode, SmartIndex::VisitedList *visited_list, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+        void InsertNode(MultiIndex::HnswNode *qnode, MultiIndex::VisitedList *visited_list, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
-        void SearchAtLayer(SmartIndex::HnswNode *qnode, SmartIndex::HnswNode *enterpoint, int level,
-                           SmartIndex::VisitedList *visited_list, std::priority_queue<SmartIndex::FurtherFirst> &result, 
-                           TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+        void SearchAtLayer(MultiIndex::HnswNode *qnode, MultiIndex::HnswNode *enterpoint, int level,
+                           MultiIndex::VisitedList *visited_list, std::priority_queue<MultiIndex::FurtherFirst> &result, 
+                           TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
-        void Link(SmartIndex::HnswNode *source, SmartIndex::HnswNode *target, int level, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+        void Link(MultiIndex::HnswNode *source, MultiIndex::HnswNode *target, int level, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
     };
 
 
@@ -245,7 +241,7 @@ namespace weavess {
     //                  ---> construct/component_init.cpp
     class ComponentRefineEntry_smart : public Component_smart {
     public:
-        explicit ComponentRefineEntry_smart(SmartIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentRefineEntry_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
 
         virtual void EntryInner_smart() = 0;
 
@@ -261,14 +257,14 @@ namespace weavess {
 
     class ComponentRefineEntryCentroid_smart : public ComponentRefineEntry_smart {
     public:
-        explicit ComponentRefineEntryCentroid_smart(SmartIndex *smart_index) : ComponentRefineEntry_smart(smart_index) {}
+        explicit ComponentRefineEntryCentroid_smart(MultiIndex *smart_index) : ComponentRefineEntry_smart(smart_index) {}
 
         void EntryInner_smart() override;
 
         void EntryInner_smart_4group(int group);
 
     private:
-        void get_exact_neighbor_smart_4group(int group, SmartIndex::Neighbor &nn, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+        void get_exact_neighbor_smart_4group(int group, MultiIndex::Neighbor &nn, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
     };
 
 
@@ -278,49 +274,49 @@ namespace weavess {
     //                  ---> construct/component_refine.cpp
     class ComponentRefine_smart : public Component_smart {
     public:
-        explicit ComponentRefine_smart(SmartIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentRefine_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
 
-        virtual void RefineInner_smart(TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) = 0;
+        virtual void RefineInner_smart(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;
     };
         
     class ComponentRefineSmart : public ComponentRefine_smart {
     public:
-        explicit ComponentRefineSmart(SmartIndex *smart_index) : ComponentRefine_smart(smart_index) {}
+        explicit ComponentRefineSmart(MultiIndex *smart_index) : ComponentRefine_smart(smart_index) {}
 
-        void RefineInner_smart(TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) override;
+        void RefineInner_smart(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
 
     private:
         void SetConfigs_smart(int group, float alpha);
 
-        void RefineInner_smart_4group(int group, float alpha, bool hint, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+        void RefineInner_smart_4group(int group, float alpha, bool hint, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
-        void Link_smart_4group(int group, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+        void Link_smart_4group(int group, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
         void InterInsert_smart_4group_insert(unsigned n, int group, std::vector<std::mutex> &locks,
-                                             std::vector<int> &orignNum,TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+                                             std::vector<int> &orignNum,TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
         void InterInsert_smart_4group_prune(unsigned n, int group, std::vector<std::mutex> &locks,
-                                      TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+                                      TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
     };
 
     class ComponentRefineSmart_Oracle : public ComponentRefine_smart {
     public:
-        explicit ComponentRefineSmart_Oracle(SmartIndex *smart_index) : ComponentRefine_smart(smart_index) {}
+        explicit ComponentRefineSmart_Oracle(MultiIndex *smart_index) : ComponentRefine_smart(smart_index) {}
 
-        void RefineInner_smart(TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) override;
+        void RefineInner_smart(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
 
     private:
         void SetConfigs_smart(int group, float alpha);
 
-        void RefineInner_smart_4group(int group, float alpha, bool hint, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+        void RefineInner_smart_4group(int group, float alpha, bool hint, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
-        void Link_smart_4group(int group, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+        void Link_smart_4group(int group, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
         void InterInsert_smart_4group_insert(unsigned n, int group, std::vector<std::mutex> &locks,
-                                             std::vector<int> &orignNum,TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+                                             std::vector<int> &orignNum,TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
         void InterInsert_smart_4group_prune(unsigned n, int group, std::vector<std::mutex> &locks,
-                                      TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+                                      TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
     };
 
     
@@ -330,22 +326,22 @@ namespace weavess {
     //                  ---> construct/component_candidate.cpp
     class ComponentCandidate_smart : public Component_smart {
     public:
-        explicit ComponentCandidate_smart(SmartIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentCandidate_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
 
         virtual void CandidateInner_smart_4group_STAR(unsigned query, unsigned enter, int group, boost::dynamic_bitset<> flags,
-                                    std::vector<SmartIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) = 0; 
+                                    std::vector<MultiIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0; 
         virtual void CandidateInner_smart_4group_STAR_allIndex(unsigned query, unsigned enter, int group, boost::dynamic_bitset<> flags,
-                            std::vector<SmartIndex::SimpleNeighbor> &result, std::vector<std::mutex> &locks, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) = 0;                                    
+                            std::vector<MultiIndex::SimpleNeighbor> &result, std::vector<std::mutex> &locks, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;                                    
     };
 
     class ComponentCandidateAGS_smart : public ComponentCandidate_smart {
     public:
-        explicit ComponentCandidateAGS_smart(SmartIndex *smart_index) : ComponentCandidate_smart(smart_index) {}
+        explicit ComponentCandidateAGS_smart(MultiIndex *smart_index) : ComponentCandidate_smart(smart_index) {}
 
         void CandidateInner_smart_4group_STAR(unsigned query, unsigned enter, int group, boost::dynamic_bitset<> flags,
-                            std::vector<SmartIndex::SimpleNeighbor> &result, std::vector<std::mutex> &locks, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) override;
+                            std::vector<MultiIndex::SimpleNeighbor> &result, std::vector<std::mutex> &locks, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
         void CandidateInner_smart_4group_STAR_allIndex(unsigned query, unsigned enter, int group, boost::dynamic_bitset<> flags,
-                            std::vector<SmartIndex::SimpleNeighbor> &result, std::vector<std::mutex> &locks, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) override;
+                            std::vector<MultiIndex::SimpleNeighbor> &result, std::vector<std::mutex> &locks, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
     };
 
 
@@ -356,81 +352,81 @@ namespace weavess {
     //                  ---> construct/component_prune.cpp
     class ComponentPrune_smart : public Component_smart {
     public:
-        explicit ComponentPrune_smart(SmartIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentPrune_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
 
         virtual void PruneInner_smart_4group_withOthers(unsigned query, int group,  
-                                std::vector<SmartIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks,
-                                TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) = 0;
+                                std::vector<MultiIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks,
+                                TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;
 
         virtual void PruneInner_Fusion(unsigned q, unsigned range,
-                        std::vector<SmartIndex::SimpleNeighbor> &pool, SmartIndex::SimpleNeighbor *cut_graph_, 
-                        TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) = 0;
+                        std::vector<MultiIndex::SimpleNeighbor> &pool, MultiIndex::SimpleNeighbor *cut_graph_, 
+                        TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;
 
-        void Hnsw2Neighbor_Fusion(unsigned query, unsigned range, std::priority_queue<SmartIndex::FurtherFirst> &result,
-                            TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) {
+        void Hnsw2Neighbor_Fusion(unsigned query, unsigned range, std::priority_queue<MultiIndex::FurtherFirst> &result,
+                            TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) {
             int n = result.size();
-            std::vector<SmartIndex::SimpleNeighbor> pool(n);
-            std::unordered_map<int, SmartIndex::HnswNode *> tmp;
+            std::vector<MultiIndex::SimpleNeighbor> pool(n);
+            std::unordered_map<int, MultiIndex::HnswNode *> tmp;
 
             for (int i = n - 1; i >= 0; i--) {
-                SmartIndex::FurtherFirst f = result.top();
-                pool[i] = SmartIndex::SimpleNeighbor(f.GetNode()->GetId(), f.GetDistance());
+                MultiIndex::FurtherFirst f = result.top();
+                pool[i] = MultiIndex::SimpleNeighbor(f.GetNode()->GetId(), f.GetDistance());
                 tmp[f.GetNode()->GetId()] = f.GetNode();
                 result.pop();
             }
 
             boost::dynamic_bitset<> flags;
 
-            auto *cut_graph_ = new SmartIndex::SimpleNeighbor[smart_index->getBaseLen() * range];
+            auto *cut_graph_ = new MultiIndex::SimpleNeighbor[smart_index->getBaseLen() * range];
 
             PruneInner_Fusion(query, range, pool, cut_graph_, dist_type);
 
             for (unsigned j = 0; j < range; j++) {
                 if (cut_graph_[range * query + j].distance == -1) break;
 
-                result.push(SmartIndex::FurtherFirst(tmp[cut_graph_[range * query + j].id], cut_graph_[range * query + j].distance));
+                result.push(MultiIndex::FurtherFirst(tmp[cut_graph_[range * query + j].id], cut_graph_[range * query + j].distance));
             }
 
             delete[] cut_graph_;
 
-            std::vector<SmartIndex::SimpleNeighbor>().swap(pool);
-            std::unordered_map<int, SmartIndex::HnswNode *>().swap(tmp);
+            std::vector<MultiIndex::SimpleNeighbor>().swap(pool);
+            std::unordered_map<int, MultiIndex::HnswNode *>().swap(tmp);
         }
     };
 
     class ComponentPrunePolyGraph_smart : public ComponentPrune_smart {
     public:
-        explicit ComponentPrunePolyGraph_smart(SmartIndex *smart_index) : ComponentPrune_smart(smart_index) {}
+        explicit ComponentPrunePolyGraph_smart(MultiIndex *smart_index) : ComponentPrune_smart(smart_index) {}
 
         void PruneInner_smart_4group_withOthers(unsigned query, int group, 
-                        std::vector<SmartIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks,
-                        TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) override;
+                        std::vector<MultiIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks,
+                        TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
 
         // 占位符
         // void PruneInner_Fusion(unsigned q, unsigned range,
-        //                 std::vector<SmartIndex::SimpleNeighbor> &pool, SmartIndex::SimpleNeighbor *cut_graph_, 
-        //                 TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) override;
+        //                 std::vector<MultiIndex::SimpleNeighbor> &pool, MultiIndex::SimpleNeighbor *cut_graph_, 
+        //                 TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
         void PruneInner_Fusion(unsigned q, unsigned range,
-                        std::vector<SmartIndex::SimpleNeighbor> &pool, SmartIndex::SimpleNeighbor *cut_graph_, 
-                        TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) {};
+                        std::vector<MultiIndex::SimpleNeighbor> &pool, MultiIndex::SimpleNeighbor *cut_graph_, 
+                        TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) {};
         // 占位符end
     };
 
     class ComponentPruneHeuristic_smart : public ComponentPrune_smart {
     public:
-        explicit ComponentPruneHeuristic_smart(SmartIndex *smart_index) : ComponentPrune_smart(smart_index) {}
+        explicit ComponentPruneHeuristic_smart(MultiIndex *smart_index) : ComponentPrune_smart(smart_index) {}
 
         void PruneInner_Fusion(unsigned q, unsigned range,
-                        std::vector<SmartIndex::SimpleNeighbor> &pool, SmartIndex::SimpleNeighbor *cut_graph_, 
-                        TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) override;
+                        std::vector<MultiIndex::SimpleNeighbor> &pool, MultiIndex::SimpleNeighbor *cut_graph_, 
+                        TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
 
         // 占位符
         // void PruneInner_smart_4group_withOthers(unsigned query, int group, 
-        //                 std::vector<SmartIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks,
-        //                 TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) override;
+        //                 std::vector<MultiIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks,
+        //                 TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
         void PruneInner_smart_4group_withOthers(unsigned query, int group, 
-                        std::vector<SmartIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks,
-                        TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) {};
+                        std::vector<MultiIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks,
+                        TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) {};
         // 占位符end
     };
 
@@ -449,24 +445,24 @@ namespace weavess {
     //                  ---> construct/component_CE.cpp
     class ComponentConnectEnforcer_smart : public Component_smart {
     public:
-        explicit ComponentConnectEnforcer_smart(SmartIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentConnectEnforcer_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
 
-        virtual void ConnectEnforcerInner_smart(TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) = 0;
+        virtual void ConnectEnforcerInner_smart(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;
     };
 
     class ComponentRelaConnectEnforcer : public ComponentConnectEnforcer_smart {
     public:
-        explicit ComponentRelaConnectEnforcer(SmartIndex *smart_index) : ComponentConnectEnforcer_smart(smart_index) {}
+        explicit ComponentRelaConnectEnforcer(MultiIndex *smart_index) : ComponentConnectEnforcer_smart(smart_index) {}
 
-        void ConnectEnforcerInner_smart(TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) override;
+        void ConnectEnforcerInner_smart(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
 
     private:
         bool FindIsolate(unsigned ep, std::vector<int> relaGroup, std::set<unsigned> &isolate_ids);
 
         void ConnectAndSpread(int group, const std::vector<int> relaGroup, std::set<unsigned> &isolate_ids);
 
-        SmartIndex::SimpleNeighbor get_connect_neighbor_limited_randEP(unsigned query, int group, std::vector<int> relaGroup, unsigned &numNoPos, unsigned &numUnconnected,
-                                                                TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);                                                                                                            
+        MultiIndex::SimpleNeighbor get_connect_neighbor_limited_randEP(unsigned query, int group, std::vector<int> relaGroup, unsigned &numNoPos, unsigned &numUnconnected,
+                                                                TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);                                                                                                            
     };
 
     
@@ -484,32 +480,32 @@ namespace weavess {
     //                  ---> search/component_search_entry.cpp
     class ComponentSearchEntry_smart : public Component_smart {
     public:
-        explicit ComponentSearchEntry_smart(SmartIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentSearchEntry_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
 
-        virtual void SearchEntryInner_smart(unsigned query, std::vector<SmartIndex::Neighbor> &pool, 
+        virtual void SearchEntryInner_smart(unsigned query, std::vector<MultiIndex::Neighbor> &pool, 
                                             std::vector<int> &needCalField, std::vector<int> &needIndeces, 
                                             std::vector<unsigned> &checkEps, boost::dynamic_bitset<> &flags,
-                                            TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) = 0;
+                                            TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;
     };
 
     class ComponentSearchEntryNone_Fusion : public ComponentSearchEntry_smart {
     public:
-        explicit ComponentSearchEntryNone_Fusion(SmartIndex *smart_index) : ComponentSearchEntry_smart(smart_index) {}
+        explicit ComponentSearchEntryNone_Fusion(MultiIndex *smart_index) : ComponentSearchEntry_smart(smart_index) {}
 
-        void SearchEntryInner_smart(unsigned query, std::vector<SmartIndex::Neighbor> &pool, 
+        void SearchEntryInner_smart(unsigned query, std::vector<MultiIndex::Neighbor> &pool, 
                                     std::vector<int> &needCalField, std::vector<int> &needIndeces, 
                                     std::vector<unsigned> &checkEps, boost::dynamic_bitset<> &flags, 
-                                    TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) override;
+                                    TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
     };
 
     class ComponentSearchEntryCentroid_smart : public ComponentSearchEntry_smart {
     public:
-        explicit ComponentSearchEntryCentroid_smart(SmartIndex *smart_index) : ComponentSearchEntry_smart(smart_index) {}
+        explicit ComponentSearchEntryCentroid_smart(MultiIndex *smart_index) : ComponentSearchEntry_smart(smart_index) {}
 
-        void SearchEntryInner_smart(unsigned query, std::vector<SmartIndex::Neighbor> &pool, 
+        void SearchEntryInner_smart(unsigned query, std::vector<MultiIndex::Neighbor> &pool, 
                                     std::vector<int> &needCalField, std::vector<int> &needIndeces, 
                                     std::vector<unsigned> &checkEps, boost::dynamic_bitset<> &flags, 
-                                    TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) override;
+                                    TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
     };
 
 
@@ -522,30 +518,30 @@ namespace weavess {
     //                  ---> search/component_search_route.cpp
     class ComponentSearchRoute_smart : public Component_smart {
     public:
-        explicit ComponentSearchRoute_smart(SmartIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentSearchRoute_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
 
-        virtual void RouteInner_dist_smart(unsigned query, std::vector<SmartIndex::Neighbor> &pool, std::vector<unsigned> &res, std::vector<float> &dist_res, 
-                                            std::vector<int> &needCalField, std::vector<int> &needIndeces, boost::dynamic_bitset<> &flags, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) = 0;
+        virtual void RouteInner_dist_smart(unsigned query, std::vector<MultiIndex::Neighbor> &pool, std::vector<unsigned> &res, std::vector<float> &dist_res, 
+                                            std::vector<int> &needCalField, std::vector<int> &needIndeces, boost::dynamic_bitset<> &flags, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;
     };
 
     class ComponentSearchRouteGreedy_smart : public ComponentSearchRoute_smart {
     public:
-        explicit ComponentSearchRouteGreedy_smart(SmartIndex *smart_index) : ComponentSearchRoute_smart(smart_index) {}
+        explicit ComponentSearchRouteGreedy_smart(MultiIndex *smart_index) : ComponentSearchRoute_smart(smart_index) {}
 
-        void RouteInner_dist_smart(unsigned query, std::vector<SmartIndex::Neighbor> &pool, std::vector<unsigned> &res, std::vector<float> &dist_res, 
-                                    std::vector<int> &needCalField, std::vector<int> &needIndeces, boost::dynamic_bitset<> &flags, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) override;
+        void RouteInner_dist_smart(unsigned query, std::vector<MultiIndex::Neighbor> &pool, std::vector<unsigned> &res, std::vector<float> &dist_res, 
+                                    std::vector<int> &needCalField, std::vector<int> &needIndeces, boost::dynamic_bitset<> &flags, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
     };
 
     class ComponentSearchRouteHNSW_Fusion : public ComponentSearchRoute_smart {
     public:
-        explicit ComponentSearchRouteHNSW_Fusion(SmartIndex *smart_index) : ComponentSearchRoute_smart(smart_index) {}
+        explicit ComponentSearchRouteHNSW_Fusion(MultiIndex *smart_index) : ComponentSearchRoute_smart(smart_index) {}
 
-        void RouteInner_dist_smart(unsigned query, std::vector<SmartIndex::Neighbor> &pool, std::vector<unsigned> &res, std::vector<float> &dist_res, 
-                                    std::vector<int> &needCalField, std::vector<int> &needIndeces, boost::dynamic_bitset<> &flags, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN) override;
+        void RouteInner_dist_smart(unsigned query, std::vector<MultiIndex::Neighbor> &pool, std::vector<unsigned> &res, std::vector<float> &dist_res, 
+                                    std::vector<int> &needCalField, std::vector<int> &needIndeces, boost::dynamic_bitset<> &flags, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
     private:
-        void SearchAtLayer(unsigned qnode, SmartIndex::HnswNode *enterpoint, int level,
-                           std::vector<float> &weight, std::vector<int> &needCalField, SmartIndex::VisitedList *visited_list,
-                           std::priority_queue<SmartIndex::FurtherFirst> &result, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+        void SearchAtLayer(unsigned qnode, MultiIndex::HnswNode *enterpoint, int level,
+                           std::vector<float> &weight, std::vector<int> &needCalField, MultiIndex::VisitedList *visited_list,
+                           std::priority_queue<MultiIndex::FurtherFirst> &result, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
     };
     
     
@@ -559,51 +555,51 @@ namespace weavess {
     //                  ---> search/component_search_flow.cpp
     class ComponentSearchFlow_smart : public Component_smart {
     public:
-        explicit ComponentSearchFlow_smart(SmartIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentSearchFlow_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
     };
 
     class ComponentSearchFlowLoadWeight_smart : public ComponentSearchFlow_smart {
     public:
-        explicit ComponentSearchFlowLoadWeight_smart(SmartIndex *smart_index) : ComponentSearchFlow_smart(smart_index) {}
+        explicit ComponentSearchFlowLoadWeight_smart(MultiIndex *smart_index) : ComponentSearchFlow_smart(smart_index) {}
         
         void FlowInner_WeightOnce_smart_FallbackIntersect(unsigned K, unsigned L, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
                                     float &recall, float&latency, float &hop, float &distCount, 
-                                    TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+                                    TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
         void FlowInner_WeightOnce_smart_intersect(unsigned K, unsigned L, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
                                     float &recall, float&latency, float &hop, float &distCount, 
-                                    TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+                                    TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
         void FlowInner_WeightOnce_smart_exactRepre(unsigned K, unsigned L, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
                                     float &recall, float&latency, float &hop, float &distCount, 
-                                    TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+                                    TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
         void FlowInner_WeightOnce_smart_allIndex(unsigned K, unsigned L, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
                                     float &recall, float&latency, float &hop, float &distCount, 
-                                    TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+                                    TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
         void FlowInner_WeightOnce_smart_FallbackIntersect_forDiff_wi(unsigned K, unsigned L, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
                                     float &recall, float&latency, float &hop, float &distCount, 
-                                    TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+                                    TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
         
 
 
         void FlowInner_WeightOnceControL_smart_FallbackIntersect(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
                                                 std::vector<float> &recall_list, std::vector<float> &latency_list,
                                                 std::vector<float> &hop_list, std::vector<float> &distCount_list,
-                                                TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+                                                TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
         void FlowInner_WeightOnceControL_smart_intersect(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
                                                 std::vector<float> &recall_list, std::vector<float> &latency_list,
                                                 std::vector<float> &hop_list, std::vector<float> &distCount_list,
-                                                TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+                                                TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
         void FlowInner_WeightOnceControL_smart_exactRepre(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
                                                 std::vector<float> &recall_list, std::vector<float> &latency_list,
                                                 std::vector<float> &hop_list, std::vector<float> &distCount_list,
-                                                TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+                                                TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
         void FlowInner_WeightOnceControL_smart_allIndex(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
                                                 std::vector<float> &recall_list, std::vector<float> &latency_list,
                                                 std::vector<float> &hop_list, std::vector<float> &distCount_list,
-                                                TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+                                                TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
         void FlowInner_WeightOnceControL_smart_FallbackIntersect_forDiff_wi(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
                                                 std::vector<float> &recall_list, std::vector<float> &latency_list,
                                                 std::vector<float> &hop_list, std::vector<float> &distCount_list,
-                                                TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+                                                TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
 
     private:
@@ -625,10 +621,10 @@ namespace weavess {
     //                  ---> search/component_GT.cpp
     class ComponentGroundTruth_smart : public Component_smart {
     public:
-        explicit ComponentGroundTruth_smart(SmartIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentGroundTruth_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
 
-        void GroundInner_smart(unsigned K, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
-        void GroundInner_smart_load(unsigned w, unsigned K, TYPE dist_type = weavess::TYPE::DIST_EUCLIDEAN);
+        void GroundInner_smart(unsigned K, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+        void GroundInner_smart_load(unsigned w, unsigned K, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
     };
 }
-#endif //WEAVESS_COMPONENT_H
+#endif //XMT_COMPONENT_H

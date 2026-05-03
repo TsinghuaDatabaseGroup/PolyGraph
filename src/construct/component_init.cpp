@@ -1,7 +1,3 @@
-//
-// Created by mengtong-x on 2026/04/30.
-//
-
 #include "component.h"
 
 
@@ -9,7 +5,7 @@
 // Initialization
 //      For: init()
 // ======================================
-namespace weavess {
+namespace xmt {
 
     // ----------------------------------------------------------------------------------------------------
     // initialization -- preliminary
@@ -115,9 +111,11 @@ namespace weavess {
         std::vector<std::vector<int>> relaList;       // 每组需要 reference 的其他组
         std::vector<std::vector<float>> group_protos; // 原始 prototype，float 存储
 
-
-        std::string txt_path = "../dataset/useWeight/useWeightEachQuery.txt";
-        std::ifstream file(txt_path);
+ 
+        std::string dataset = parameters.get<std::string>("dataset");
+        std::string weight_path = parameters.get<std::string>("weight_path");
+        std::cout << "___ Read useWeightEachQuery.txt from: " << weight_path << " ___" << std::endl;
+        std::ifstream file(weight_path);
         std::string line;
 
         std::vector<float> weight(smart_index->getFieldNum());
@@ -129,7 +127,7 @@ namespace weavess {
             file >> numComb;
             if (numComb == 0)
             {
-                std::cout << "___【 Warning! 】: " << txt_path << "No weight provided! Degrade to use weavess::TYPE::ALL_WEIGHT ___" << std::endl;
+                std::cout << "___【 Warning! 】: " << weight_path << "No weight provided! Degrade to use xmt::TYPE::ALL_WEIGHT ___" << std::endl;
                 generate_all_weight = true;
             }
             for (unsigned i = 0; i < numComb; i++)
@@ -143,7 +141,7 @@ namespace weavess {
         }
         else
         {
-            std::cout << "___【 Warning! 】: " << txt_path << "does't exist! Degrade to use weavess::TYPE::ALL_WEIGHT ___" << std::endl;
+            std::cout << "___【 Warning! 】: " << weight_path << "does't exist! Degrade to use xmt::TYPE::ALL_WEIGHT ___" << std::endl;
             generate_all_weight = true;
         }
         
@@ -379,7 +377,7 @@ namespace weavess {
 
         for (unsigned i = 0; i < initON.size(); i++)
         {
-            weavess::GenRandom(rng, initON[i].data(), smart_index->getParam().get<unsigned>("R_refine"), smart_index->getBaseLen());
+            xmt::GenRandom(rng, initON[i].data(), smart_index->getParam().get<unsigned>("R_refine"), smart_index->getBaseLen());
         }
         // #pragma omp parallel for
         for (int group = 0; group < smart_index->getGroupNum(); group++)
@@ -445,25 +443,25 @@ namespace weavess {
         smart_index->getFinalGraph(group).resize(smart_index->getBaseLen());
         for (unsigned i = 0; i < smart_index->getBaseLen(); i++)
         {
-            std::vector<SmartIndex::SimpleNeighbor> tmp;
+            std::vector<MultiIndex::SimpleNeighbor> tmp;
 
             std::sort(smart_index->graph_[i].pool.begin(), smart_index->graph_[i].pool.end());
 
             for (auto &j : smart_index->graph_[i].pool)
             {
-                tmp.push_back(SmartIndex::SimpleNeighbor(j.id, j.distance));
+                tmp.push_back(MultiIndex::SimpleNeighbor(j.id, j.distance));
             }
 
             smart_index->getFinalGraph(group)[i] = tmp;
 
-            std::vector<SmartIndex::Neighbor>().swap(smart_index->graph_[i].pool);
+            std::vector<MultiIndex::Neighbor>().swap(smart_index->graph_[i].pool);
             std::vector<unsigned>().swap(smart_index->graph_[i].nn_new);
             std::vector<unsigned>().swap(smart_index->graph_[i].nn_old);
             std::vector<unsigned>().swap(smart_index->graph_[i].rnn_new);
             std::vector<unsigned>().swap(smart_index->graph_[i].rnn_old);
         }
 
-        std::vector<SmartIndex::nhood>().swap(smart_index->graph_);
+        std::vector<MultiIndex::nhood>().swap(smart_index->graph_);
     }
 
 
@@ -495,19 +493,19 @@ namespace weavess {
     {
         smart_index->nodes_.resize(smart_index->getBaseLen());
         int level = GetRandomNodeLevel();
-        auto *first = new SmartIndex::HnswNode(0, level, smart_index->max_m_, smart_index->max_m0_);
+        auto *first = new MultiIndex::HnswNode(0, level, smart_index->max_m_, smart_index->max_m0_);
         smart_index->nodes_[0] = first;
         smart_index->max_level_ = level;
         smart_index->enterpoint_ = first;
         unsigned count = 0;
 #pragma omp parallel
         {
-            auto *visited_list = new SmartIndex::VisitedList(smart_index->getBaseLen());
+            auto *visited_list = new MultiIndex::VisitedList(smart_index->getBaseLen());
 #pragma omp for schedule(dynamic, 128)
             for (size_t i = 1; i < smart_index->getBaseLen(); ++i)
             {
                 int level = GetRandomNodeLevel();
-                auto *qnode = new SmartIndex::HnswNode(i, level, smart_index->max_m_, smart_index->max_m0_);
+                auto *qnode = new MultiIndex::HnswNode(i, level, smart_index->max_m_, smart_index->max_m0_);
                 smart_index->nodes_[i] = qnode;
                 InsertNode(qnode, visited_list, dist_type);
                 count++;
@@ -545,7 +543,7 @@ namespace weavess {
         return (int)(-log(r) * smart_index->level_mult_);
     }
 
-    void ComponentInitHNSW_Fusion::InsertNode(SmartIndex::HnswNode *qnode, SmartIndex::VisitedList *visited_list, TYPE dist_type)
+    void ComponentInitHNSW_Fusion::InsertNode(MultiIndex::HnswNode *qnode, MultiIndex::VisitedList *visited_list, TYPE dist_type)
     {
         std::vector<int> need_calcu;
         for (int i = 0; i < smart_index->getFieldNum(); i++)
@@ -559,11 +557,11 @@ namespace weavess {
             max_level_lock.lock();
 
         int max_level_copy = smart_index->max_level_;
-        SmartIndex::HnswNode *enterpoint = smart_index->enterpoint_;
+        MultiIndex::HnswNode *enterpoint = smart_index->enterpoint_;
 
         if (cur_level < max_level_copy)
         {
-            SmartIndex::HnswNode *cur_node = enterpoint;
+            MultiIndex::HnswNode *cur_node = enterpoint;
             float d = smart_index->getDist()->compare_smart(smart_index->getBaseDataList(), qnode->GetId(),
                                                             smart_index->getBaseDataList(), cur_node->GetId(),
                                                             smart_index->getBaseDimList(), need_calcu,
@@ -576,7 +574,7 @@ namespace weavess {
                 {
                     changed = false;
                     std::unique_lock<std::mutex> local_lock(cur_node->GetAccessGuard());
-                    const std::vector<SmartIndex::HnswNode *> &neighbors = cur_node->GetFriends(i);
+                    const std::vector<MultiIndex::HnswNode *> &neighbors = cur_node->GetFriends(i);
 
                     for (auto iter = neighbors.begin(); iter != neighbors.end(); ++iter)
                     {
@@ -602,7 +600,7 @@ namespace weavess {
 
         for (auto i = std::min(max_level_copy, cur_level); i >= 0; --i)
         {
-            std::priority_queue<SmartIndex::FurtherFirst> result;
+            std::priority_queue<MultiIndex::FurtherFirst> result;
             SearchAtLayer(qnode, enterpoint, i, visited_list, result, dist_type);
 
             a->Hnsw2Neighbor_Fusion(qnode->GetId(), smart_index->m_, result, dist_type);
@@ -622,9 +620,9 @@ namespace weavess {
         }
     }
 
-    void ComponentInitHNSW_Fusion::SearchAtLayer(SmartIndex::HnswNode *qnode, SmartIndex::HnswNode *enterpoint, int level,
-                                                 SmartIndex::VisitedList *visited_list,
-                                                 std::priority_queue<SmartIndex::FurtherFirst> &result, TYPE dist_type)
+    void ComponentInitHNSW_Fusion::SearchAtLayer(MultiIndex::HnswNode *qnode, MultiIndex::HnswNode *enterpoint, int level,
+                                                 MultiIndex::VisitedList *visited_list,
+                                                 std::priority_queue<MultiIndex::FurtherFirst> &result, TYPE dist_type)
     {
         std::vector<int> need_calcu;
         for (int i = 0; i < smart_index->getFieldNum(); i++)
@@ -632,7 +630,7 @@ namespace weavess {
             need_calcu.emplace_back(i);
         }
 
-        std::priority_queue<SmartIndex::CloserFirst> candidates;
+        std::priority_queue<MultiIndex::CloserFirst> candidates;
         float d = smart_index->getDist()->compare_smart(smart_index->getBaseDataList(), qnode->GetId(),
                                                         smart_index->getBaseDataList(), enterpoint->GetId(),
                                                         smart_index->getBaseDimList(), need_calcu,
@@ -645,14 +643,14 @@ namespace weavess {
 
         while (!candidates.empty())
         {
-            const SmartIndex::CloserFirst &candidate = candidates.top();
+            const MultiIndex::CloserFirst &candidate = candidates.top();
             float lower_bound = result.top().GetDistance();
             if (candidate.GetDistance() > lower_bound)
                 break;
 
-            SmartIndex::HnswNode *candidate_node = candidate.GetNode();
+            MultiIndex::HnswNode *candidate_node = candidate.GetNode();
             std::unique_lock<std::mutex> lock(candidate_node->GetAccessGuard());
-            const std::vector<SmartIndex::HnswNode *> &neighbors = candidate_node->GetFriends(level);
+            const std::vector<MultiIndex::HnswNode *> &neighbors = candidate_node->GetFriends(level);
             candidates.pop();
 
             for (const auto &neighbor : neighbors)
@@ -677,7 +675,7 @@ namespace weavess {
         }
     }
 
-    void ComponentInitHNSW_Fusion::Link(SmartIndex::HnswNode *source, SmartIndex::HnswNode *target, int level, TYPE dist_type)
+    void ComponentInitHNSW_Fusion::Link(MultiIndex::HnswNode *source, MultiIndex::HnswNode *target, int level, TYPE dist_type)
     {
         std::vector<int> need_calcu;
         for (int i = 0; i < smart_index->getFieldNum(); i++)
@@ -686,21 +684,21 @@ namespace weavess {
         }
 
         std::unique_lock<std::mutex> lock(source->GetAccessGuard()); // 使用互斥锁确保在多线程环境下对源节点 source 的访问是线程安全的
-        std::vector<SmartIndex::HnswNode *> &neighbors = source->GetFriends(level);
+        std::vector<MultiIndex::HnswNode *> &neighbors = source->GetFriends(level);
         neighbors.push_back(target);
         bool shrink = (level > 0 && neighbors.size() > source->GetMaxM()) ||
                       (level <= 0 && neighbors.size() > source->GetMaxM0());
         if (!shrink)
             return;
 
-        std::priority_queue<SmartIndex::FurtherFirst> tempres;
+        std::priority_queue<MultiIndex::FurtherFirst> tempres;
         for (const auto &neighbor : neighbors)
         {
             float tmp = smart_index->getDist()->compare_smart(smart_index->getBaseDataList(), source->GetId(),
                                                               smart_index->getBaseDataList(), neighbor->GetId(),
                                                               smart_index->getBaseDimList(), need_calcu,
                                                               TYPE::DIST_EUCLIDEAN);
-            tempres.push(SmartIndex::FurtherFirst(neighbor, tmp));
+            tempres.push(MultiIndex::FurtherFirst(neighbor, tmp));
         }
 
         // PRUNE
@@ -713,7 +711,7 @@ namespace weavess {
             neighbors.emplace_back(tempres.top().GetNode());
             tempres.pop();
         }
-        std::priority_queue<SmartIndex::FurtherFirst>().swap(tempres);
+        std::priority_queue<MultiIndex::FurtherFirst>().swap(tempres);
     }
 
 
@@ -776,7 +774,7 @@ namespace weavess {
 
     void ComponentRefineEntryCentroid_smart::EntryInner_smart_4group(int group)
     {
-        SmartIndex::Neighbor nn;
+        MultiIndex::Neighbor nn;
         get_exact_neighbor_smart_4group(group, nn);
         smart_index->each_ep_[group] = nn.id;
 
@@ -785,7 +783,7 @@ namespace weavess {
         std::cout << "--------------------------------------" << std::endl;
     }
 
-    void ComponentRefineEntryCentroid_smart::get_exact_neighbor_smart_4group(int group, SmartIndex::Neighbor &nn, TYPE dist_type)
+    void ComponentRefineEntryCentroid_smart::get_exact_neighbor_smart_4group(int group, MultiIndex::Neighbor &nn, TYPE dist_type)
     {
         nn.distance = MAXFLOAT;
 

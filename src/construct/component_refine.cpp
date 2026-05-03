@@ -1,14 +1,10 @@
-//
-// Created by mengtong-x on 2026/04/30.
-//
-
 #include "component.h"
 
 
 // ======================================
 // Neighborhood Construction
 // ======================================
-namespace weavess {
+namespace xmt {
 
     // ----------------------------------------------------------------------------------------------------
     // PolyGraph
@@ -125,8 +121,8 @@ namespace weavess {
 
 #pragma omp parallel
         {
-            std::vector<SmartIndex::SimpleNeighbor> pool;
-            std::vector<SmartIndex::SimpleNeighbor> pool_cand;
+            std::vector<MultiIndex::SimpleNeighbor> pool;
+            std::vector<MultiIndex::SimpleNeighbor> pool_cand;
             pool.reserve(smart_index->getBaseLen());
             pool_cand.reserve(smart_index->getBaseLen());
             boost::dynamic_bitset<> flags(smart_index->getBaseLen(), 0);
@@ -221,7 +217,7 @@ namespace weavess {
 
         for (size_t i = 0; i < src_pool.size(); i++)
         {
-            SmartIndex::SimpleNeighbor sn(n, src_pool[i].distance);
+            MultiIndex::SimpleNeighbor sn(n, src_pool[i].distance);
             size_t des = src_pool[i].id;
             {
                 std::unique_lock<std::mutex> guard(locks[des]);
@@ -260,7 +256,7 @@ namespace weavess {
                                                               TYPE dist_type)
     {
         std::unique_lock<std::mutex> guard(locks[n]);
-        std::vector<weavess::SmartIndex::SimpleNeighbor> pool = smart_index->getOutNeigh(group, n);
+        std::vector<xmt::MultiIndex::SimpleNeighbor> pool = smart_index->getOutNeigh(group, n);
         guard.unlock();
         // ## (2) 只有超出R才会进行prune
         if (pool.size() > smart_index->R)
@@ -295,7 +291,7 @@ namespace weavess {
     }
 
     /** 2026.02.25
-     * SmartIndex Refine :
+     * MultiIndex Refine :
      *  Entry        : Centroid
      *  CANDIDATE    : AGS
      *  PRUNE        : PolyGraph
@@ -406,8 +402,8 @@ namespace weavess {
 
 #pragma omp parallel
         {
-            std::vector<SmartIndex::SimpleNeighbor> pool;
-            std::vector<SmartIndex::SimpleNeighbor> pool_cand;
+            std::vector<MultiIndex::SimpleNeighbor> pool;
+            std::vector<MultiIndex::SimpleNeighbor> pool_cand;
             pool.reserve(smart_index->getBaseLen());
             pool_cand.reserve(smart_index->getBaseLen());
             boost::dynamic_bitset<> flags(smart_index->getBaseLen(), 0);
@@ -502,7 +498,7 @@ namespace weavess {
 
         for (size_t i = 0; i < src_pool.size(); i++)
         {
-            SmartIndex::SimpleNeighbor sn(n, src_pool[i].distance);
+            MultiIndex::SimpleNeighbor sn(n, src_pool[i].distance);
             size_t des = src_pool[i].id;
             {
                 std::unique_lock<std::mutex> guard(locks[des]);
@@ -541,7 +537,7 @@ namespace weavess {
                                                               TYPE dist_type)
     {
         std::unique_lock<std::mutex> guard(locks[n]);
-        std::vector<weavess::SmartIndex::SimpleNeighbor> pool = smart_index->getOutNeigh(group, n);
+        std::vector<xmt::MultiIndex::SimpleNeighbor> pool = smart_index->getOutNeigh(group, n);
         guard.unlock();
         // ## (2) 只有超出R才会进行prune
         if (pool.size() > smart_index->R)

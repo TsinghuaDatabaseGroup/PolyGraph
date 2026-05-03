@@ -1,7 +1,3 @@
-//
-// Created by mengtong-x on 2026/04/30.
-//
-
 #ifndef EXP_DATA_H
 #define EXP_DATA_H
 
@@ -9,13 +5,11 @@
 #include <iostream>
 #include <vector>
 
-
-
 #include "parameters.h"
 
 
 
-void VAMANA_PARA(std::string dataset, weavess::Parameters &parameters)
+void VAMANA_PARA(std::string dataset, xmt::Parameters &parameters)
 {
     unsigned L, R;
 
@@ -57,7 +51,7 @@ void VAMANA_PARA(std::string dataset, weavess::Parameters &parameters)
     }
 }
 
-void ORACLE_VAMANA_PARA(std::string dataset, weavess::Parameters &parameters)
+void ORACLE_VAMANA_PARA(std::string dataset, xmt::Parameters &parameters)
 {
     unsigned L, R;
     if (dataset == "New")
@@ -99,7 +93,7 @@ void ORACLE_VAMANA_PARA(std::string dataset, weavess::Parameters &parameters)
 }
 
 
-void HNSW_PARA(std::string dataset, weavess::Parameters &parameters)
+void HNSW_PARA(std::string dataset, xmt::Parameters &parameters)
 {
     unsigned max_m, max_m0, ef_construction;
     
@@ -136,35 +130,36 @@ void HNSW_PARA(std::string dataset, weavess::Parameters &parameters)
 
 
 
-void set_data_path_PARAM(std::string dataset, weavess::Parameters &parameters)
+void set_data_path_PARAM(std::string dataset, xmt::Parameters &parameters)
 {
     // dataset root path
     std::string dataset_root = parameters.get<std::string>("dataset_root");
-    std::string txt_path;
+    std::string txt_path, weight_path;
     std::string groun_truth_path;
     if (dataset == "New")
     {
         txt_path = "../dataset/path_info_New.txt";
+        weight_path = "../dataset/useWeight/useWeightEachQuery_New.txt";
     }
     else if (dataset == "ImageText") // 2-fields
     {
         txt_path = "../dataset/path_info_CC1MNorm_2field_100W.txt";
+        weight_path = "../dataset/useWeight/useWeightEachQuery_2fields_IT.txt";
     }
-    else if (dataset == "QA") // 4-fields
-    {
-        txt_path = "../dataset/path_info_LMSYSNorm_4field_100W.txt";
-    }
-    else if (dataset == "QA2") // 4-fields
+    else if (dataset == "QA" || dataset == "QA2") // 4-fields
     {
         txt_path = "../dataset/path_info_LMSYSType2Norm_4field_100W.txt";
+        weight_path = "../dataset/useWeight/useWeightEachQuery_4fields_QA.txt";
     }
     else if (dataset == "Wiki") // 6-fields
     {
         txt_path = "../dataset/path_info_EnwikiNorm_6field_100W.txt";
+        weight_path = "../dataset/useWeight/useWeightEachQuery_6fields_Wiki.txt";
     }
     else if (dataset == "Protein") // 8-fields
     {
         txt_path = "../dataset/path_info_ProteinNorm_8field_100W.txt";
+        weight_path = "../dataset/useWeight/useWeightEachQuery_8fields_Protein.txt";
     }
     else
     {
@@ -173,6 +168,7 @@ void set_data_path_PARAM(std::string dataset, weavess::Parameters &parameters)
         exit(-1);
     }
     parameters.set<std::string>("txt_path", txt_path);
+    parameters.set<std::string>("weight_path", weight_path);
 };
 
 /**
@@ -180,7 +176,7 @@ void set_data_path_PARAM(std::string dataset, weavess::Parameters &parameters)
  *      1. 获取每个dataset对应的path_info.txt地址
  *      2. 如果是构建：对不同dataset设置R, L等超参数
  */
-void set_para(std::string alg, std::string dataset, weavess::Parameters &parameters)
+void set_para(std::string alg, std::string dataset, xmt::Parameters &parameters)
 {
     std::cout << "  -- In set_para(): alg = " << alg << std::endl;
 
@@ -194,7 +190,7 @@ void set_para(std::string alg, std::string dataset, weavess::Parameters &paramet
         HNSW_PARA(dataset, parameters);
     }
     else if (
-        alg == "Smart" || alg == "vamana_equNoTotal" || alg == "vamana_fusion" || alg == "vamana_allWeight" 
+        alg == "PolyGraph" || alg == "vamana_equNoTotal" || alg == "vamana_fusion" || alg == "vamana_allWeight" 
     )
     {
         VAMANA_PARA(dataset, parameters);

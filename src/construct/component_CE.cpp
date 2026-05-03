@@ -1,14 +1,10 @@
-//
-// Created by mengtong-x on 2026/04/30.
-//
-
 #include "component.h"
 
 
 // ======================================
 // graph connectivity enforcer
 // ======================================
-namespace weavess {
+namespace xmt {
     void ComponentRelaConnectEnforcer::ConnectEnforcerInner_smart(TYPE dist_type)
     {
         std::set<unsigned> isolated_ids;
@@ -46,7 +42,7 @@ namespace weavess {
         root[ep] = 1;
         for (auto g : relaGroup)
         {
-            const weavess::SmartIndex::FinalGraph &tmp_graph = smart_index->getFinalGraph(g);
+            const xmt::MultiIndex::FinalGraph &tmp_graph = smart_index->getFinalGraph(g);
             for (unsigned i = 0; i < tmp_graph[ep].size(); i++)
             {
                 unsigned id = tmp_graph[ep][i].id;
@@ -66,7 +62,7 @@ namespace weavess {
             unsigned id;
             for (auto g : relaGroup)
             {
-                const weavess::SmartIndex::FinalGraph &tmp_graph = smart_index->getFinalGraph(g);
+                const xmt::MultiIndex::FinalGraph &tmp_graph = smart_index->getFinalGraph(g);
                 for (unsigned i = 0; i < tmp_graph[explore].size(); i++)
                 {
                     id = tmp_graph[explore][i].id;
@@ -130,7 +126,7 @@ namespace weavess {
             {
                 // --- find node to add edge (connect) ---
                 unsigned to = *isolate_ids.begin();
-                SmartIndex::SimpleNeighbor from = get_connect_neighbor_limited_randEP(to, group, relaGroup, numNoPos, numUnconnected);
+                MultiIndex::SimpleNeighbor from = get_connect_neighbor_limited_randEP(to, group, relaGroup, numNoPos, numUnconnected);
                 unsigned from_id = from.id;
                 from.id = to;
                 if (from_id >= smart_index->getBaseLen())
@@ -149,7 +145,7 @@ namespace weavess {
                 root[to] = 1;
                 for (auto g : relaGroup)
                 {
-                    const weavess::SmartIndex::FinalGraph &tmp_graph = smart_index->getFinalGraph(g);
+                    const xmt::MultiIndex::FinalGraph &tmp_graph = smart_index->getFinalGraph(g);
                     for (unsigned i = 0; i < tmp_graph[to].size(); i++)
                     {
                         unsigned id = tmp_graph[to][i].id;
@@ -167,7 +163,7 @@ namespace weavess {
                     unsigned id;
                     for (auto g : relaGroup)
                     {
-                        const weavess::SmartIndex::FinalGraph &tmp_graph = smart_index->getFinalGraph(g);
+                        const xmt::MultiIndex::FinalGraph &tmp_graph = smart_index->getFinalGraph(g);
                         for (unsigned i = 0; i < tmp_graph[explore].size(); i++)
                         {
                             id = tmp_graph[explore][i].id;
@@ -189,7 +185,7 @@ namespace weavess {
         }
     }
 
-    SmartIndex::SimpleNeighbor ComponentRelaConnectEnforcer::get_connect_neighbor_limited_randEP(unsigned query, int group, std::vector<int> relaGroup, unsigned &numNoPos, unsigned &numUnconnected, TYPE dist_type)
+    MultiIndex::SimpleNeighbor ComponentRelaConnectEnforcer::get_connect_neighbor_limited_randEP(unsigned query, int group, std::vector<int> relaGroup, unsigned &numNoPos, unsigned &numUnconnected, TYPE dist_type)
     {
         // --- # 3. 均没有（i.e.）不存在空位了，则扩大L，R，再进行（1，2）。 -----------------------------------------
         if ((numNoPos + std::min((unsigned)(smart_index->getBaseLen() * 0.01), (unsigned)1000)) >= smart_index->getBaseLen())
@@ -204,9 +200,9 @@ namespace weavess {
         unsigned L = smart_index->getLRefineList()[group];
         unsigned R = smart_index->getRRefineList()[group];
 
-        std::priority_queue<SmartIndex::Neighbor, std::vector<SmartIndex::Neighbor>, std::greater<SmartIndex::Neighbor>> cand_unchecked;
-        std::priority_queue<SmartIndex::Neighbor, std::vector<SmartIndex::Neighbor>, std::less<SmartIndex::Neighbor>> result;
-        std::priority_queue<SmartIndex::Neighbor, std::vector<SmartIndex::Neighbor>, std::less<SmartIndex::Neighbor>> result_withPos;
+        std::priority_queue<MultiIndex::Neighbor, std::vector<MultiIndex::Neighbor>, std::greater<MultiIndex::Neighbor>> cand_unchecked;
+        std::priority_queue<MultiIndex::Neighbor, std::vector<MultiIndex::Neighbor>, std::less<MultiIndex::Neighbor>> result;
+        std::priority_queue<MultiIndex::Neighbor, std::vector<MultiIndex::Neighbor>, std::less<MultiIndex::Neighbor>> result_withPos;
 
         boost::dynamic_bitset<> cal_flags{smart_index->getBaseLen(), 0};
         boost::dynamic_bitset<> check_flags{smart_index->getBaseLen(), 1}; 
@@ -221,10 +217,10 @@ namespace weavess {
                                                                       smart_index->getBaseDataList(), ep,
                                                                       smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                       smart_index->getGroupRepreList()[group], dist_type);
-            result.emplace(SmartIndex::Neighbor(ep, dist, true));
+            result.emplace(MultiIndex::Neighbor(ep, dist, true));
             if (smart_index->getFinalGraph(group)[ep].size() < R)
             {
-                result_withPos.emplace(SmartIndex::Neighbor(ep, dist, true));
+                result_withPos.emplace(MultiIndex::Neighbor(ep, dist, true));
             }
             cal_flags[ep] = true;
         }
@@ -237,7 +233,7 @@ namespace weavess {
             check_flags[ep] = false;
             for (auto g : relaGroup)
             {
-                const weavess::SmartIndex::FinalGraph &tmp_graph = smart_index->getFinalGraph(g);
+                const xmt::MultiIndex::FinalGraph &tmp_graph = smart_index->getFinalGraph(g);
                 for (unsigned i = 0; i < tmp_graph[ep].size(); i++)
                 {
                     unsigned id = tmp_graph[ep][i].id;
@@ -268,11 +264,11 @@ namespace weavess {
                                                                       smart_index->getBaseDataList(), id,
                                                                       smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                       smart_index->getGroupRepreList()[group], dist_type);
-            cand_unchecked.emplace(SmartIndex::Neighbor(id, dist, true));
-            result.emplace(SmartIndex::Neighbor(id, dist, true));
+            cand_unchecked.emplace(MultiIndex::Neighbor(id, dist, true));
+            result.emplace(MultiIndex::Neighbor(id, dist, true));
             if (smart_index->getFinalGraph(group)[id].size() < R)
             {
-                result_withPos.emplace(SmartIndex::Neighbor(id, dist, true));
+                result_withPos.emplace(MultiIndex::Neighbor(id, dist, true));
             }
         }
         while (result.size() > L)
@@ -291,7 +287,7 @@ namespace weavess {
 
                 for (auto g : relaGroup)
                 {
-                    const weavess::SmartIndex::FinalGraph &tmp_graph = smart_index->getFinalGraph(g);
+                    const xmt::MultiIndex::FinalGraph &tmp_graph = smart_index->getFinalGraph(g);
                     for (unsigned m = 0; m < tmp_graph[n].size(); m++)
                     {
                         unsigned id = tmp_graph[n][m].id;
@@ -305,7 +301,7 @@ namespace weavess {
                                                                                   smart_index->getBaseDataList(), id,
                                                                                   smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                                   smart_index->getGroupRepreList()[group], dist_type);
-                        SmartIndex::Neighbor nn(id, dist, true);
+                        MultiIndex::Neighbor nn(id, dist, true);
                         cand_unchecked.emplace(nn);
                         if (result.size() < L)
                         {
@@ -323,7 +319,7 @@ namespace weavess {
                         }
                         if (smart_index->getFinalGraph(group)[id].size() < R)
                         {
-                            result_withPos.emplace(SmartIndex::Neighbor(id, dist, true));
+                            result_withPos.emplace(MultiIndex::Neighbor(id, dist, true));
                         }
                     }
                 }
@@ -343,7 +339,7 @@ namespace weavess {
                 numNoPos++;
             }
             numUnconnected--;
-            return SmartIndex::SimpleNeighbor(result_withPos.top().id, result_withPos.top().distance);
+            return MultiIndex::SimpleNeighbor(result_withPos.top().id, result_withPos.top().distance);
         }
 
         // --- # 2. 随机出一个有位置的ep来进行搜索. ---------------------------------------------------------------------------------------------
@@ -362,8 +358,8 @@ namespace weavess {
                                                                       smart_index->getBaseDataList(), ep,
                                                                       smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                       smart_index->getGroupRepreList()[group], dist_type);
-            result.emplace(SmartIndex::Neighbor(ep, dist, true));
-            result_withPos.emplace(SmartIndex::Neighbor(ep, dist, true));
+            result.emplace(MultiIndex::Neighbor(ep, dist, true));
+            result_withPos.emplace(MultiIndex::Neighbor(ep, dist, true));
             cal_flags[ep] = true;
 
             std::vector<unsigned> init_ids;
@@ -374,7 +370,7 @@ namespace weavess {
                 check_flags[ep] = false;
                 for (auto g : relaGroup)
                 {
-                    const weavess::SmartIndex::FinalGraph &tmp_graph = smart_index->getFinalGraph(g);
+                    const xmt::MultiIndex::FinalGraph &tmp_graph = smart_index->getFinalGraph(g);
                     for (unsigned i = 0; i < tmp_graph[ep].size(); i++)
                     {
                         unsigned id = tmp_graph[ep][i].id;
@@ -405,11 +401,11 @@ namespace weavess {
                                                                           smart_index->getBaseDataList(), id,
                                                                           smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                           smart_index->getGroupRepreList()[group], dist_type);
-                cand_unchecked.emplace(SmartIndex::Neighbor(id, dist, true));
-                result.emplace(SmartIndex::Neighbor(id, dist, true));
+                cand_unchecked.emplace(MultiIndex::Neighbor(id, dist, true));
+                result.emplace(MultiIndex::Neighbor(id, dist, true));
                 if (smart_index->getFinalGraph(group)[id].size() < R)
                 {
-                    result_withPos.emplace(SmartIndex::Neighbor(id, dist, true));
+                    result_withPos.emplace(MultiIndex::Neighbor(id, dist, true));
                 }
             }
             while (result.size() > L)
@@ -428,7 +424,7 @@ namespace weavess {
 
                     for (auto g : relaGroup)
                     {
-                        const weavess::SmartIndex::FinalGraph &tmp_graph = smart_index->getFinalGraph(g);
+                        const xmt::MultiIndex::FinalGraph &tmp_graph = smart_index->getFinalGraph(g);
                         for (unsigned m = 0; m < tmp_graph[n].size(); m++)
                         {
                             unsigned id = tmp_graph[n][m].id;
@@ -442,7 +438,7 @@ namespace weavess {
                                                                                       smart_index->getBaseDataList(), id,
                                                                                       smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                                       smart_index->getGroupRepreList()[group], dist_type);
-                            SmartIndex::Neighbor nn(id, dist, true);
+                            MultiIndex::Neighbor nn(id, dist, true);
                             cand_unchecked.emplace(nn);
                             if (result.size() < L)
                             {
@@ -460,7 +456,7 @@ namespace weavess {
                             }
                             if (smart_index->getFinalGraph(group)[id].size() < R)
                             {
-                                result_withPos.emplace(SmartIndex::Neighbor(id, dist, true));
+                                result_withPos.emplace(MultiIndex::Neighbor(id, dist, true));
                             }
                         }
                     }
@@ -478,7 +474,7 @@ namespace weavess {
                 numNoPos++;
             }
             numUnconnected--;
-            return SmartIndex::SimpleNeighbor(result_withPos.top().id, result_withPos.top().distance);
+            return MultiIndex::SimpleNeighbor(result_withPos.top().id, result_withPos.top().distance);
         }
     }
 }

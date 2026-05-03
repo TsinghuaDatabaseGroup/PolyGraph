@@ -1,7 +1,3 @@
-//
-// Created by mengtong-x on 2026/04/30.
-//
-
 #include "component.h"
 
 
@@ -9,14 +5,14 @@
 // Search Entry Point
 // ======================================
 
-namespace weavess {
+namespace xmt {
 
-    void ComponentSearchEntryNone_Fusion::SearchEntryInner_smart(unsigned query, std::vector<SmartIndex::Neighbor> &pool,
+    void ComponentSearchEntryNone_Fusion::SearchEntryInner_smart(unsigned query, std::vector<MultiIndex::Neighbor> &pool,
                                                                  std::vector<int> &needCalField, std::vector<int> &needIndeces,
                                                                  std::vector<unsigned> &checkEps, boost::dynamic_bitset<> &flags,
                                                                  TYPE dist_type) {};
 
-    void ComponentSearchEntryCentroid_smart::SearchEntryInner_smart(unsigned int query, std::vector<SmartIndex::Neighbor> &pool,
+    void ComponentSearchEntryCentroid_smart::SearchEntryInner_smart(unsigned int query, std::vector<MultiIndex::Neighbor> &pool,
                                                                     std::vector<int> &needCalField, std::vector<int> &needIndeces,
                                                                     std::vector<unsigned> &checkEps, boost::dynamic_bitset<> &flags, TYPE dist_type)
     {
@@ -40,7 +36,7 @@ namespace weavess {
                                                                       smart_index->getBaseDimList(), needCalField,
                                                                       weight, dist_type);
             smart_index->addDistCount();
-            pool.emplace_back(SmartIndex::Neighbor(id, dist, true));
+            pool.emplace_back(MultiIndex::Neighbor(id, dist, true));
             flags[id] = true;
         }
         std::sort(pool.begin(), pool.end());
@@ -48,7 +44,7 @@ namespace weavess {
         float place_holder_dist = MAXFLOAT;
         unsigned place_holder = pool[pool.size()-1].id;
         while (pool.size() < L) {
-            pool.emplace_back(SmartIndex::Neighbor(place_holder, place_holder_dist, true));
+            pool.emplace_back(MultiIndex::Neighbor(place_holder, place_holder_dist, true));
         }
 
         pool.resize(L);

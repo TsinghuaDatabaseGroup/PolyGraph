@@ -33,6 +33,7 @@
 
 # Ignore folders:
 backup_graphs
+myIndex
 bash_logs
 build
 dataset

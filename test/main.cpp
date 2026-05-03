@@ -1,7 +1,3 @@
-//
-// Created by mengtong-x on 2026/04/29.
-//
-
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -29,11 +25,11 @@
 // vamana_allWeight
 // vamana_oracle
 
-// // -- [SmartIndex] --
-// ./main Smart [DATASET] build -rela_use_intersect 0 -total_sim_thresh 0.95 -rela_sim_thresh 0.5
-// ./main Smart [DATASET] all_recall_search 20 -search_rela_sim_thresh 0.5 --> FallbackIntersect
-// ./main Smart [DATASET] all_recall_search_allIndex 20
-// ./main Smart [DATASET] all_recall_search_intersect 20
+// // -- [PolyGraph] --
+// ./main PolyGraph [DATASET] build -rela_use_intersect 0 -total_sim_thresh 0.95 -rela_sim_thresh 0.5
+// ./main PolyGraph [DATASET] all_recall_search 20 -search_rela_sim_thresh 0.5 --> FallbackIntersect
+// ./main PolyGraph [DATASET] all_recall_search_allIndex 20
+// ./main PolyGraph [DATASET] all_recall_search_intersect 20
 
 // // -- [Baselines] --
 // ./main [INDEX_NAME] [DATASET] build
@@ -90,27 +86,6 @@ int main(int totalArgc, char **argv)
     unsigned K = 20;
     int argc = 0;
 
-    // // ##### For DEBUG
-    // // ./main Smart NUS_WIDE_OBJ build
-    // if (totalArgc < 2)
-    // {
-    //     static const char *fake_argv[] = {
-    //         "./main",
-    //         "Smart",
-    //         "NUS_WIDE_OBJ",
-    //         "build"};
-    //     argc = 4;
-    //     argv = const_cast<char **>(fake_argv); // 小心：const_cast是必要的，因为argv是char**，而fake_argv是const char* []
-
-    //     // 强制切换工作目录
-    //     if (chdir("/home/mengtong/MyWork/SmartIndex_Final_V1/build") != 0)
-    //     {
-    //         std::cerr << "Failed to change directory!\n";
-    //         exit(-2);
-    //     }
-    // }
-    // // ##### End For DEBUG
-
     for (int i = 0; i < totalArgc; i++)
     {
         if (std::regex_match(argv[i], paraName))
@@ -127,11 +102,10 @@ int main(int totalArgc, char **argv)
     std::string dist_type = "euclidean";
     std::string dataset_root = R"(../dataset/)";
     std::string index_path = R"(../myIndex)";
-    // std::string graph_file("SI-self_" + alg + "_" + dataset + ".graph");
-    std::string graph_file("TMP_SI-self_" + alg + "_" + dataset + ".graph");
+    std::string graph_file("../myIndex/" + alg + "_" + dataset + ".graph");
 
 
-    weavess::Parameters parameters;
+    xmt::Parameters parameters;
     parameters.set<std::string>("dataset_root", dataset_root);
     parameters.set<std::string>("index_path", index_path);
     // XMT修改：应为spark10有40个CPU kernels，把n_threads提高到30
@@ -180,7 +154,7 @@ int main(int totalArgc, char **argv)
         }
         else
         {
-            std::cout << "./main Smart dataset search [K_search] [dist_type]" << std::endl;
+            std::cout << "./main PolyGraph dataset search [K_search] [dist_type]" << std::endl;
             exit(-1);
         }
     }
@@ -222,7 +196,7 @@ int main(int totalArgc, char **argv)
     // --- change hyperparameters according to cmd -------
     // | 对于 build，判断是否有传入&定义 -alpha2, -L, -L_refine, -R ，等超参数；如果有，则根据传入数值进行hyper parameter修改。
     // -------------------------------------------------
-    float total_sim_thresh = 0.95, rela_sim_thresh = 0.5, search_rela_sim_thresh = -2.0;
+    float total_sim_thresh = 0.95, rela_sim_thresh = 0.5, search_rela_sim_thresh = 0.5;
     unsigned max_group = 0;
     bool rela_use_intersect = true;
     for (int i = argc; i < totalArgc; i++)
@@ -291,7 +265,7 @@ int main(int totalArgc, char **argv)
 
     // ====== 2. run_python(): Do Representative Weight Selection =================================
     // if (exc_type == "cluster_build") {
-    if (alg == "Smart" && exc_type == "build") {
+    if (alg == "PolyGraph" && exc_type == "build") {
         bool override = true;
 
         // -- python路径
@@ -308,6 +282,7 @@ int main(int totalArgc, char **argv)
             "../include/python_file/nohup_logs/bash.log", // 这次python的运行过程信息存储路径的前缀；后会加详细时间（应该是比c++中展示的时间略小且约等于）
             "../pythonEnv_ForSI/bin/python3", //venv_python
             parameters.get<std::string>("txt_path"), // path_info.txt
+            parameters.get<std::string>("weight_path"), // useWeightEachQuery.txt
             extra_args
         );
 
@@ -326,9 +301,9 @@ int main(int totalArgc, char **argv)
     {
         HNSW_FUSION(parameters);
     }
-    else if (alg == "Smart")
+    else if (alg == "PolyGraph")
     {
-        smart_index(parameters);
+        PolyGraph(parameters);
     }
     else if (alg == "vamana_equNoTotal" || alg == "vamana_fusion" || alg == "vamana_allWeight" || alg == "vamana_oracle")
     {

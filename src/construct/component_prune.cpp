@@ -1,7 +1,3 @@
-//
-// Created by mengtong-x on 2026/04/30.
-//
-
 #include "component.h"
 
 
@@ -9,15 +5,15 @@
 // Neighborhood Construction
 //              ----> Neighbor Selection
 // ======================================
-namespace weavess {
+namespace xmt {
 
     // ----------------------------------------------------------------------------------------------------
     // PolyGraph
     // ----------------------------------------------------------------------------------------------------
-    void ComponentPrunePolyGraph_smart::PruneInner_smart_4group_withOthers(unsigned query, int group, std::vector<SmartIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks, TYPE dist_type)
+    void ComponentPrunePolyGraph_smart::PruneInner_smart_4group_withOthers(unsigned query, int group, std::vector<MultiIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks, TYPE dist_type)
     {
-        std::vector<SmartIndex::SimpleNeighbor> picked;
-        std::vector<SmartIndex::SimpleNeighbor> other_selected;
+        std::vector<MultiIndex::SimpleNeighbor> picked;
+        std::vector<MultiIndex::SimpleNeighbor> other_selected;
 
         std::set<unsigned> had_ON_before, had_ON_this;
 
@@ -40,7 +36,7 @@ namespace weavess {
                                                                               smart_index->getBaseDataList(), id,
                                                                               smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                               smart_index->getGroupRepreList()[group], dist_type);
-                    pool.emplace_back(SmartIndex::SimpleNeighbor(id, dist));
+                    pool.emplace_back(MultiIndex::SimpleNeighbor(id, dist));
                 }
             }
         }
@@ -113,7 +109,7 @@ namespace weavess {
         }
 
         // ## 2. 根据picked对应修改group-th graph
-        SmartIndex::LockGuard guard(locks[query]);
+        MultiIndex::LockGuard guard(locks[query]);
         auto &graph_q = smart_index->getFinalGraph(group)[query];
         {
             graph_q.resize(std::min(smart_index->R, (unsigned)picked.size()));
@@ -123,12 +119,12 @@ namespace weavess {
                 graph_q[t].distance = picked[t].distance;
             }
 
-            std::vector<SmartIndex::SimpleNeighbor>().swap(picked);
+            std::vector<MultiIndex::SimpleNeighbor>().swap(picked);
         }
     }
 
     // void ComponentPrunePolyGraph_smart::PruneInner_Fusion(unsigned q, unsigned range,/// boost::dynamic_bitset<> flags,
-    //                                                    std::vector<SmartIndex::SimpleNeighbor> &pool, SmartIndex::SimpleNeighbor *cut_graph_,
+    //                                                    std::vector<MultiIndex::SimpleNeighbor> &pool, MultiIndex::SimpleNeighbor *cut_graph_,
     //                                                    TYPE dist_type) {};
 
 
@@ -137,11 +133,11 @@ namespace weavess {
     // HNSW_Fusion
     // ----------------------------------------------------------------------------------------------------
     // void ComponentPruneHeuristic_smart::PruneInner_smart_4group_withOthers(unsigned query, int group, // boost::dynamic_bitset<> flags,
-    //                                                                        std::vector<SmartIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks,
+    //                                                                        std::vector<MultiIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks,
     //                                                                        TYPE dist_type) {};
 
     void ComponentPruneHeuristic_smart::PruneInner_Fusion(unsigned query, unsigned int range, // boost::dynamic_bitset<> flags,
-                                                          std::vector<SmartIndex::SimpleNeighbor> &pool, SmartIndex::SimpleNeighbor *cut_graph_,
+                                                          std::vector<MultiIndex::SimpleNeighbor> &pool, MultiIndex::SimpleNeighbor *cut_graph_,
                                                           TYPE dist_type)
     {
         std::vector<int> need_calcu;
@@ -150,7 +146,7 @@ namespace weavess {
             need_calcu.emplace_back(i);
         }
 
-        std::vector<SmartIndex::SimpleNeighbor> picked;
+        std::vector<MultiIndex::SimpleNeighbor> picked;
         if (pool.size() > range)
         {
             for (int i = 0; i < pool.size(); i++)
@@ -185,7 +181,7 @@ namespace weavess {
                 picked.push_back(pool[i]);
             }
         }
-        SmartIndex::SimpleNeighbor *des_pool = cut_graph_ + (size_t)query * (size_t)range;
+        MultiIndex::SimpleNeighbor *des_pool = cut_graph_ + (size_t)query * (size_t)range;
         for (size_t t = 0; t < picked.size(); t++)
         {
             des_pool[t].id = picked[t].id;
@@ -197,7 +193,7 @@ namespace weavess {
             des_pool[picked.size()].distance = -1;
         }
 
-        std::vector<SmartIndex::SimpleNeighbor>().swap(picked);
+        std::vector<MultiIndex::SimpleNeighbor>().swap(picked);
     }
 
 

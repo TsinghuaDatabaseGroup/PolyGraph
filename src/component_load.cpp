@@ -1,7 +1,3 @@
-//
-// Created by mengtong-x on 2026/04/30.
-//
-
 #include "component.h"
 
 
@@ -9,7 +5,7 @@
 // load data
 //      For: load()
 // ======================================
-namespace weavess {
+namespace xmt {
     inline void load_data_txt(char *filename, float *&data) {
         std::ifstream in(filename, std::ios::in);
         if (!in.is_open()) {

@@ -1,14 +1,10 @@
-//
-// Created by MurphySL on 2020/9/14.
-//
-
-#ifndef WEAVESS_UTIL_H
-#define WEAVESS_UTIL_H
+#ifndef XMT_UTIL_H
+#define XMT_UTIL_H
 
 #include <random>
 #include <algorithm>
 
-namespace weavess {
+namespace xmt {
 
     static void GenRandom(std::mt19937 &rng, unsigned *addr, unsigned size, unsigned N) {
         for (unsigned i = 0; i < size; ++i) {
@@ -49,4 +45,4 @@ namespace weavess {
         typedef std::set<Candidate2<float>, std::greater<Candidate2<float> > > CandidateHeap2;
 }
 
-#endif //WEAVESS_UTIL_H
+#endif //XMT_UTIL_H

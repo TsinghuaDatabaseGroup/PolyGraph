@@ -76,10 +76,17 @@ def _parse_args():
     p.add_argument("--random_state",type=int, default=42)
 
     # ---- 2026.01.15: Query-weight input & GS-corr cache ----
-    p.add_argument("--use_weight_each_query_txt", type=str,
-                   default="../dataset/useWeight/useWeightEachQuery.txt",
-                   help="优先从该文件读取 query weight vectors；失败则 fallback 到 2^m-1 个 0/1 weight")
-    p.add_argument("--search_corr_thresh", type=float, default=0.3,
+    p.add_argument(
+        "--use_weight_each_query_txt",
+        type=str,
+        required=True,
+        help=(
+            "Path to the query-weight file. "
+            "The first line is the number of weight vectors. "
+            "If the first line is 0, the script uses the default 2^m-1 binary workload."
+        ),
+    )
+    p.add_argument("--search_corr_thresh", type=float, default=0.5,
                    help="构建阶段缓存的 GS-corr 阈值 tau；查询阶段若 tau 相同可直接用缓存的 enabled groups")
     p.add_argument("--dedup_decimals", type=int, default=6,
                    help="去重/建立 key 时对 query weight 的 round 精度（小数位）")
@@ -1148,118 +1155,3 @@ save_query_weight_cache_txt(
 )
 print(datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 print("############################################################")
-
-
-
-
-
-
-
-
-
-# #  ========== 2. 将结果存入txt =========================================================
-# import numpy as np
-# from pathlib import Path 
-# import importlib.util
-# from datetime import datetime  # ✅ 用于生成“当前时间”字符串
-
-# # ===== 1.2) 动态加载 fun 模块（文件名含 '-' 无法常规 import，用 importlib 路径加载） =====
-# FUN_PATH = Path("/home/mengtong/Link09/LargeIndex/simple_exp/50817_cluster_GMM/ClusterGMM-0817-fun.py")
-# assert FUN_PATH.exists(), f"Module file not found: {FUN_PATH}"
-# spec_fun = importlib.util.spec_from_file_location("fun_0817", str(FUN_PATH))
-# fun_0817 = importlib.util.module_from_spec(spec_fun)
-# assert spec_fun.loader is not None
-# spec_fun.loader.exec_module(fun_0817)
-
-# # ===== 1.2) 动态加载 “from AnalysePathInfo import load_base_paths as loadBathPath” =====
-# AP_PATH = Path("/home/mengtong/Link09/LargeIndex/simple_exp/50817_cluster_GMM/AnalysePathInfo.py")
-# assert AP_PATH.exists(), f"Module file not found: {AP_PATH}"
-# spec_ap = importlib.util.spec_from_file_location("AnalysePathInfo", str(AP_PATH))
-# AnalysePathInfo = importlib.util.module_from_spec(spec_ap)
-# assert spec_ap.loader is not None
-# spec_ap.loader.exec_module(AnalysePathInfo)
-# loadBathPath = AnalysePathInfo.load_base_paths
-
-# # ===== 1.2) 动态加载 “import GenerateClusterWeight_fun as GCW” =====
-# GCW_PATH = Path("/home/mengtong/Link09/LargeIndex/simple_exp/50817_cluster_GMM/GenerateClusterWeight_fun.py")
-# assert GCW_PATH.exists(), f"Module file not found: {GCW_PATH}"
-# spec_gcw = importlib.util.spec_from_file_location("GenerateClusterWeight_fun", str(GCW_PATH))
-# GCW = importlib.util.module_from_spec(spec_gcw)
-# assert spec_gcw.loader is not None
-# spec_gcw.loader.exec_module(GCW)
-
-
-
-# # # ####################################################################
-# # 逆序（为了贴合写的是逆序的SmartIndex）
-# selected_repre = S_order[::-1] 
-# # # ####################################################################
-
-
-
-# # ===== 3) 主体运行部分 =====
-# if __name__ == "__main__":
-#     # --- 0. 生成“当前时间”字符串用于输出文件命名（如 20250819-223045） ---
-#     当前时间 = datetime.now().strftime("%Y%m%d-%H%M%S")
-
-#     # --- 1. 读取 base_data_list ---
-#     base_data_list_data = [fun_0817.fvecs_read(path) for path in base_data_list]
-#     num_fields = len(base_data_list_data)
-#     print(f"Loaded {num_fields} fields.")
-
-#     # 如果 Version 1：----- allCombinWeights ------
-#     for w in range(1, (1 << num_fields)):
-#         weights = [(1.0 if (w & (1 << j)) else 0.0) for j in range(num_fields)]
-#         query_weight_list.append(weights)
-
-#     result = {"prototypes": [], 'members_per_cluster':[]}  # ✅ 关键修复：先初始化为列表
-#     for w in range(len(selected_repre)):
-#         result["prototypes"].append((selected_repre[w], query_weight_list[selected_repre[w]]))
-
-#     fun_0817.supplement_missing_vector(result, base_data_list_data)
-#     fun_0817.save_cluster_represents(result, save_path=f"/home/mengtong/MyWork/SmartIndex_Final_V1/include/python_file/backup_clusterGroups/cluster_group_{当前时间}_withThresh_{total_sim_thresh}.txt")
-#     fun_0817.save_cluster_represents(result, save_path=f"/home/mengtong/MyWork/SmartIndex_Final_V1/include/python_file/cluster_groups.txt")
-#     print("\n-- 【 Hyperparameters 】:")
-#     print(f"    total_sim_thresh: {total_sim_thresh}\n")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# nohup /usr/bin/time -v python3 /home/mengtong/MyWork/SmartIndex_Final_V1/include/python_file/cluster_Now_distSimThresh_NoOrderRedecide_withCacheAligned_v2.py --total_sim_thresh 0.95 --no-rela_use_intersect --rela_sim_thresh 0.5 > /home/mengtong/MyWork/SmartIndex_Final_V1/include/python_file/nohup_logs/bash.log60408-clusterSyntheticStand-relaThresh0.5_distSimThresh0.95 2>&1 &
-
- # -- 默认值 ---------------------------------------
-    # sample_size=10000            # 抽样样本数
-    # num_query=300                # 每个权重取的查询个数
-    # n_jobs=-1                    # 并行核数
-    # random_state=42              # 随机种子
-    # rela_use_intersect = true (true = --rela_use_intersect; false = --no-rela_use_intersect )
-    # total_sim_thresh = 0.95
-    # rela_sim_thresh = 0.5
-    # ------------------------------------------------
-
-
-
-# 2025.12.25: 尝试对 CC1M（m=2）选择所有不同顺序。
-# --forced_order_way：1-6
-# nohup /usr/bin/time -v python3 /home/mengtong/MyWork/SmartIndex_Final_V1/include/python_file/cluster_Now_distSimThresh_NoOrderRedecide.py --total_sim_thresh 0.95 --no-rela_use_intersect --rela_sim_thresh -1.0 --forced_order_way 1 > /home/mengtong/MyWork/SmartIndex_Final_V1/include/python_file/nohup_logs/bash.log51225-clusterCC1M-relaThresh0.3_distSimThresh0.95_ForceOrder 2>&1 &
-
-
-# 2026.01.15: 尝试记录中间信息。
-# nohup /usr/bin/time -v python3 /home/mengtong/MyWork/SmartIndex_Final_V1/include/python_file/cluster_Now_distSimThresh_NoOrderRedecide_withCacheAligned_v2.py --total_sim_thresh 0.95 --no-rela_use_intersect --rela_sim_thresh 0.1 > /home/mengtong/MyWork/SmartIndex_Final_V1/include/python_file/bash.log_now_2 2>&1 &

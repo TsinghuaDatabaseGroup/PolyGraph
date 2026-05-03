@@ -1,26 +1,22 @@
-//
-// Created by mengtong-x on 2026/04/30.
-//
-
 #include "component.h"
 
 
 // ======================================
 // Candidate Neighbor Acquisition
 // ======================================
-namespace weavess {
+namespace xmt {
     // ----------------------------------------------------------------------------------------------------
     // PolyGraph, Vamana-series
     // ----------------------------------------------------------------------------------------------------
     void ComponentCandidateAGS_smart::CandidateInner_smart_4group_STAR_allIndex(
         const unsigned query, const unsigned enter, int group, boost::dynamic_bitset<> flags,
-        std::vector<SmartIndex::SimpleNeighbor> &result, std::vector<std::mutex> &locks, TYPE dist_type)
+        std::vector<MultiIndex::SimpleNeighbor> &result, std::vector<std::mutex> &locks, TYPE dist_type)
     {
         auto L = smart_index->L;
         auto L_refine_whole = smart_index->getParam().get<unsigned>("L_refine");
 
         std::vector<unsigned> init_ids;
-        std::vector<SmartIndex::Neighbor> retset;
+        std::vector<MultiIndex::Neighbor> retset;
 
         {
             if (enter != query)
@@ -66,7 +62,7 @@ namespace weavess {
                                                                       smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                       smart_index->getGroupRepreList()[group], dist_type);
 
-            retset.emplace_back(SmartIndex::Neighbor(id, dist, true));
+            retset.emplace_back(MultiIndex::Neighbor(id, dist, true));
         }
         std::sort(retset.begin(), retset.end());
         retset.resize(L + 1);
@@ -80,7 +76,7 @@ namespace weavess {
             {
                 retset[k].flag = false;
                 unsigned n = retset[k].id;
-                result.emplace_back(SmartIndex::SimpleNeighbor(retset[k].id, retset[k].distance));
+                result.emplace_back(MultiIndex::SimpleNeighbor(retset[k].id, retset[k].distance));
                 for (int f = 0; f < smart_index->getGroupNum(); f++)
                 {
                     auto graph_q = smart_index->getOldGraph(f)[n];
@@ -102,12 +98,12 @@ namespace weavess {
                                                                                   smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                                   smart_index->getGroupRepreList()[group], dist_type);
 
-                        SmartIndex::Neighbor nn(id, dist, true);
+                        MultiIndex::Neighbor nn(id, dist, true);
                         
                         if (dist >= retset[L - 1].distance)
                             continue; 
 
-                        int r = SmartIndex::InsertIntoPool(retset.data(), L, nn);
+                        int r = MultiIndex::InsertIntoPool(retset.data(), L, nn);
                         if (L + 1 < retset.size())
                             ++L;
                         if (r < nk)
@@ -136,10 +132,10 @@ namespace weavess {
                                                                           smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                           smart_index->getGroupRepreList()[group], dist_type);
 
-                result.push_back(SmartIndex::SimpleNeighbor(id, dist));
+                result.push_back(MultiIndex::SimpleNeighbor(id, dist));
             }
         }
-        std::vector<SmartIndex::Neighbor>().swap(retset);
+        std::vector<MultiIndex::Neighbor>().swap(retset);
         std::vector<unsigned>().swap(init_ids);
     }
 
@@ -151,13 +147,13 @@ namespace weavess {
     // ----------------------------------------------------------------------------------------------------
     void ComponentCandidateAGS_smart::CandidateInner_smart_4group_STAR(
         const unsigned query, const unsigned enter, int group, boost::dynamic_bitset<> flags,
-        std::vector<SmartIndex::SimpleNeighbor> &result, std::vector<std::mutex> &locks, TYPE dist_type)
+        std::vector<MultiIndex::SimpleNeighbor> &result, std::vector<std::mutex> &locks, TYPE dist_type)
     {
         auto L = smart_index->L;
         auto L_refine_whole = smart_index->getParam().get<unsigned>("L_refine");
 
         std::vector<unsigned> init_ids;
-        std::vector<SmartIndex::Neighbor> retset;
+        std::vector<MultiIndex::Neighbor> retset;
         std::vector<int> relaGroups = smart_index->getRelaCheck(group);
 
         {
@@ -205,7 +201,7 @@ namespace weavess {
                                                                       smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                       smart_index->getGroupRepreList()[group], dist_type);
 
-            retset.emplace_back(SmartIndex::Neighbor(id, dist, true));
+            retset.emplace_back(MultiIndex::Neighbor(id, dist, true));
         }
         std::sort(retset.begin(), retset.end());
         retset.resize(L + 1);
@@ -219,7 +215,7 @@ namespace weavess {
             {
                 retset[k].flag = false;
                 unsigned n = retset[k].id;
-                result.emplace_back(SmartIndex::SimpleNeighbor(retset[k].id, retset[k].distance));
+                result.emplace_back(MultiIndex::SimpleNeighbor(retset[k].id, retset[k].distance));
                 for (auto f : relaGroups)
                 {
                     auto graph_q = smart_index->getOldGraph(f)[n];
@@ -240,12 +236,12 @@ namespace weavess {
                                                                                   smart_index->getBaseDataList(), id,
                                                                                   smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                                   smart_index->getGroupRepreList()[group], dist_type);
-                        SmartIndex::Neighbor nn(id, dist, true);
+                        MultiIndex::Neighbor nn(id, dist, true);
 
                         if (dist >= retset[L - 1].distance)
                             continue; 
 
-                        int r = SmartIndex::InsertIntoPool(retset.data(), L, nn);
+                        int r = MultiIndex::InsertIntoPool(retset.data(), L, nn);
 
                         if (L + 1 < retset.size())
                             ++L;
@@ -274,10 +270,10 @@ namespace weavess {
                                                                           smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                           smart_index->getGroupRepreList()[group], dist_type);
 
-                result.push_back(SmartIndex::SimpleNeighbor(id, dist));
+                result.push_back(MultiIndex::SimpleNeighbor(id, dist));
             }
         }
-        std::vector<SmartIndex::Neighbor>().swap(retset);
+        std::vector<MultiIndex::Neighbor>().swap(retset);
         std::vector<unsigned>().swap(init_ids);
     }
 }

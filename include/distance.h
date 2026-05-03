@@ -1,20 +1,15 @@
-//
-// Created by mengtong-x on 2024/06/23.
-//
-
-#ifndef WEAVESS_DISTANCE_H
-#define WEAVESS_DISTANCE_H
+#ifndef XMT_DISTANCE_H
+#define XMT_DISTANCE_H
 
 #include <cmath>
 #include <algorithm>
 #include <cstdint>
-#include <iomanip> // for std::setprecision
-
-#include "policy.h"
-// # include "PrecisePrint.h"
-
+#include <iomanip>
 #include <chrono>
 #include <unordered_set>
+
+#include "policy.h"
+
 
 struct Timer
 {
@@ -33,7 +28,7 @@ struct Timer
     }
 };
 
-namespace weavess
+namespace xmt
 {
     class Distance
     {
@@ -17720,7 +17715,7 @@ namespace weavess
         //  * compare_weight_AESC_newTryV2_adaptiveSampling_adaptiveProj()
         //  *      新版本：多 field 自适应 sampling + 自适应 DCHT threshold
         //  */
-        // // 你原来的类名可能是 weavess::Distance 或别的，请根据需要改一下
+        // // 你原来的类名可能是 xmt::Distance 或别的，请根据需要改一下
         // float compare_weight_AESC_newTryV2_adaptiveSampling_adaptiveProj(
         //         // bool &use_flag,
         //         int &use,
@@ -50643,4 +50638,4 @@ T compare_cosDist(const T *a, const T *b, unsigned length)
 }
 /* end for XMT, 2024.04.29 */
 
-#endif // WEAVESS_DISTANCE_H
+#endif // XMT_DISTANCE_H

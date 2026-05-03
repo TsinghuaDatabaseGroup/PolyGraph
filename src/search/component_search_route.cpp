@@ -1,7 +1,3 @@
-//
-// Created by mengtong-x on 2024/06/23.
-//
-
 #include "component.h"
 
 
@@ -9,8 +5,8 @@
 // Search Entry Point
 // ======================================
 
-namespace weavess {
-    void ComponentSearchRouteGreedy_smart::RouteInner_dist_smart(unsigned int query, std::vector<SmartIndex::Neighbor> &pool,
+namespace xmt {
+    void ComponentSearchRouteGreedy_smart::RouteInner_dist_smart(unsigned int query, std::vector<MultiIndex::Neighbor> &pool,
                                                                  std::vector<unsigned int> &res, std::vector<float> &dist_res,
                                                                  std::vector<int> &needCalField, std::vector<int> &needIndeces,
                                                                  boost::dynamic_bitset<> &flags, TYPE dist_type)
@@ -55,8 +51,8 @@ namespace weavess {
                         {
                             continue;
                         } 
-                        SmartIndex::Neighbor nn(id, dist, true);
-                        int r = SmartIndex::InsertIntoPool(pool.data(), L, nn);
+                        MultiIndex::Neighbor nn(id, dist, true);
+                        int r = MultiIndex::InsertIntoPool(pool.data(), L, nn);
                         if (r < nk)
                             nk = r;
                     }
@@ -78,17 +74,17 @@ namespace weavess {
 
 
 
-    void ComponentSearchRouteHNSW_Fusion::RouteInner_dist_smart(unsigned query, std::vector<SmartIndex::Neighbor> &pool, std::vector<unsigned> &res, std::vector<float> &dist_res,
+    void ComponentSearchRouteHNSW_Fusion::RouteInner_dist_smart(unsigned query, std::vector<MultiIndex::Neighbor> &pool, std::vector<unsigned> &res, std::vector<float> &dist_res,
                                                                 std::vector<int> &needCalField, std::vector<int> &needIndeces, boost::dynamic_bitset<> &flags, TYPE dist_type)
     {
         const auto K = smart_index->getParam().get<unsigned>("K_search");
 
-        auto *visited_list = new SmartIndex::VisitedList(smart_index->getBaseLen());
+        auto *visited_list = new MultiIndex::VisitedList(smart_index->getBaseLen());
         std::vector<float> weight = smart_index->getSearchWeight_q(query);
 
-        SmartIndex::HnswNode *enterpoint = smart_index->enterpoint_;
-        std::vector<std::pair<SmartIndex::HnswNode *, float>> ensure_k_path_; 
-        SmartIndex::HnswNode *cur_node = enterpoint;
+        MultiIndex::HnswNode *enterpoint = smart_index->enterpoint_;
+        std::vector<std::pair<MultiIndex::HnswNode *, float>> ensure_k_path_; 
+        MultiIndex::HnswNode *cur_node = enterpoint;
 
         float d = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), query,
                                                                smart_index->getBaseDataList(), cur_node->GetId(),
@@ -112,7 +108,7 @@ namespace weavess {
             {
                 changed = false;
                 std::unique_lock<std::mutex> local_lock(cur_node->GetAccessGuard());
-                const std::vector<SmartIndex::HnswNode *> &neighbors = cur_node->GetFriends(i);
+                const std::vector<MultiIndex::HnswNode *> &neighbors = cur_node->GetFriends(i);
 
                 smart_index->addHopCount();
                 for (auto iter = neighbors.begin(); iter != neighbors.end(); ++iter)
@@ -137,8 +133,8 @@ namespace weavess {
             }
         }
 
-        std::priority_queue<SmartIndex::FurtherFirst> result;
-        std::priority_queue<SmartIndex::CloserFirst> tmp;
+        std::priority_queue<MultiIndex::FurtherFirst> result;
+        std::priority_queue<MultiIndex::CloserFirst> tmp;
 
         while (result.size() < K && !ensure_k_path_.empty())
         {
@@ -148,7 +144,7 @@ namespace weavess {
         }
         while (!result.empty())
         {
-            tmp.push(SmartIndex::CloserFirst(result.top().GetNode(), result.top().GetDistance()));
+            tmp.push(MultiIndex::CloserFirst(result.top().GetNode(), result.top().GetDistance()));
             result.pop();
         }
 
@@ -164,13 +160,13 @@ namespace weavess {
         delete visited_list;
     }
 
-    void ComponentSearchRouteHNSW_Fusion::SearchAtLayer(unsigned qnode, SmartIndex::HnswNode *enterpoint, int level,
-                                                        std::vector<float> &weight, std::vector<int> &needCalField, SmartIndex::VisitedList *visited_list,
-                                                        std::priority_queue<SmartIndex::FurtherFirst> &result, TYPE dist_type)
+    void ComponentSearchRouteHNSW_Fusion::SearchAtLayer(unsigned qnode, MultiIndex::HnswNode *enterpoint, int level,
+                                                        std::vector<float> &weight, std::vector<int> &needCalField, MultiIndex::VisitedList *visited_list,
+                                                        std::priority_queue<MultiIndex::FurtherFirst> &result, TYPE dist_type)
     {
         const auto L = std::min(smart_index->getParam().get<unsigned>("L_search"), smart_index->getBaseLen());
 
-        std::priority_queue<SmartIndex::CloserFirst> candidates;
+        std::priority_queue<MultiIndex::CloserFirst> candidates;
         float d = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), qnode,
                                                                smart_index->getBaseDataList(), enterpoint->GetId(),
                                                                smart_index->getBaseDimList(), needCalField,
@@ -184,14 +180,14 @@ namespace weavess {
 
         while (!candidates.empty())
         {
-            const SmartIndex::CloserFirst &candidate = candidates.top();
+            const MultiIndex::CloserFirst &candidate = candidates.top();
             float lower_bound = result.top().GetDistance();
             if (candidate.GetDistance() > lower_bound)
                 break;
 
-            SmartIndex::HnswNode *candidate_node = candidate.GetNode();
+            MultiIndex::HnswNode *candidate_node = candidate.GetNode();
             std::unique_lock<std::mutex> lock(candidate_node->GetAccessGuard());
-            const std::vector<SmartIndex::HnswNode *> &neighbors = candidate_node->GetFriends(level);
+            const std::vector<MultiIndex::HnswNode *> &neighbors = candidate_node->GetFriends(level);
             candidates.pop();
             smart_index->addHopCount();
             for (const auto &neighbor : neighbors)

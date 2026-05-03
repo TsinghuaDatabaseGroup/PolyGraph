@@ -1,7 +1,3 @@
-//
-// Created by mengtong-x on 2026/04/30.
-//
-
 #include "component.h"
 
 
@@ -9,7 +5,7 @@
 // Search Flow
 // ======================================
 
-namespace weavess {
+namespace xmt {
     void ComponentSearchFlowLoadWeight_smart::prepareForSearch_smart_exactRepre(unsigned query, std::vector<int> &needCalField, std::vector<int> &needIndeces,
                                                                                 std::vector<unsigned> &checkEps)
     {
@@ -255,7 +251,7 @@ namespace weavess {
             // #pragma omp parallel for
             for (unsigned i = 0; i < smart_index->getQueryLen(); i++)
             {
-                std::vector<SmartIndex::Neighbor> pool;
+                std::vector<MultiIndex::Neighbor> pool;
                 boost::dynamic_bitset<> flags{smart_index->getBaseLen(), 0};
                 prepareForSearch_smart_SetNeedCalField(i, needCalField, needIndeces, checkEps); 
 
@@ -285,7 +281,7 @@ namespace weavess {
             // #pragma omp parallel for
             for (unsigned i = 0; i < smart_index->getQueryLen(); i++)
             {
-                std::vector<SmartIndex::Neighbor> pool;
+                std::vector<MultiIndex::Neighbor> pool;
                 boost::dynamic_bitset<> flags{smart_index->getBaseLen(), 0};
                 prepareForSearch_smart_SavedAGS_FallbackIntersect(i, needCalField, needIndeces, checkEps); // 2026.03.25: 尝试savedAGS + Fallback-Intersect
 
@@ -513,7 +509,7 @@ namespace weavess {
             // #pragma omp parallel for
             for (unsigned i = 0; i < smart_index->getQueryLen(); i++)
             {
-                std::vector<SmartIndex::Neighbor> pool;
+                std::vector<MultiIndex::Neighbor> pool;
                 boost::dynamic_bitset<> flags{smart_index->getBaseLen(), 0};
                 smart_index->preSetNeedIndeces_FallbackIntersect(smart_index->getSearchWeight_q(i), bash_path);
                 s1 = std::chrono::high_resolution_clock::now();
@@ -550,7 +546,7 @@ namespace weavess {
             // #pragma omp parallel for
             for (unsigned i = 0; i < smart_index->getQueryLen(); i++)
             {
-                std::vector<SmartIndex::Neighbor> pool;
+                std::vector<MultiIndex::Neighbor> pool;
                 boost::dynamic_bitset<> flags{smart_index->getBaseLen(), 0};
                 prepareForSearch_smart_SavedAGS_FallbackIntersect(i, needCalField, needIndeces, checkEps); // 2026.03.25: 尝试savedAGS + Fallback-Intersect
 
@@ -772,7 +768,7 @@ namespace weavess {
         // #pragma omp parallel for
         for (unsigned i = 0; i < smart_index->getQueryLen(); i++)
         {
-            std::vector<SmartIndex::Neighbor> pool;
+            std::vector<MultiIndex::Neighbor> pool;
             boost::dynamic_bitset<> flags{smart_index->getBaseLen(), 0};
             prepareForSearch_smart_intersect(i, needCalField, needIndeces, checkEps);
 
@@ -989,7 +985,7 @@ namespace weavess {
         {
             std::vector<int> needIndeces, needCalField;
             std::vector<unsigned> checkEps;
-            std::vector<SmartIndex::Neighbor> pool;
+            std::vector<MultiIndex::Neighbor> pool;
             boost::dynamic_bitset<> flags{smart_index->getBaseLen(), 0};
             prepareForSearch_smart_exactRepre(i, needCalField, needIndeces, checkEps);
 
@@ -1197,7 +1193,7 @@ namespace weavess {
         {
             std::vector<int> needIndeces, needCalField;
             std::vector<unsigned> &checkEps = smart_index->each_ep_;
-            std::vector<SmartIndex::Neighbor> pool;
+            std::vector<MultiIndex::Neighbor> pool;
             boost::dynamic_bitset<> flags{smart_index->getBaseLen(), 0};
             prepareForSearch_smart_allIndex(i, needCalField, needIndeces, checkEps);
 

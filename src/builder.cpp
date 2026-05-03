@@ -1,20 +1,16 @@
-//
-// Created by mengtong-x on 2024/06/23.
-//
-
-#include "builder.h"
-#include "component.h"
 #include <set>
 #include <fstream>
 #include <string>
 
 
-# include <naive/search.h>
+#include "naive/search.h"
+#include "builder.h"
+#include "component.h"
 
-namespace weavess
+namespace xmt
 {
     // -----------------------------------------------------------------
-    // For SmartIndex
+    // For MultiIndex
     // -----------------------------------------------------------------
     /**
      * load dataset, parameters
@@ -24,7 +20,7 @@ namespace weavess
      * @param parameters
      * @return pointer of builder
      */
-    SmartIndexBuilder *SmartIndexBuilder::load(Parameters &parameters)
+    MultiIndexBuilder *MultiIndexBuilder::load(Parameters &parameters)
     {
         auto s1 = std::chrono::high_resolution_clock::now();
 
@@ -32,14 +28,14 @@ namespace weavess
 
         // ## read data
         std::string alg = parameters.get<std::string>("alg");
-        if (alg == "Smart" || alg == "hnsw_fusion" || alg == "vamana_equNoTotal" || alg == "vamana_fusion" || alg == "vamana_allWeight" || alg == "vamana_oracle"
+        if (alg == "PolyGraph" || alg == "hnsw_fusion" || alg == "vamana_equNoTotal" || alg == "vamana_fusion" || alg == "vamana_allWeight" || alg == "vamana_oracle"
         )
         {
             a->LoadInner_smart(parameters);
         }
         else
         {
-            std::cout << "In SmartIndexBuilder::load(), meet alg that don't know how to handle: " << alg << std::endl;
+            std::cout << "In MultiIndexBuilder::load(), meet alg that don't know how to handle: " << alg << std::endl;
             exit(-1);
         }
 
@@ -81,39 +77,14 @@ namespace weavess
      * @param parameters
      * @return pointer of builder
      */
-    SmartIndexBuilder *SmartIndexBuilder::load_search_weight()
+    MultiIndexBuilder *MultiIndexBuilder::load_search_weight()
     {
-        auto s1 = std::chrono::high_resolution_clock::now();
+        auto s1 = std::chrono::high_resolution_clock::now(); 
 
-        std::string txt_path = "../dataset/useWeight/useWeightEachQuery.txt";
         std::string dataset = smart_final_index_->getParam().get<std::string>("dataset");
-        if (dataset == "New")
-        {
-            txt_path = "../dataset/useWeight/useWeightEachQuery_New.txt";
-        }
-        else if (dataset == "ImageText")
-        {
-            txt_path = "../dataset/useWeight/useWeightEachQuery_2fields_IT.txt";
-        }
-        else if (dataset == "QA" || dataset == "QA2")
-        {
-            txt_path = "../dataset/useWeight/useWeightEachQuery_4fields_QA.txt";
-        }
-        else if (dataset == "Wiki")
-        {
-            txt_path = "../dataset/useWeight/useWeightEachQuery_6fields_Wiki.txt";
-        }
-        else if (dataset == "Protein")
-        {
-            txt_path = "../dataset/useWeight/useWeightEachQuery_8fields_Protein.txt";
-        }
-        else
-        {
-            std::cout << "dataset error!\n";
-            exit(-1);
-        }
-        std::cout << "___ Read useWeightEachQuery.txt from: " << txt_path << " ___" << std::endl;
-        std::ifstream file(txt_path);
+        std::string weight_path = smart_final_index_->getParam().get<std::string>("weight_path");
+        std::cout << "___ Read useWeightEachQuery.txt from: " << weight_path << " ___" << std::endl;
+        std::ifstream file(weight_path);
 
         std::vector<float> weight(smart_final_index_->getFieldNum());
         std::vector<std::vector<float>> allWeight;
@@ -125,7 +96,7 @@ namespace weavess
             file >> numComb;
             if (numComb == 0)
             {
-                std::cout << "___【 Warning! 】: " << txt_path << "; No weight provided! Set weight empty to Degrade to use weavess::TYPE::ALL_WEIGHT ___" << std::endl;
+                std::cout << "___【 Warning! 】: " << weight_path << "; No weight provided! Set weight empty to Degrade to use xmt::TYPE::ALL_WEIGHT ___" << std::endl;
                 getFinalIndex()->setSearchWeight(allWeight);
             }
             else {
@@ -138,13 +109,13 @@ namespace weavess
                     allWeight.emplace_back(weight);
                 }
                 getFinalIndex()->setSearchWeight(allWeight);
-                std::cout << "___【 Load Weights 】: " << txt_path << " ___" << std::endl;
+                std::cout << "___【 Load Weights 】: " << weight_path << " ___" << std::endl;
 
             }
         }
         else
         {
-            std::cout << "___【 Warning! 】: " << txt_path << "does't exist! Degrade to use weavess::TYPE::ALL_WEIGHT ___" << std::endl;
+            std::cout << "___【 Warning! 】: " << weight_path << "does't exist! Degrade to use xmt::TYPE::ALL_WEIGHT ___" << std::endl;
             getFinalIndex()->setSearchWeight(allWeight);
         }
         auto e1 = std::chrono::high_resolution_clock::now();
@@ -182,7 +153,7 @@ namespace weavess
     /**
      * preliminary: 包括分field-groups，确认对应的L_refine，R_refine等
      */
-    SmartIndexBuilder *SmartIndexBuilder::preliminary(Parameters &parameters, TYPE group_type, TYPE param_type)
+    MultiIndexBuilder *MultiIndexBuilder::preliminary(Parameters &parameters, TYPE group_type, TYPE param_type)
     {
         auto sa = std::chrono::high_resolution_clock::now();
 
@@ -278,7 +249,7 @@ namespace weavess
      * @param type init type
      * @return pointer of builder
      */
-    SmartIndexBuilder *SmartIndexBuilder::init(TYPE type, TYPE dist_type)
+    MultiIndexBuilder *MultiIndexBuilder::init(TYPE type, TYPE dist_type)
     {
         s = std::chrono::high_resolution_clock::now();
         ComponentInit_smart *a = nullptr;
@@ -288,7 +259,7 @@ namespace weavess
             std::cout << "__INIT(4SMART) : RAND__" << std::endl;
             a = new ComponentInitRand_smart(smart_final_index_);
         }
-        else if (weavess::INIT_HNSW_FUSION)
+        else if (xmt::INIT_HNSW_FUSION)
         {
             std::cout << "__INIT(4SMART) : INIT_HNSW_FUSION__" << std::endl;
             a = new ComponentInitHNSW_Fusion(smart_final_index_);
@@ -330,7 +301,7 @@ namespace weavess
      * @param type refine type
      * @return
      */
-    SmartIndexBuilder *SmartIndexBuilder::refine(TYPE type, TYPE dist_type)
+    MultiIndexBuilder *MultiIndexBuilder::refine(TYPE type, TYPE dist_type)
     {
         ComponentRefine_smart *a = nullptr;
 
@@ -342,7 +313,7 @@ namespace weavess
         else if (type == INDEX_ORACLE_BASELINE)
         {
             std::cout << "__REFINE : BASELINE_ORACLE_INDEX__" << std::endl;
-            std::cout << "__REFINE : ⚠️ 但是我感觉好像改了relaGroup之后直接用SmartIndex的部分就行__" << std::endl;
+            std::cout << "__REFINE : ⚠️ 但是我感觉好像改了relaGroup之后直接用MultiIndex的部分就行__" << std::endl;
             a = new ComponentRefineSmart_Oracle(smart_final_index_);
             // a = new ComponentRefineSmart_CutGraph(smart_final_index_);
         }
@@ -350,7 +321,7 @@ namespace weavess
         {
             std::cout << "__REFINE : BASELINE_VAMANA_TYPE_INDEX__" << std::endl;
             // a = new ComponentRefineSmart_BaselineVamana(smart_final_index_);
-            std::cout << "__REFINE : 但是我感觉好像改了relaGroup之后直接用SmartIndex的部分就行__" << std::endl;
+            std::cout << "__REFINE : 但是我感觉好像改了relaGroup之后直接用MultiIndex的部分就行__" << std::endl;
             a = new ComponentRefineSmart(smart_final_index_);
             // a = new ComponentRefineSmart_CutGraph(smart_final_index_);
         }
@@ -378,7 +349,7 @@ namespace weavess
      * @param type connectivity check type
      * @return
      */
-    SmartIndexBuilder *SmartIndexBuilder::connectivity_enforcer(TYPE type, TYPE dist_type)
+    MultiIndexBuilder *MultiIndexBuilder::connectivity_enforcer(TYPE type, TYPE dist_type)
     {
         ComponentConnectEnforcer_smart *a = nullptr;
 
@@ -411,7 +382,7 @@ namespace weavess
 
 
 
-    SmartIndexBuilder *SmartIndexBuilder::save_graph(TYPE type, char *graph_file)
+    MultiIndexBuilder *MultiIndexBuilder::save_graph(TYPE type, char *graph_file)
     {
         std::fstream out(graph_file, std::ios::binary | std::ios::out);
         if (type == INDEX_SMART)
@@ -584,7 +555,7 @@ namespace weavess
 
 
 
-    SmartIndexBuilder *SmartIndexBuilder::load_graph(TYPE type, char *graph_file)
+    MultiIndexBuilder *MultiIndexBuilder::load_graph(TYPE type, char *graph_file)
     {
         std::cout << "___ LOAD_GRAPH FROM: " << graph_file << " ___" << std::endl;
         std::ifstream in(graph_file, std::ios::binary);
@@ -785,7 +756,7 @@ namespace weavess
             smart_final_index_->nodes_.resize(smart_final_index_->getBaseLen());
             for (unsigned i = 0; i < smart_final_index_->getBaseLen(); i++)
             {
-                smart_final_index_->nodes_[i] = new weavess::HNSW::HnswNode(0, 0, 0, 0);
+                smart_final_index_->nodes_[i] = new xmt::HNSW::HnswNode(0, 0, 0, 0);
             }
             unsigned enterpoint_id;
             in.read((char *)&enterpoint_id, sizeof(unsigned));
@@ -801,7 +772,7 @@ namespace weavess
                 for (unsigned j = 0; j < node_level; j++)
                 {
                     in.read((char *)&current_level_GK, sizeof(unsigned));
-                    std::vector<weavess::HNSW::HnswNode *> tmp;
+                    std::vector<xmt::HNSW::HnswNode *> tmp;
                     for (unsigned k = 0; k < current_level_GK; k++)
                     {
                         unsigned current_level_neighbor_id;
@@ -841,7 +812,7 @@ namespace weavess
      * @param route_type
      * @return
      */
-    SmartIndexBuilder *SmartIndexBuilder::search(TYPE entry_type, TYPE route_type, TYPE L_type, TYPE weight_type, TYPE dist_type)
+    MultiIndexBuilder *MultiIndexBuilder::search(TYPE entry_type, TYPE route_type, TYPE L_type, TYPE weight_type, TYPE dist_type)
     {
         std::cout << "__SEARCH__" << std::endl;
 
@@ -955,7 +926,7 @@ namespace weavess
             {
                 std::cout << "__L_type == L_RECALL_SEARCH_CONTROL_FALLBACKINTERSECT" << std::endl;
                 std::vector<unsigned> LRate;
-                if (route_type == weavess::TYPE::ROUTER_HNSW_FUSION)
+                if (route_type == xmt::TYPE::ROUTER_HNSW_FUSION)
                 {
                     LRate = {1, 2, 3, 5, 10, 20, 50, 100, 200};
                 }
@@ -973,7 +944,7 @@ namespace weavess
             {
                 std::cout << "__L_type == L_RECALL_SEARCH_CONTROL_INTERSECT__" << std::endl;
                 std::vector<unsigned> LRate;
-                if (route_type == weavess::TYPE::ROUTER_HNSW_FUSION)
+                if (route_type == xmt::TYPE::ROUTER_HNSW_FUSION)
                 {
                     LRate = {1, 2, 3, 5, 10, 20, 50, 100, 200};
                 }
@@ -991,7 +962,7 @@ namespace weavess
             {
                 std::cout << "__L_type == L_RECALL_SEARCH_CONTROL_ALL_INDEX" << std::endl;
                 std::vector<unsigned> LRate;
-                if (route_type == weavess::TYPE::ROUTER_HNSW_FUSION)
+                if (route_type == xmt::TYPE::ROUTER_HNSW_FUSION)
                 {
                     LRate = {1, 2, 3, 5, 10, 20, 50, 100, 200};
                 }
@@ -1038,7 +1009,7 @@ namespace weavess
             else if (L_type == L_RECALL_SEARCH_CONTROL_FALLBACKINTERSECT)
             {
                 std::cout << "__L_type == L_RECALL_SEARCH_CONTROL_FALLBACKINTERSECT__" << std::endl;
-                if (route_type == weavess::TYPE::ROUTER_HNSW_FUSION)
+                if (route_type == xmt::TYPE::ROUTER_HNSW_FUSION)
                 { 
                     LRate = {1, 2, 3, 5, 10, 20, 50, 100, 200};
                 }
@@ -1054,7 +1025,7 @@ namespace weavess
             else if (L_type == L_RECALL_SEARCH_CONTROL_ALL_INDEX)
             {
                 std::cout << "__L_type == L_RECALL_SEARCH_CONTROL_ALL_INDEX__" << std::endl;
-                if (route_type == weavess::TYPE::ROUTER_HNSW_FUSION)
+                if (route_type == xmt::TYPE::ROUTER_HNSW_FUSION)
                 { 
                     LRate = {1, 2, 3, 5, 10, 20, 50, 100, 200};
                 }
@@ -1070,7 +1041,7 @@ namespace weavess
             else if (L_type == L_RECALL_SEARCH_CONTROL_INTERSECT)
             {
                 std::cout << "__L_type == L_RECALL_SEARCH_CONTROL__" << std::endl;
-                if (route_type == weavess::TYPE::ROUTER_HNSW_FUSION)
+                if (route_type == xmt::TYPE::ROUTER_HNSW_FUSION)
                 {
                     LRate = {1, 2, 3, 5, 10, 20, 50, 100, 200};
                 }
@@ -1086,7 +1057,7 @@ namespace weavess
             else if (L_type == L_RECALL_SEARCH_CONTROL_ALL_INDEX)
             {
                 std::cout << "__L_type == L_RECALL_SEARCH_CONTROL_ALL_INDEX__" << std::endl;
-                if (route_type == weavess::TYPE::ROUTER_HNSW_FUSION)
+                if (route_type == xmt::TYPE::ROUTER_HNSW_FUSION)
                 {
                     LRate = {1, 2, 3, 5, 10, 20, 50, 100, 200};
                 }
@@ -1102,7 +1073,7 @@ namespace weavess
             else if (L_type == L_RECALL_SEARCH_CONTROL_EXACT_REPRE)
             {
                 std::cout << "__L_type == L_RECALL_SEARCH_CONTROL_EXACT_REPRE__" << std::endl;
-                if (route_type == weavess::TYPE::ROUTER_HNSW_FUSION)
+                if (route_type == xmt::TYPE::ROUTER_HNSW_FUSION)
                 {
                     LRate = {1, 2, 3, 5, 10, 20, 50, 100, 200};
                 }
@@ -1199,8 +1170,8 @@ namespace weavess
 
             if (allWeight.size() == 0)
             {
-                std::cout << "___【 Warning! 】: No weight provided! Degrade to use weavess::TYPE::ALL_WEIGHT ___" << std::endl;
-                search(entry_type, route_type, L_type, weavess::TYPE::ALL_WEIGHT, dist_type);
+                std::cout << "___【 Warning! 】: No weight provided! Degrade to use xmt::TYPE::ALL_WEIGHT ___" << std::endl;
+                search(entry_type, route_type, L_type, xmt::TYPE::ALL_WEIGHT, dist_type);
                 return this;
             }
 
@@ -1224,7 +1195,7 @@ namespace weavess
             else if (L_type == L_RECALL_SEARCH_CONTROL_FALLBACKINTERSECT)
             {
                 std::cout << "__L_type == L_RECALL_SEARCH_CONTROL_FALLBACKINTERSECT__" << std::endl;
-                if (route_type == weavess::TYPE::ROUTER_HNSW_FUSION)
+                if (route_type == xmt::TYPE::ROUTER_HNSW_FUSION)
                 {
                     LRate = {1, 2, 3, 5, 10, 20, 50, 100, 200};
                 }
@@ -1240,7 +1211,7 @@ namespace weavess
             else if (L_type == L_RECALL_SEARCH_CONTROL_ALL_INDEX)
             {
                 std::cout << "__L_type == L_RECALL_SEARCH_CONTROL_ALL_INDEX__" << std::endl;
-                if (route_type == weavess::TYPE::ROUTER_HNSW_FUSION)
+                if (route_type == xmt::TYPE::ROUTER_HNSW_FUSION)
                 {
                     LRate = {1, 2, 3, 5, 10, 20, 50, 100, 200};
                 }
@@ -1256,7 +1227,7 @@ namespace weavess
             else if (L_type == L_RECALL_SEARCH_CONTROL_INTERSECT)
             {
                 std::cout << "__L_type == L_RECALL_SEARCH_CONTROL__" << std::endl;
-                if (route_type == weavess::TYPE::ROUTER_HNSW_FUSION)
+                if (route_type == xmt::TYPE::ROUTER_HNSW_FUSION)
                 {
                     LRate = {1, 2, 3, 5, 10, 20, 50, 100, 200};
                 }

@@ -82,6 +82,7 @@ int run_python(
     std::string log_path = "../include/python_file/nohup_logs/bash.log",
     const std::string& venv_python = "../pythonEnv_ForSI",
     const std::string& txt_path = "../dataset/path_info.txt",
+    const std::string& weight_path = "../dataset/path_info.txt",
     const std::vector<std::string>& extra_args = {}
 ) {
     /**
@@ -110,6 +111,9 @@ int run_python(
     // --txt_path
     py_args.emplace_back("--txt_path");
     py_args.emplace_back(txt_path);
+    // --use_weight_each_query_txt
+    py_args.emplace_back("--use_weight_each_query_txt");
+    py_args.emplace_back(weight_path);
 
     // --total_sim_thresh
     py_args.emplace_back("--total_sim_thresh");

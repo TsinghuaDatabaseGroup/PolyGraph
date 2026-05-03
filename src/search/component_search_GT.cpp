@@ -1,7 +1,3 @@
-//
-// Created by mengtong-x on 2026/04/30.
-//
-
 #include "component.h"
 #include "naive/search.h"
 
@@ -10,7 +6,7 @@
 // get Ground Truth
 // ======================================
 
-namespace weavess {
+namespace xmt {
     void ComponentGroundTruth_smart::GroundInner_smart(unsigned K, TYPE dist_type)
     {
         // ## 1. search to get ground-truths
@@ -61,7 +57,7 @@ namespace weavess {
         unsigned ground_num{};
         unsigned ground_dim{};
         std::cout << "### Ground-truth from: " << ground_path << std::endl;
-        weavess::load_data<unsigned>(ground_path.c_str(), ground_data, ground_num, ground_dim);
+        xmt::load_data<unsigned>(ground_path.c_str(), ground_data, ground_num, ground_dim);
 
         if (ground_num != smart_index->getQueryLen() || ground_dim < K)
         {

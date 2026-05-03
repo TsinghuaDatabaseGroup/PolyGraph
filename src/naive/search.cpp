@@ -11,13 +11,13 @@
  */
 void SearchFor_v1_weight(std::vector<float*> &base_data_list, std::vector<float*> &query_data_list, std::vector<float> &weight,
                 std::vector<unsigned int> &result, std::vector<float> &score_result, 
-                unsigned int num, std::vector<unsigned int> dim_list, unsigned int query, weavess::TYPE dist_type,
+                unsigned int num, std::vector<unsigned int> dim_list, unsigned int query, xmt::TYPE dist_type,
                 unsigned K) {
     result.clear();
     score_result.clear();
 
-    weavess::CandidateHeap2 cands;
-    if (dist_type == weavess::TYPE::DIST_EUCLIDEAN) {
+    xmt::CandidateHeap2 cands;
+    if (dist_type == xmt::TYPE::DIST_EUCLIDEAN) {
         for (unsigned int j = 0; j < num; j++) {
             float total_score = 0;
             
@@ -26,11 +26,11 @@ void SearchFor_v1_weight(std::vector<float*> &base_data_list, std::vector<float*
                                     base_data_list[col] + j * dim_list[col] * sizeof(float)/4,
                                     dim_list[col] * sizeof(float)/4);
             }
-            weavess::Candidate2<float> c(j, total_score);
+            xmt::Candidate2<float> c(j, total_score);
             cands.insert(c);
             if (cands.size() > K)cands.erase(cands.begin());
         }
-    } else if (dist_type == weavess::TYPE::DIST_COS) {
+    } else if (dist_type == xmt::TYPE::DIST_COS) {
         for (unsigned int j = 0; j < num; j++) {
             float total_score = 0;
             for (int col = 0; col < (int)query_data_list.size(); col++) {
@@ -38,7 +38,7 @@ void SearchFor_v1_weight(std::vector<float*> &base_data_list, std::vector<float*
                                     base_data_list[col] + j * dim_list[col] * sizeof(float)/4,
                                     dim_list[col] * sizeof(float)/4);
             }
-            weavess::Candidate2<float> c(j, total_score);
+            xmt::Candidate2<float> c(j, total_score);
             cands.insert(c);
             if (cands.size() > K)cands.erase(cands.begin());
         }
@@ -50,7 +50,7 @@ void SearchFor_v1_weight(std::vector<float*> &base_data_list, std::vector<float*
                                     base_data_list[col] + j * dim_list[col] * sizeof(float)/4,
                                     dim_list[col] * sizeof(float)/4);
             }
-            weavess::Candidate2<float> c(j, total_score);
+            xmt::Candidate2<float> c(j, total_score);
             cands.insert(c);
             if (cands.size() > K)cands.erase(cands.begin());
         }
@@ -63,11 +63,11 @@ void SearchFor_v1_weight(std::vector<float*> &base_data_list, std::vector<float*
     }
 };
 
-// for bench multi-vector query, with given weight(每个query可以对应不一样的weight)；给SmartIndex使用 
+// for bench multi-vector query, with given weight(每个query可以对应不一样的weight)；给MultiIndex使用 
 void ground_truth_diffWeight(std::vector<float*> base_data_list, std::vector<float*> query_data_list, std::vector<std::vector<float>> &weight_list,
                 unsigned int num, unsigned int num_query, std::vector<unsigned int> dim_list, 
                 std::vector<std::vector<unsigned>> &res, std::vector<std::vector<float>> &dist_res,
-                weavess::TYPE dist_type, unsigned K, bool hint) {
+                xmt::TYPE dist_type, unsigned K, bool hint) {
     res.clear();
     res.resize(num_query);
     dist_res.clear();

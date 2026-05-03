@@ -1,15 +1,11 @@
-//
-// Created by mengtong-x on 2026/04/30.
-//
-
-#ifndef WEAVESS_PARAMETERS_H
-#define WEAVESS_PARAMETERS_H
+#ifndef XMT_PARAMETERS_H
+#define XMT_PARAMETERS_H
 
 #include <sstream>
 #include <unordered_map>
 #include <iostream>
 
-namespace weavess {
+namespace xmt {
     class Parameters {
     public:
         template<typename T>
@@ -75,4 +71,4 @@ namespace weavess {
     };
 }
 
-#endif //WEAVESS_PARAMETERS_H
+#endif //XMT_PARAMETERS_H

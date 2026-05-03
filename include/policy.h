@@ -1,11 +1,7 @@
-//
-// Created by mengtong-x on 2024/06/23.
-//
+#ifndef XMT_POLICY_H
+#define XMT_POLICY_H
 
-#ifndef WEAVESS_POLICY_H
-#define WEAVESS_POLICY_H
-
-namespace weavess {
+namespace xmt {
     enum TYPE {
         // --- Distacne Type 🗑️： 我只支持一种，这些最终可以去掉
         DIST_EUCLIDEAN, DIST_COS, DIST_COS_SIMILARITY,
@@ -57,4 +53,4 @@ namespace weavess {
     };
 }
 
-#endif //WEAVESS_POLICY_H
+#endif //XMT_POLICY_H

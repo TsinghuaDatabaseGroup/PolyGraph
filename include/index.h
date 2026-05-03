@@ -1,9 +1,5 @@
-//
-// Created by mengtong-x on 2024/06/23.
-//
-
-#ifndef WEAVESS_INDEX_H
-#define WEAVESS_INDEX_H
+#ifndef XMT_INDEX_H
+#define XMT_INDEX_H
 
 #define PARALLEL
 
@@ -37,9 +33,8 @@
 #include "parameters.h"
 
 
-namespace weavess {
+namespace xmt {
 
-    // class Index;  // 前向声明
     class NNDescent {
     public:
         unsigned K;
@@ -429,304 +424,22 @@ namespace weavess {
     };
 
 
-    // // -- ⚠️ 我不确定这部分我时候还需要； 先注释着 -----------------------------------------------------------------------------------------------------
-    // class Index : public NNDescent, public Smart, public VAMANA, public HNSW
-    // {
-    // public:
-    //     explicit Index() {
-    //         dist_ = new Distance();
-    //     }
 
-    //     ~Index() {
-    //         delete dist_;
-    //     }
 
-    //     struct SimpleNeighbor{
-    //         unsigned id;
-    //         float distance;
 
-    //         SimpleNeighbor() = default;
-    //         SimpleNeighbor(unsigned id, float distance) : id{id}, distance{distance}{}
 
-    //         inline bool operator<(const SimpleNeighbor &other) const {
-    //             return distance < other.distance;
-    //         }
-    //     };
 
-    //     float *getBaseData() const {
-    //         return base_data_;
-    //     }
 
-    //     void setBaseData(float *baseData) {
-    //         base_data_ = baseData;
-    //     }
 
-    //     void clearBaseData() {
-    //         delete[] base_data_;
-    //         base_data_ = nullptr;
-    //     }
 
-    //     float *getQueryData() const {
-    //         return query_data_;
-    //     }
-
-    //     void setQueryData(float *queryData) {
-    //         query_data_ = queryData;
-    //     }
-
-    //     unsigned int *getGroundData() const {
-    //         return ground_data_;
-    //     }
-
-    //     void setGroundData(unsigned int *groundData) {
-    //         ground_data_ = groundData;
-    //     }
-
-    //     unsigned int getBaseLen() const {
-    //         return base_len_;
-    //     }
-
-    //     void setBaseLen(unsigned int baseLen) {
-    //         base_len_ = baseLen;
-    //     }
-
-    //     unsigned int getQueryLen() const {
-    //         return query_len_;
-    //     }
-
-    //     void setQueryLen(unsigned int queryLen) {
-    //         query_len_ = queryLen;
-    //     }
-
-    //     unsigned int getGroundLen() const {
-    //         return ground_len_;
-    //     }
-
-    //     void setGroundLen(unsigned int groundLen) {
-    //         ground_len_ = groundLen;
-    //     }
-
-    //     unsigned int getBaseDim() const {
-    //         return base_dim_;
-    //     }
-
-    //     void setBaseDim(unsigned int baseDim) {
-    //         base_dim_ = baseDim;
-    //     }
-
-    //     unsigned int getQueryDim() const {
-    //         return query_dim_;
-    //     }
-
-    //     void setQueryDim(unsigned int queryDim) {
-    //         query_dim_ = queryDim;
-    //     }
-
-    //     unsigned int getGroundDim() const {
-    //         return ground_dim_;
-    //     }
-
-    //     void setGroundDim(unsigned int groundDim) {
-    //         ground_dim_ = groundDim;
-    //     }
-
-    //     Parameters &getParam() {
-    //         return param_;
-    //     }
-
-    //     void setParam(const Parameters &param) {
-    //         param_ = param;
-    //     }
-
-    //     Distance *getDist() const {
-    //         return dist_;
-    //     }
-
-    //     void setDist(Distance *dist) {
-    //         dist_ = dist;
-    //     }
-
-    //     // sorted
-    //     typedef std::vector<std::vector<SimpleNeighbor> > FinalGraph;
-    //     typedef std::vector<std::vector<unsigned> > LoadGraph;
-
-    //     FinalGraph &getFinalGraph() {
-    //         return final_graph_;
-    //     }
-
-    //     void clearFinalGraph() {
-    //         std::vector<std::vector<SimpleNeighbor>>().swap(final_graph_);
-    //     }
-
-    //     LoadGraph &getLoadGraph() {
-    //         return load_graph_;
-    //     }
-
-    //     void clearLoadGraph() {
-    //         std::vector<std::vector<unsigned>>().swap(load_graph_);
-    //     }
-
-    //     LoadGraph &getExactGraph() {
-    //         return exact_graph_;
-    //     }
-
-    //     void clearExactGraph() {
-    //         std::vector<std::vector<unsigned>>().swap(exact_graph_);
-    //     }
-
-    //     TYPE getCandidateType() const {
-    //         return candidate_type;
-    //     }
-
-    //     void setCandidateType(TYPE candidateType) {
-    //         candidate_type = candidateType;
-    //     }
-
-    //     TYPE getPruneType() const {
-    //         return prune_type;
-    //     }
-
-    //     void setPruneType(TYPE pruneType) {
-    //         prune_type = pruneType;
-    //     }
-
-    //     TYPE getEntryType() const {
-    //         return entry_type;
-    //     }
-
-    //     void setEntryType(TYPE entryType) {
-    //         entry_type = entryType;
-    //     }
-
-    //     void setConnType(TYPE connType) {
-    //         conn_type = connType;
-    //     }
-
-    //     TYPE getConnType() const {
-    //         return conn_type;
-    //     }
-
-    //     unsigned int getDistCount() const {
-    //         return dist_count;
-    //     }
-
-    //     void resetDistCount() {
-    //         dist_count = 0;
-    //     }
-
-    //     void addDistCount() {
-    //         dist_count += 1;
-    //     }
-
-    //     unsigned int getHopCount() const {
-    //         return hop_count;
-    //     }
-
-    //     void resetHopCount() {
-    //         hop_count = 0;
-    //     }
-
-    //     void addHopCount() {
-    //         hop_count += 1;
-    //     }
-        
-    //     void setNumThreads(const unsigned numthreads) {
-    //         omp_set_num_threads(numthreads);
-    //         std::cout << "\n ======================================" << std::endl;
-    //         std::cout << " = omp_set_num_threads(" << numthreads << ")" << std::endl;
-    //         std::cout << " ======================================\n" << std::endl;
-    //     }
-
-    //     void setFieldNum(unsigned num_field) {
-    //         field_num_ = num_field;
-    //     }
-
-    //     unsigned getFieldNum() {
-    //         return field_num_;
-    //     }
-
-    //     void setMaxIndexSpaceList(std::vector<unsigned> space_list) {
-    //         max_index_space_ = space_list;
-    //     }
-
-    //     std::vector<unsigned> &getMaxIndexSpaceList() {
-    //         return max_index_space_;
-    //     }
-
-    //     void setMaxM0SpaceList(std::vector<unsigned> space_list) {
-    //         max_m0_space_ = space_list;
-    //     }
-
-    //     std::vector<unsigned> &getMaxM0SpaceList() {
-    //         return max_m0_space_;
-    //     }
-
-    //     unsigned getMaxSpace(unsigned field, int level) {
-    //         if (level) {
-    //             return max_index_space_[field];
-    //         } else {
-    //             return max_m0_space_[field];
-    //         }
-    //     }
-
-        
-
-    //     int i = 0;
-    //     // bool debug = false;
-
-    // private:
-    //     float *base_data_, *query_data_;
-    //     unsigned *ground_data_;
-    //     unsigned base_len_, query_len_, ground_len_;
-    //     unsigned base_dim_, query_dim_, ground_dim_;
-
-    //     Parameters param_;
-
-    //     Distance *dist_;
-
-    //     FinalGraph final_graph_;
-    //     LoadGraph load_graph_;
-    //     LoadGraph exact_graph_;
-
-
-    //     TYPE entry_type;
-    //     TYPE candidate_type;
-    //     TYPE prune_type;
-    //     TYPE conn_type;
-
-    //     unsigned dist_count = 0;
-    //     unsigned hop_count = 0;
-
-    //     unsigned field_num_;
-    // };
-    // // -- ⚠️ 我不确定这部分我时候还需要； 先注释着 -----------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // ----------------------------------------------
-    // SmartIndex: SmartIndex (2025.04.17)
-    // ----------------------------------------------
-    class SmartIndex : public NNDescent, public Smart, public VAMANA, public HNSW
+    class MultiIndex : public NNDescent, public Smart, public VAMANA, public HNSW
     {
     public:
-        explicit SmartIndex() {
+        explicit MultiIndex() {
             dist_ = new Distance();
         }
 
-        ~SmartIndex() {
+        ~MultiIndex() {
             delete dist_;
         }
 
@@ -988,7 +701,7 @@ namespace weavess {
             return final_graph_list_[group];
         }
 
-        std::vector<weavess::SmartIndex::SimpleNeighbor> &getOutNeigh(int group, unsigned id) {
+        std::vector<xmt::MultiIndex::SimpleNeighbor> &getOutNeigh(int group, unsigned id) {
             return final_graph_list_[group][id];
         }
 
@@ -1176,7 +889,7 @@ namespace weavess {
                     idList.emplace_back(base_len_-1);
                 }
             }
-            std::cout << "######### Summary: smart_final_index's load_graph_list_ of smart_builder #########" << std::endl;
+            std::cout << "######### Summary: load_graph_list_ of smart_builder #########" << std::endl;
             if (getLoadGraph(groupList[0]).size()) {
                 // ## 1. 展示groupList中提及到的index，每个index都各自平均有几个out-neighbors
                 for (int g : groupList) 
@@ -1233,7 +946,7 @@ namespace weavess {
                     idList.emplace_back(base_len_-1);
                 }
             }
-            std::cout << "######### Summary: smart_final_index's final_graph_list of smart_builder #########" << std::endl;
+            std::cout << "######### Summary: final_graph_list of smart_builder #########" << std::endl;
             if (getFinalGraph(groupList[0]).size()) {
                 // ## 1. 展示groupList中提及到的index，每个index都各自平均有几个out-neighbors
                 for (int g : groupList) 
@@ -1335,7 +1048,7 @@ namespace weavess {
             return old_final_graph_list_[group];
         }
 
-        std::vector<weavess::SmartIndex::SimpleNeighbor> &getOldOutNeigh(int group, unsigned id) {
+        std::vector<xmt::MultiIndex::SimpleNeighbor> &getOldOutNeigh(int group, unsigned id) {
             return old_final_graph_list_[group][id];
         }
 
@@ -1959,4 +1672,4 @@ namespace weavess {
 
 }
 
-#endif //WEAVESS_INDEX_H
+#endif //XMT_INDEX_H
