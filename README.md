@@ -135,11 +135,3 @@ If you use PolyGraph in your research, please cite:
   year    = {2026}
 }
 ```
-
-## License
-
-Please see `LICENSE` for details.
-
-## Contact
-
-For questions, please open a GitHub issue or contact Guoliang Li at `liguoliang@tsinghua.edu.cn`.
