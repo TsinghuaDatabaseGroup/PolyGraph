@@ -57,4 +57,5 @@ include/python_file/bash.log_now
 pythonEnv_ForSI
 
 # Ignore txt
-*.txt
+include/python_file/cluster_groups.txt
+include/python_file/cluster_query_weight_cache_2.txt
