@@ -24,14 +24,14 @@ namespace xmt
     {
         auto s1 = std::chrono::high_resolution_clock::now();
 
-        auto *a = new ComponentLoad_smart(smart_final_index_);
+        auto *a = new ComponentLoad_multi(smart_final_index_);
 
         // ## read data
         std::string alg = parameters.get<std::string>("alg");
         if (alg == "PolyGraph" || alg == "hnsw_fusion" || alg == "vamana_equNoTotal" || alg == "vamana_fusion" || alg == "vamana_allWeight" || alg == "vamana_oracle"
         )
         {
-            a->LoadInner_smart(parameters);
+            a->LoadInner_multi(parameters);
         }
         else
         {
@@ -167,26 +167,26 @@ namespace xmt
     {
         auto sa = std::chrono::high_resolution_clock::now();
 
-        auto *b = new ComponentPreliminary_smart(smart_final_index_);
+        auto *b = new ComponentPreliminary_multi(smart_final_index_);
 
         // ## 1. seperate field-groups
         auto s1 = std::chrono::high_resolution_clock::now();
 
         if (group_type == CLUSTER_GROUP)
         {
-            b->SeperateInner_smart_ClusterGroup(parameters);
+            b->SeperateInner_multi_ClusterGroup(parameters);
         }
         else if (group_type == GROUP_EQU_NO_TOTAL)
         {
-            b->SeperateInner_smart_GroupEquNoTotal(parameters);
+            b->SeperateInner_multi_GroupEquNoTotal(parameters);
         }
         else if (group_type == GROUP_FUSION)
         {
-            b->SeperateInner_smart_GroupFusion(parameters);
+            b->SeperateInner_multi_GroupFusion(parameters);
         }
         else if (group_type == GROUP_ALL_WEIGHT)
         {
-            b->SeperateInner_smart_GroupAllWeight(parameters);
+            b->SeperateInner_multi_GroupAllWeight(parameters);
         }
         else
         {
@@ -216,7 +216,7 @@ namespace xmt
         s1 = std::chrono::high_resolution_clock::now();
         if (param_type == PARAM_EQUAL)
         {
-            b->PrepareParameter_smart_Equal(parameters);
+            b->PrepareParameter_multi_Equal(parameters);
         }
         else
         {
@@ -262,12 +262,12 @@ namespace xmt
     MultiIndexBuilder *MultiIndexBuilder::init(TYPE type, TYPE dist_type)
     {
         s = std::chrono::high_resolution_clock::now();
-        ComponentInit_smart *a = nullptr;
+        ComponentInit_multi *a = nullptr;
 
         if (type == INIT_RAND)
         {
             std::cout << "__INIT(4SMART) : RAND__" << std::endl;
-            a = new ComponentInitRand_smart(smart_final_index_);
+            a = new ComponentInitRand_multi(smart_final_index_);
         }
         else if (xmt::INIT_HNSW_FUSION)
         {
@@ -280,7 +280,7 @@ namespace xmt
             exit(-1);
         }
 
-        a->InitInner_smart(dist_type);
+        a->InitInner_multi(dist_type);
 
         e = std::chrono::high_resolution_clock::now();
 
@@ -313,7 +313,7 @@ namespace xmt
      */
     MultiIndexBuilder *MultiIndexBuilder::refine(TYPE type, TYPE dist_type)
     {
-        ComponentRefine_smart *a = nullptr;
+        ComponentRefine_multi *a = nullptr;
 
         if (type == INDEX_SMART)
         {
@@ -323,24 +323,19 @@ namespace xmt
         else if (type == INDEX_ORACLE_BASELINE)
         {
             std::cout << "__REFINE : BASELINE_ORACLE_INDEX__" << std::endl;
-            std::cout << "__REFINE : ⚠️ 但是我感觉好像改了relaGroup之后直接用MultiIndex的部分就行__" << std::endl;
             a = new ComponentRefineSmart_Oracle(smart_final_index_);
-            // a = new ComponentRefineSmart_CutGraph(smart_final_index_);
         }
         else if (type == INDEX_VAMANA_BASELINE)
         {
             std::cout << "__REFINE : BASELINE_VAMANA_TYPE_INDEX__" << std::endl;
-            // a = new ComponentRefineSmart_BaselineVamana(smart_final_index_);
-            std::cout << "__REFINE : 但是我感觉好像改了relaGroup之后直接用MultiIndex的部分就行__" << std::endl;
-            a = new ComponentRefineSmart(smart_final_index_);
-            // a = new ComponentRefineSmart_CutGraph(smart_final_index_);
+            a = new ComponentRefineVamana_multi(smart_final_index_);
         }
         else
         {
             std::cerr << "__REFINE : WRONG TYPE__" << std::endl;
         }
 
-        a->RefineInner_smart(dist_type);
+        a->RefineInner_multi(dist_type);
 
         std::cout << "===================" << std::endl;
         std::cout << "__REFINE ROUND " << getFinalIndex()->getRefineRound() << ": FINISH__" << std::endl;
@@ -361,7 +356,7 @@ namespace xmt
      */
     MultiIndexBuilder *MultiIndexBuilder::connectivity_enforcer(TYPE type, TYPE dist_type)
     {
-        ComponentConnectEnforcer_smart *a = nullptr;
+        ComponentConnectEnforcer_multi *a = nullptr;
 
         if (type == CONNECT_RELA)
         {
@@ -373,7 +368,7 @@ namespace xmt
             std::cerr << "__REFINE : WRONG TYPE__" << std::endl;
         }
 
-        a->ConnectEnforcerInner_smart(dist_type);
+        a->ConnectEnforcerInner_multi(dist_type);
 
         std::cout << "===================" << std::endl;
         std::cout << "__CONNECTIVITY : FINISH__" << std::endl;
@@ -464,8 +459,6 @@ namespace xmt
             unsigned flat_len = smart_final_index_->getEnabledGroupFlat().size();
             out.write((char *)&flat_len, sizeof(unsigned));
             out.write((char *)smart_final_index_->getEnabledGroupFlat().data(), flat_len * sizeof(uint16_t));
-            // -- 2026.01.24 [END] --
-
         }
         else if (type == INDEX_VAMANA_BASELINE)
         {
@@ -841,17 +834,17 @@ namespace xmt
         }
 
         // GROUND TRUTH
-        ComponentGroundTruth_smart *g = new ComponentGroundTruth_smart(smart_final_index_);
+        ComponentGroundTruth_multi *g = new ComponentGroundTruth_multi(smart_final_index_);
 
         std::vector<std::vector<unsigned>> res;
         std::vector<std::vector<float>> dist_res;
 
         // ENTRY
-        ComponentSearchEntry_smart *a = nullptr;
+        ComponentSearchEntry_multi *a = nullptr;
         if (entry_type == SEARCH_ENTRY_CENTROID)
         {
             std::cout << "__SEARCH ENTRY : CENTROID__" << std::endl;
-            a = new ComponentSearchEntryCentroid_smart(smart_final_index_);
+            a = new ComponentSearchEntryCentroid_multi(smart_final_index_);
         }
         else if (entry_type == SEARCH_ENTRY_NONE_FUSION)
         {
@@ -867,12 +860,12 @@ namespace xmt
 
 
         // ROUTE
-        ComponentSearchRoute_smart *b = nullptr;
+        ComponentSearchRoute_multi *b = nullptr;
         if (route_type == ROUTER_GREEDY)
         {
             std::cout << "__ROUTER : GREEDY__" << std::endl;
             std::cout << "route_type  = " << route_type << std::endl;
-            b = new ComponentSearchRouteGreedy_smart(smart_final_index_);
+            b = new ComponentSearchRouteGreedy_multi(smart_final_index_);
         }
         else if (route_type == ROUTER_HNSW_FUSION)
         {
@@ -887,7 +880,7 @@ namespace xmt
         }
 
 
-        ComponentSearchFlowLoadWeight_smart *c = new ComponentSearchFlowLoadWeight_smart(smart_final_index_);
+        ComponentSearchFlowLoadWeight_multi *c = new ComponentSearchFlowLoadWeight_multi(smart_final_index_);
 
         std::vector<std::vector<float>> recall_matrix, latency_matrix, hop_matrix, distCount_matrix, usedDimCount_matrix, DCHTCount_matrix;
         if (weight_type == LOADED_WEIGHT)
@@ -896,7 +889,7 @@ namespace xmt
             std::cout << "__GROUND TRUTH : LOAD WEIGHT(ONCE)__" << std::endl;
             std::cout << "__with (qi, wi) of size: " << smart_final_index_->getSearchWeight().size() << " .... (assert |SearchWorkload| = " << smart_final_index_->getSearchWeight().size() <<  " == " << smart_final_index_->getQueryLen() << " = numQuery __" << std::endl;
             assert(smart_final_index_->getSearchWeight().size() == smart_final_index_->getQueryLen());
-            g->GroundInner_smart(K, dist_type);
+            g->GroundInner_multi(K, dist_type);
 
             if (L_type == L_SEARCH_ASSIGN_FALLBACKINTERSECT)
             {
@@ -908,7 +901,7 @@ namespace xmt
                 latency_matrix = std::vector<std::vector<float>>(1, std::vector<float>(1));
                 hop_matrix = std::vector<std::vector<float>>(1, std::vector<float>(1));
                 distCount_matrix = std::vector<std::vector<float>>(1, std::vector<float>(1));
-                c->FlowInner_WeightOnce_smart_FallbackIntersect_forDiff_wi(K, L, a, b, recall_matrix[0][0], latency_matrix[0][0], hop_matrix[0][0], distCount_matrix[0][0], dist_type);
+                c->FlowInner_WeightOnce_multi_FallbackIntersect_forDiff_wi(K, L, a, b, recall_matrix[0][0], latency_matrix[0][0], hop_matrix[0][0], distCount_matrix[0][0], dist_type);
             }
             else if (L_type == L_SEARCH_ASSIGN_INTERSECT)
             {
@@ -920,7 +913,7 @@ namespace xmt
                 latency_matrix = std::vector<std::vector<float>>(1, std::vector<float>(1));
                 hop_matrix = std::vector<std::vector<float>>(1, std::vector<float>(1));
                 distCount_matrix = std::vector<std::vector<float>>(1, std::vector<float>(1));
-                c->FlowInner_WeightOnce_smart_intersect(K, L, a, b, recall_matrix[0][0], latency_matrix[0][0], hop_matrix[0][0], distCount_matrix[0][0], dist_type);
+                c->FlowInner_WeightOnce_multi_intersect(K, L, a, b, recall_matrix[0][0], latency_matrix[0][0], hop_matrix[0][0], distCount_matrix[0][0], dist_type);
             }
             else if (L_type == L_SEARCH_ASSIGN_ALL_INDEX)
             {
@@ -932,7 +925,7 @@ namespace xmt
                 latency_matrix = std::vector<std::vector<float>>(1, std::vector<float>(1));
                 hop_matrix = std::vector<std::vector<float>>(1, std::vector<float>(1));
                 distCount_matrix = std::vector<std::vector<float>>(1, std::vector<float>(1));
-                c->FlowInner_WeightOnce_smart_allIndex(K, L, a, b, recall_matrix[0][0], latency_matrix[0][0], hop_matrix[0][0], distCount_matrix[0][0], dist_type);
+                c->FlowInner_WeightOnce_multi_allIndex(K, L, a, b, recall_matrix[0][0], latency_matrix[0][0], hop_matrix[0][0], distCount_matrix[0][0], dist_type);
             }
             else if (L_type == L_RECALL_SEARCH_CONTROL_FALLBACKINTERSECT)
             {
@@ -950,7 +943,7 @@ namespace xmt
                 latency_matrix = std::vector<std::vector<float>>(1, std::vector<float>(LRate.size()));
                 hop_matrix = std::vector<std::vector<float>>(1, std::vector<float>(LRate.size()));
                 distCount_matrix = std::vector<std::vector<float>>(1, std::vector<float>(LRate.size()));
-                c->FlowInner_WeightOnceControL_smart_FallbackIntersect_forDiff_wi(K, LRate, a, b, recall_matrix[0], latency_matrix[0], hop_matrix[0], distCount_matrix[0], dist_type);
+                c->FlowInner_WeightOnceControL_multi_FallbackIntersect_forDiff_wi(K, LRate, a, b, recall_matrix[0], latency_matrix[0], hop_matrix[0], distCount_matrix[0], dist_type);
             }
             else if (L_type == L_RECALL_SEARCH_CONTROL_INTERSECT)
             {
@@ -968,7 +961,7 @@ namespace xmt
                 latency_matrix = std::vector<std::vector<float>>(1, std::vector<float>(LRate.size()));
                 hop_matrix = std::vector<std::vector<float>>(1, std::vector<float>(LRate.size()));
                 distCount_matrix = std::vector<std::vector<float>>(1, std::vector<float>(LRate.size()));
-                c->FlowInner_WeightOnceControL_smart_intersect(K, LRate, a, b, recall_matrix[0], latency_matrix[0], hop_matrix[0], distCount_matrix[0], dist_type);
+                c->FlowInner_WeightOnceControL_multi_intersect(K, LRate, a, b, recall_matrix[0], latency_matrix[0], hop_matrix[0], distCount_matrix[0], dist_type);
             }
             else if (L_type == L_RECALL_SEARCH_CONTROL_ALL_INDEX)
             {
@@ -986,7 +979,7 @@ namespace xmt
                 latency_matrix = std::vector<std::vector<float>>(1, std::vector<float>(LRate.size()));
                 hop_matrix = std::vector<std::vector<float>>(1, std::vector<float>(LRate.size()));
                 distCount_matrix = std::vector<std::vector<float>>(1, std::vector<float>(LRate.size()));
-                c->FlowInner_WeightOnceControL_smart_allIndex(K, LRate, a, b, recall_matrix[0], latency_matrix[0], hop_matrix[0], distCount_matrix[0], dist_type);
+                c->FlowInner_WeightOnceControL_multi_allIndex(K, LRate, a, b, recall_matrix[0], latency_matrix[0], hop_matrix[0], distCount_matrix[0], dist_type);
             }
             else
             {
@@ -1126,41 +1119,41 @@ namespace xmt
                 smart_final_index_->setSearchWeight(search_weight);
 
                 std::cout << "__GROUND TRUTH : ALL_WEIGHT " << w << " / " << ((1 << smart_final_index_->getFieldNum()) - 1) << " __" << std::endl;
-                g->GroundInner_smart_load(w, K, dist_type);
+                g->GroundInner_multi_load(w, K, dist_type);
 
                 if (L_type == L_SEARCH_ASSIGN_FALLBACKINTERSECT)
                 {
                     std::cout << "__L_type == L_SEARCH_ASSIGN_FALLBACKINTERSECT__" << std::endl;
                     std::cout << "L_search = K = " << K << std::endl;
                     unsigned L = K;
-                    c->FlowInner_WeightOnce_smart_FallbackIntersect(K, L, a, b, recall_matrix[w - 1][0], latency_matrix[w - 1][0], hop_matrix[w - 1][0], distCount_matrix[w - 1][0], dist_type);
+                    c->FlowInner_WeightOnce_multi_FallbackIntersect(K, L, a, b, recall_matrix[w - 1][0], latency_matrix[w - 1][0], hop_matrix[w - 1][0], distCount_matrix[w - 1][0], dist_type);
                 }
                 else if (L_type == L_SEARCH_ASSIGN_INTERSECT)
                 {
                     std::cout << "__L_type == L_SEARCH_ASSIGN_INTERSECT__" << std::endl;
                     std::cout << "L_search = K = " << K << std::endl;
                     unsigned L = K;
-                    c->FlowInner_WeightOnce_smart_intersect(K, L, a, b, recall_matrix[w - 1][0], latency_matrix[w - 1][0], hop_matrix[w - 1][0], distCount_matrix[w - 1][0], dist_type);
+                    c->FlowInner_WeightOnce_multi_intersect(K, L, a, b, recall_matrix[w - 1][0], latency_matrix[w - 1][0], hop_matrix[w - 1][0], distCount_matrix[w - 1][0], dist_type);
                 }
                 else if (L_type == L_RECALL_SEARCH_CONTROL_FALLBACKINTERSECT)
                 {
                     std::cout << "__L_type == L_RECALL_SEARCH_CONTROL_FALLBACKINTERSECT__" << std::endl;
-                    c->FlowInner_WeightOnceControL_smart_FallbackIntersect(K, LRate, a, b, recall_matrix[w - 1], latency_matrix[w - 1], hop_matrix[w - 1], distCount_matrix[w - 1], dist_type);
+                    c->FlowInner_WeightOnceControL_multi_FallbackIntersect(K, LRate, a, b, recall_matrix[w - 1], latency_matrix[w - 1], hop_matrix[w - 1], distCount_matrix[w - 1], dist_type);
                 }
                 else if (L_type == L_RECALL_SEARCH_CONTROL_ALL_INDEX)
                 {
                     std::cout << "__L_type == L_RECALL_SEARCH_CONTROL_ALL_INDEX__" << std::endl;
-                    c->FlowInner_WeightOnceControL_smart_allIndex(K, LRate, a, b, recall_matrix[w - 1], latency_matrix[w - 1], hop_matrix[w - 1], distCount_matrix[w - 1], dist_type);
+                    c->FlowInner_WeightOnceControL_multi_allIndex(K, LRate, a, b, recall_matrix[w - 1], latency_matrix[w - 1], hop_matrix[w - 1], distCount_matrix[w - 1], dist_type);
                 }
                 else if (L_type == L_RECALL_SEARCH_CONTROL_INTERSECT)
                 {
                     std::cout << "__L_type == L_RECALL_SEARCH_CONTROL_INTERSECT__" << std::endl;
-                    c->FlowInner_WeightOnceControL_smart_intersect(K, LRate, a, b, recall_matrix[w - 1], latency_matrix[w - 1], hop_matrix[w - 1], distCount_matrix[w - 1], dist_type);
+                    c->FlowInner_WeightOnceControL_multi_intersect(K, LRate, a, b, recall_matrix[w - 1], latency_matrix[w - 1], hop_matrix[w - 1], distCount_matrix[w - 1], dist_type);
                 }
                 else if (L_type == L_RECALL_SEARCH_CONTROL_EXACT_REPRE)
                 {
                     std::cout << "__L_type == L_RECALL_SEARCH_CONTROL_EXACT_REPRE__" << std::endl;
-                    c->FlowInner_WeightOnceControL_smart_exactRepre(K, LRate, a, b, recall_matrix[w - 1], latency_matrix[w - 1], hop_matrix[w - 1], distCount_matrix[w - 1], dist_type);
+                    c->FlowInner_WeightOnceControL_multi_exactRepre(K, LRate, a, b, recall_matrix[w - 1], latency_matrix[w - 1], hop_matrix[w - 1], distCount_matrix[w - 1], dist_type);
                 }
                 else
                 {
@@ -1278,36 +1271,36 @@ namespace xmt
                 std::cout << "__GROUND TRUTH : ALL_WEIGHT " << (w + 1) << " / " << numComb << " : ";
                 std::vector<std::vector<float>> search_weight(smart_final_index_->getQueryLen(), weight); 
                 smart_final_index_->setSearchWeight(search_weight);
-                g->GroundInner_smart(K, dist_type);
+                g->GroundInner_multi(K, dist_type);
 
                 if (L_type == L_SEARCH_ASSIGN_FALLBACKINTERSECT)
                 {
                     std::cout << "__L_type == L_SEARCH_ASSIGN_FALLBACKINTERSECT__" << std::endl;
                     std::cout << "L_search = K = " << K << std::endl;
                     unsigned L = K;
-                    c->FlowInner_WeightOnce_smart_FallbackIntersect(K, L, a, b, recall_matrix[w][0], latency_matrix[w][0], hop_matrix[w][0], distCount_matrix[w][0], dist_type);
+                    c->FlowInner_WeightOnce_multi_FallbackIntersect(K, L, a, b, recall_matrix[w][0], latency_matrix[w][0], hop_matrix[w][0], distCount_matrix[w][0], dist_type);
                 }
                 else if (L_type == L_SEARCH_ASSIGN_INTERSECT)
                 {
                     std::cout << "__L_type == L_SEARCH_ASSIGN_INTERSECT__" << std::endl;
                     std::cout << "L_search = K = " << K << std::endl;
                     unsigned L = K;
-                    c->FlowInner_WeightOnce_smart_intersect(K, L, a, b, recall_matrix[w][0], latency_matrix[w][0], hop_matrix[w][0], distCount_matrix[w][0], dist_type);
+                    c->FlowInner_WeightOnce_multi_intersect(K, L, a, b, recall_matrix[w][0], latency_matrix[w][0], hop_matrix[w][0], distCount_matrix[w][0], dist_type);
                 }
                 else if (L_type == L_RECALL_SEARCH_CONTROL_FALLBACKINTERSECT)
                 {
                     std::cout << "__L_type == L_RECALL_SEARCH_CONTROL_FALLBACKINTERSECT__" << std::endl;
-                    c->FlowInner_WeightOnceControL_smart_FallbackIntersect(K, LRate, a, b, recall_matrix[w], latency_matrix[w], hop_matrix[w], distCount_matrix[w], dist_type);
+                    c->FlowInner_WeightOnceControL_multi_FallbackIntersect(K, LRate, a, b, recall_matrix[w], latency_matrix[w], hop_matrix[w], distCount_matrix[w], dist_type);
                 }
                 else if (L_type == L_RECALL_SEARCH_CONTROL_ALL_INDEX)
                 {
                     std::cout << "__L_type == L_RECALL_SEARCH_CONTROL_ALL_INDEX__" << std::endl;
-                    c->FlowInner_WeightOnceControL_smart_allIndex(K, LRate, a, b, recall_matrix[w], latency_matrix[w], hop_matrix[w], distCount_matrix[w], dist_type);
+                    c->FlowInner_WeightOnceControL_multi_allIndex(K, LRate, a, b, recall_matrix[w], latency_matrix[w], hop_matrix[w], distCount_matrix[w], dist_type);
                 }
                 else if (L_type == L_RECALL_SEARCH_CONTROL_INTERSECT)
                 {
                     std::cout << "__L_type == L_RECALL_SEARCH_CONTROL_INTERSECT at this pos 3" << std::endl;
-                    c->FlowInner_WeightOnceControL_smart_intersect(K, LRate, a, b, recall_matrix[w], latency_matrix[w], hop_matrix[w], distCount_matrix[w], dist_type);
+                    c->FlowInner_WeightOnceControL_multi_intersect(K, LRate, a, b, recall_matrix[w], latency_matrix[w], hop_matrix[w], distCount_matrix[w], dist_type);
                 }
                 else
                 {
@@ -1419,14 +1412,14 @@ namespace xmt
         }
 
         // GROUND TRUTH
-        ComponentGroundTruth_smart *g = new ComponentGroundTruth_smart(smart_final_index_);
+        ComponentGroundTruth_multi *g = new ComponentGroundTruth_multi(smart_final_index_);
 
         if (weight_type == LOADED_WEIGHT)
         {
             std::cout << "__GROUND TRUTH : LOAD WEIGHT {(qi, wi)} __" << std::endl;
             std::cout << "__with (qi, wi) of size: " << smart_final_index_->getSearchWeight().size() << " .... (assert |SearchWorkload| = " << smart_final_index_->getSearchWeight().size() <<  " == " << smart_final_index_->getQueryLen() << " = numQuery __" << std::endl;
             assert(smart_final_index_->getSearchWeight().size() == smart_final_index_->getQueryLen());
-            g->GroundInner_smart(K, dist_type);
+            g->GroundInner_multi(K, dist_type);
 
             // -- ground_data_path & outputing ivecs --
             std::string base_dir = "../dataset/Ground-truth/" + smart_final_index_->getParam().get<std::string>("dataset") + "/" + "OneToOne/";
@@ -1461,7 +1454,7 @@ namespace xmt
                 }
                 std::cout << " __" << std::endl;
 
-                g->GroundInner_smart(K, dist_type);
+                g->GroundInner_multi(K, dist_type);
                 
                 // -- ground_data_path & outputing ivecs --
                 std::string base_dir = "../dataset/Ground-truth/" + smart_final_index_->getParam().get<std::string>("dataset") + "/";

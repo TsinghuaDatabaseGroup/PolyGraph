@@ -6,7 +6,7 @@
 // ======================================
 
 namespace xmt {
-    void ComponentSearchRouteGreedy_smart::RouteInner_dist_smart(unsigned int query, std::vector<MultiIndex::Neighbor> &pool,
+    void ComponentSearchRouteGreedy_multi::RouteInner_dist_multi(unsigned int query, std::vector<MultiIndex::Neighbor> &pool,
                                                                  std::vector<unsigned int> &res, std::vector<float> &dist_res,
                                                                  std::vector<int> &needCalField, std::vector<int> &needIndeces,
                                                                  boost::dynamic_bitset<> &flags, TYPE dist_type)
@@ -42,7 +42,7 @@ namespace xmt {
                         if (flags[id])
                             continue;
                         flags[id] = 1;
-                        float dist = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), query,
+                        float dist = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), query,
                                                                                   smart_index->getBaseDataList(), id,
                                                                                   smart_index->getBaseDimList(), needCalField,
                                                                                   weight, dist_type);
@@ -74,7 +74,7 @@ namespace xmt {
 
 
 
-    void ComponentSearchRouteHNSW_Fusion::RouteInner_dist_smart(unsigned query, std::vector<MultiIndex::Neighbor> &pool, std::vector<unsigned> &res, std::vector<float> &dist_res,
+    void ComponentSearchRouteHNSW_Fusion::RouteInner_dist_multi(unsigned query, std::vector<MultiIndex::Neighbor> &pool, std::vector<unsigned> &res, std::vector<float> &dist_res,
                                                                 std::vector<int> &needCalField, std::vector<int> &needIndeces, boost::dynamic_bitset<> &flags, TYPE dist_type)
     {
         const auto K = smart_index->getParam().get<unsigned>("K_search");
@@ -86,7 +86,7 @@ namespace xmt {
         std::vector<std::pair<MultiIndex::HnswNode *, float>> ensure_k_path_; 
         MultiIndex::HnswNode *cur_node = enterpoint;
 
-        float d = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), query,
+        float d = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), query,
                                                                smart_index->getBaseDataList(), cur_node->GetId(),
                                                                smart_index->getBaseDimList(), needCalField,
                                                                weight, TYPE::DIST_EUCLIDEAN);
@@ -116,7 +116,7 @@ namespace xmt {
                     if (visited[(*iter)->GetId()] != visited_mark)
                     {
                         visited[(*iter)->GetId()] = visited_mark;
-                        d = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), query,
+                        d = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), query,
                                                                          smart_index->getBaseDataList(), (*iter)->GetId(),
                                                                          smart_index->getBaseDimList(), needCalField,
                                                                          weight, TYPE::DIST_EUCLIDEAN);
@@ -167,7 +167,7 @@ namespace xmt {
         const auto L = std::min(smart_index->getParam().get<unsigned>("L_search"), smart_index->getBaseLen());
 
         std::priority_queue<MultiIndex::CloserFirst> candidates;
-        float d = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), qnode,
+        float d = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), qnode,
                                                                smart_index->getBaseDataList(), enterpoint->GetId(),
                                                                smart_index->getBaseDimList(), needCalField,
                                                                weight, TYPE::DIST_EUCLIDEAN);
@@ -196,7 +196,7 @@ namespace xmt {
                 if (visited_list->NotVisited(id))
                 {
                     visited_list->MarkAsVisited(id);
-                    d = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), qnode,
+                    d = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), qnode,
                                                                      smart_index->getBaseDataList(), id,
                                                                      smart_index->getBaseDimList(), needCalField,
                                                                      weight, TYPE::DIST_EUCLIDEAN);

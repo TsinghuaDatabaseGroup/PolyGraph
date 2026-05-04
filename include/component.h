@@ -109,11 +109,11 @@ namespace xmt {
     // ---------------------------------------------------------------------
     // For MultiIndex
     // ---------------------------------------------------------------------
-    class Component_smart {
+    class Component_multi {
     public:
-        explicit Component_smart(MultiIndex *smart_index) : smart_index(smart_index) {}
+        explicit Component_multi(MultiIndex *smart_index) : smart_index(smart_index) {}
 
-        virtual ~Component_smart() { delete smart_index; }
+        virtual ~Component_multi() { delete smart_index; }
 
     protected:
         MultiIndex *smart_index = nullptr;
@@ -121,11 +121,11 @@ namespace xmt {
 
     // ===== load data ===== 
     //                  ---> component_load.cpp
-    class ComponentLoad_smart : public Component_smart {
+    class ComponentLoad_multi : public Component_multi {
     public:
-        explicit ComponentLoad_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentLoad_multi(MultiIndex *smart_index) : Component_multi(smart_index) {}
 
-        virtual void LoadInner_smart(Parameters &parameters);
+        virtual void LoadInner_multi(Parameters &parameters);
         
         void set_path_from_txt(std::string txt_path, std::vector<std::string> &base_path_list, std::vector<std::string> &query_path_list, bool show_summary = true);
     };
@@ -137,20 +137,20 @@ namespace xmt {
     // *******************
     // ===== initialization -- preliminary ===== 
     //                  ---> component_init.cpp
-    class ComponentPreliminary_smart : public Component_smart {
+    class ComponentPreliminary_multi : public Component_multi {
     public:
-        explicit ComponentPreliminary_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentPreliminary_multi(MultiIndex *smart_index) : Component_multi(smart_index) {}
 
         // seperate group
-        void SeperateInner_smart_ClusterGroup(Parameters &parameters);
+        void SeperateInner_multi_ClusterGroup(Parameters &parameters);
 
         // baseline: 
-        void SeperateInner_smart_GroupEquNoTotal(Parameters &parameters);
-        void SeperateInner_smart_GroupFusion(Parameters &parameters);
-        void SeperateInner_smart_GroupAllWeight(Parameters &parameters);
+        void SeperateInner_multi_GroupEquNoTotal(Parameters &parameters);
+        void SeperateInner_multi_GroupFusion(Parameters &parameters);
+        void SeperateInner_multi_GroupAllWeight(Parameters &parameters);
 
         // assign L_refine, R_refine
-        void PrepareParameter_smart_Equal(Parameters &parameters);
+        void PrepareParameter_multi_Equal(Parameters &parameters);
     private:
         float calMaxNorm(unsigned len, std::vector<float*> base_data_list, std::vector<unsigned> dim_list,
                             std::vector<int> &relaField, xmt::TYPE dist_type);
@@ -191,29 +191,29 @@ namespace xmt {
 
     // ===== initialization -- initial graph =====
     //                  ---> construct/component_init.cpp
-    class ComponentInit_smart : public Component_smart {
+    class ComponentInit_multi : public Component_multi {
     public:
-        explicit ComponentInit_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentInit_multi(MultiIndex *smart_index) : Component_multi(smart_index) {}
 
-        virtual void InitInner_smart(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;
+        virtual void InitInner_multi(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;
     };
     
-    class ComponentInitRand_smart : public ComponentInit_smart {
+    class ComponentInitRand_multi : public ComponentInit_multi {
     public:
-        explicit ComponentInitRand_smart(MultiIndex *smart_index) : ComponentInit_smart(smart_index) {}
+        explicit ComponentInitRand_multi(MultiIndex *smart_index) : ComponentInit_multi(smart_index) {}
 
-        void InitInner_smart(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
+        void InitInner_multi(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
 
     private:
-        void InitInner_smart_4group(int group, std::mt19937 &rng, std::vector<std::vector<unsigned>> &initON, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
-        void SetConfigs_smart(int group);
+        void InitInner_multi_4group(int group, std::mt19937 &rng, std::vector<std::vector<unsigned>> &initON, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+        void SetConfigs_multi(int group);
     };
     
-    class ComponentInitHNSW_Fusion : public ComponentInit_smart {
+    class ComponentInitHNSW_Fusion : public ComponentInit_multi {
     public:
-        explicit ComponentInitHNSW_Fusion(MultiIndex *smart_index) : ComponentInit_smart(smart_index) {}
+        explicit ComponentInitHNSW_Fusion(MultiIndex *smart_index) : ComponentInit_multi(smart_index) {}
 
-        void InitInner_smart(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
+        void InitInner_multi(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
 
     private:
         void SetConfigs();
@@ -239,13 +239,13 @@ namespace xmt {
 
     // ===== initialization -- entry-point selection ===== 
     //                  ---> construct/component_init.cpp
-    class ComponentRefineEntry_smart : public Component_smart {
+    class ComponentRefineEntry_multi : public Component_multi {
     public:
-        explicit ComponentRefineEntry_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentRefineEntry_multi(MultiIndex *smart_index) : Component_multi(smart_index) {}
 
-        virtual void EntryInner_smart() = 0;
+        virtual void EntryInner_multi() = 0;
 
-        virtual ~ComponentRefineEntry_smart() { 
+        virtual ~ComponentRefineEntry_multi() { 
             for (auto ptr : center_) {
                 delete[] ptr;
             } 
@@ -255,16 +255,16 @@ namespace xmt {
         std::vector<float *> center_;
     };
 
-    class ComponentRefineEntryCentroid_smart : public ComponentRefineEntry_smart {
+    class ComponentRefineEntryCentroid_multi : public ComponentRefineEntry_multi {
     public:
-        explicit ComponentRefineEntryCentroid_smart(MultiIndex *smart_index) : ComponentRefineEntry_smart(smart_index) {}
+        explicit ComponentRefineEntryCentroid_multi(MultiIndex *smart_index) : ComponentRefineEntry_multi(smart_index) {}
 
-        void EntryInner_smart() override;
+        void EntryInner_multi() override;
 
-        void EntryInner_smart_4group(int group);
+        void EntryInner_multi_4group(int group);
 
     private:
-        void get_exact_neighbor_smart_4group(int group, MultiIndex::Neighbor &nn, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+        void get_exact_neighbor_multi_4group(int group, MultiIndex::Neighbor &nn, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
     };
 
 
@@ -272,51 +272,71 @@ namespace xmt {
 
     // ===== refine graph: Neighborhood Construction ===== 
     //                  ---> construct/component_refine.cpp
-    class ComponentRefine_smart : public Component_smart {
+    class ComponentRefine_multi : public Component_multi {
     public:
-        explicit ComponentRefine_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentRefine_multi(MultiIndex *smart_index) : Component_multi(smart_index) {}
 
-        virtual void RefineInner_smart(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;
+        virtual void RefineInner_multi(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;
     };
         
-    class ComponentRefineSmart : public ComponentRefine_smart {
+    class ComponentRefineSmart : public ComponentRefine_multi {
     public:
-        explicit ComponentRefineSmart(MultiIndex *smart_index) : ComponentRefine_smart(smart_index) {}
+        explicit ComponentRefineSmart(MultiIndex *smart_index) : ComponentRefine_multi(smart_index) {}
 
-        void RefineInner_smart(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
+        void RefineInner_multi(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
 
     private:
-        void SetConfigs_smart(int group, float alpha);
+        void SetConfigs_multi(int group, float alpha);
 
-        void RefineInner_smart_4group(int group, float alpha, bool hint, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+        void RefineInner_multi_4group(int group, float alpha, bool hint, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
-        void Link_smart_4group(int group, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+        void Link_multi_4group(int group, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
-        void InterInsert_smart_4group_insert(unsigned n, int group, std::vector<std::mutex> &locks,
+        void InterInsert_multi_4group_insert(unsigned n, int group, std::vector<std::mutex> &locks,
                                              std::vector<int> &orignNum,TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
-        void InterInsert_smart_4group_prune(unsigned n, int group, std::vector<std::mutex> &locks,
-                                      TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+        // void InterInsert_multi_4group_prune(unsigned n, int group, std::vector<std::mutex> &locks,
+        //                               TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
     };
 
-    class ComponentRefineSmart_Oracle : public ComponentRefine_smart {
+    class ComponentRefineVamana_multi : public ComponentRefine_multi {
     public:
-        explicit ComponentRefineSmart_Oracle(MultiIndex *smart_index) : ComponentRefine_smart(smart_index) {}
+        explicit ComponentRefineVamana_multi(MultiIndex *smart_index) : ComponentRefine_multi(smart_index) {}
 
-        void RefineInner_smart(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
+        void RefineInner_multi(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
 
     private:
-        void SetConfigs_smart(int group, float alpha);
+        void SetConfigs_multi(int group, float alpha);
 
-        void RefineInner_smart_4group(int group, float alpha, bool hint, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+        void RefineInner_multi_4group(int group, float alpha, bool hint, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
-        void Link_smart_4group(int group, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+        void Link_multi_4group(int group, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
-        void InterInsert_smart_4group_insert(unsigned n, int group, std::vector<std::mutex> &locks,
+        void InterInsert_multi_4group_insert(unsigned n, int group, std::vector<std::mutex> &locks,
                                              std::vector<int> &orignNum,TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
-        void InterInsert_smart_4group_prune(unsigned n, int group, std::vector<std::mutex> &locks,
-                                      TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+        // void InterInsert_multi_4group_prune(unsigned n, int group, std::vector<std::mutex> &locks,
+        //                               TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+    };
+
+    class ComponentRefineSmart_Oracle : public ComponentRefine_multi {
+    public:
+        explicit ComponentRefineSmart_Oracle(MultiIndex *smart_index) : ComponentRefine_multi(smart_index) {}
+
+        void RefineInner_multi(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
+
+    private:
+        void SetConfigs_multi(int group, float alpha);
+
+        void RefineInner_multi_4group(int group, float alpha, bool hint, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+
+        void Link_multi_4group(int group, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+
+        void InterInsert_multi_4group_insert(unsigned n, int group, std::vector<std::mutex> &locks,
+                                             std::vector<int> &orignNum,TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+
+        // void InterInsert_multi_4group_prune(unsigned n, int group, std::vector<std::mutex> &locks,
+        //                               TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
     };
 
     
@@ -324,23 +344,23 @@ namespace xmt {
 
     // ===== Candidate Neighbor Acquisition ===== 
     //                  ---> construct/component_candidate.cpp
-    class ComponentCandidate_smart : public Component_smart {
+    class ComponentCandidate_multi : public Component_multi {
     public:
-        explicit ComponentCandidate_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentCandidate_multi(MultiIndex *smart_index) : Component_multi(smart_index) {}
 
-        virtual void CandidateInner_smart_4group_STAR(unsigned query, unsigned enter, int group, boost::dynamic_bitset<> flags,
+        virtual void CandidateInner_multi_4group_STAR(unsigned query, unsigned enter, int group, boost::dynamic_bitset<> flags,
                                     std::vector<MultiIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0; 
-        virtual void CandidateInner_smart_4group_STAR_allIndex(unsigned query, unsigned enter, int group, boost::dynamic_bitset<> flags,
+        virtual void CandidateInner_multi_4group_STAR_allIndex(unsigned query, unsigned enter, int group, boost::dynamic_bitset<> flags,
                             std::vector<MultiIndex::SimpleNeighbor> &result, std::vector<std::mutex> &locks, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;                                    
     };
 
-    class ComponentCandidateAGS_smart : public ComponentCandidate_smart {
+    class ComponentCandidateAGS_multi : public ComponentCandidate_multi {
     public:
-        explicit ComponentCandidateAGS_smart(MultiIndex *smart_index) : ComponentCandidate_smart(smart_index) {}
+        explicit ComponentCandidateAGS_multi(MultiIndex *smart_index) : ComponentCandidate_multi(smart_index) {}
 
-        void CandidateInner_smart_4group_STAR(unsigned query, unsigned enter, int group, boost::dynamic_bitset<> flags,
+        void CandidateInner_multi_4group_STAR(unsigned query, unsigned enter, int group, boost::dynamic_bitset<> flags,
                             std::vector<MultiIndex::SimpleNeighbor> &result, std::vector<std::mutex> &locks, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
-        void CandidateInner_smart_4group_STAR_allIndex(unsigned query, unsigned enter, int group, boost::dynamic_bitset<> flags,
+        void CandidateInner_multi_4group_STAR_allIndex(unsigned query, unsigned enter, int group, boost::dynamic_bitset<> flags,
                             std::vector<MultiIndex::SimpleNeighbor> &result, std::vector<std::mutex> &locks, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
     };
 
@@ -350,11 +370,11 @@ namespace xmt {
 
     // ===== graph prune ===== 
     //                  ---> construct/component_prune.cpp
-    class ComponentPrune_smart : public Component_smart {
+    class ComponentPrune_multi : public Component_multi {
     public:
-        explicit ComponentPrune_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentPrune_multi(MultiIndex *smart_index) : Component_multi(smart_index) {}
 
-        virtual void PruneInner_smart_4group_withOthers(unsigned query, int group,  
+        virtual void PruneInner_multi_4group_withOthers(unsigned query, int group,  
                                 std::vector<MultiIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks,
                                 TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;
 
@@ -394,40 +414,40 @@ namespace xmt {
         }
     };
 
-    class ComponentPrunePolyGraph_smart : public ComponentPrune_smart {
+    class ComponentPrunePolyGraph_multi : public ComponentPrune_multi {
     public:
-        explicit ComponentPrunePolyGraph_smart(MultiIndex *smart_index) : ComponentPrune_smart(smart_index) {}
+        explicit ComponentPrunePolyGraph_multi(MultiIndex *smart_index) : ComponentPrune_multi(smart_index) {}
 
-        void PruneInner_smart_4group_withOthers(unsigned query, int group, 
+        void PruneInner_multi_4group_withOthers(unsigned query, int group, 
                         std::vector<MultiIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks,
                         TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
-
-        // 占位符
-        // void PruneInner_Fusion(unsigned q, unsigned range,
-        //                 std::vector<MultiIndex::SimpleNeighbor> &pool, MultiIndex::SimpleNeighbor *cut_graph_, 
-        //                 TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
         void PruneInner_Fusion(unsigned q, unsigned range,
                         std::vector<MultiIndex::SimpleNeighbor> &pool, MultiIndex::SimpleNeighbor *cut_graph_, 
                         TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) {};
-        // 占位符end
     };
 
-    class ComponentPruneHeuristic_smart : public ComponentPrune_smart {
+    class ComponentPruneHeuristic_multi : public ComponentPrune_multi {
     public:
-        explicit ComponentPruneHeuristic_smart(MultiIndex *smart_index) : ComponentPrune_smart(smart_index) {}
+        explicit ComponentPruneHeuristic_multi(MultiIndex *smart_index) : ComponentPrune_multi(smart_index) {}
 
         void PruneInner_Fusion(unsigned q, unsigned range,
                         std::vector<MultiIndex::SimpleNeighbor> &pool, MultiIndex::SimpleNeighbor *cut_graph_, 
                         TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
-
-        // 占位符
-        // void PruneInner_smart_4group_withOthers(unsigned query, int group, 
-        //                 std::vector<MultiIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks,
-        //                 TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
-        void PruneInner_smart_4group_withOthers(unsigned query, int group, 
+        void PruneInner_multi_4group_withOthers(unsigned query, int group, 
                         std::vector<MultiIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks,
                         TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) {};
-        // 占位符end
+    };
+
+    class ComponentPruneVamana_multi : public ComponentPrune_multi {
+    public:
+        explicit ComponentPruneVamana_multi(MultiIndex *smart_index) : ComponentPrune_multi(smart_index) {}
+
+        void PruneInner_multi_4group_withOthers(unsigned query, int group, 
+                        std::vector<MultiIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks,
+                        TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
+        void PruneInner_Fusion(unsigned q, unsigned range,
+                        std::vector<MultiIndex::SimpleNeighbor> &pool, MultiIndex::SimpleNeighbor *cut_graph_, 
+                        TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) {};
     };
 
 
@@ -443,18 +463,18 @@ namespace xmt {
 
     // ===== graph connectivity enforcer ===== 
     //                  ---> construct/component_CE.cpp
-    class ComponentConnectEnforcer_smart : public Component_smart {
+    class ComponentConnectEnforcer_multi : public Component_multi {
     public:
-        explicit ComponentConnectEnforcer_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentConnectEnforcer_multi(MultiIndex *smart_index) : Component_multi(smart_index) {}
 
-        virtual void ConnectEnforcerInner_smart(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;
+        virtual void ConnectEnforcerInner_multi(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;
     };
 
-    class ComponentRelaConnectEnforcer : public ComponentConnectEnforcer_smart {
+    class ComponentRelaConnectEnforcer : public ComponentConnectEnforcer_multi {
     public:
-        explicit ComponentRelaConnectEnforcer(MultiIndex *smart_index) : ComponentConnectEnforcer_smart(smart_index) {}
+        explicit ComponentRelaConnectEnforcer(MultiIndex *smart_index) : ComponentConnectEnforcer_multi(smart_index) {}
 
-        void ConnectEnforcerInner_smart(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
+        void ConnectEnforcerInner_multi(TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
 
     private:
         bool FindIsolate(unsigned ep, std::vector<int> relaGroup, std::set<unsigned> &isolate_ids);
@@ -478,31 +498,31 @@ namespace xmt {
     // *******************
     // ===== search entry ===== 
     //                  ---> search/component_search_entry.cpp
-    class ComponentSearchEntry_smart : public Component_smart {
+    class ComponentSearchEntry_multi : public Component_multi {
     public:
-        explicit ComponentSearchEntry_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentSearchEntry_multi(MultiIndex *smart_index) : Component_multi(smart_index) {}
 
-        virtual void SearchEntryInner_smart(unsigned query, std::vector<MultiIndex::Neighbor> &pool, 
+        virtual void SearchEntryInner_multi(unsigned query, std::vector<MultiIndex::Neighbor> &pool, 
                                             std::vector<int> &needCalField, std::vector<int> &needIndeces, 
                                             std::vector<unsigned> &checkEps, boost::dynamic_bitset<> &flags,
                                             TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;
     };
 
-    class ComponentSearchEntryNone_Fusion : public ComponentSearchEntry_smart {
+    class ComponentSearchEntryNone_Fusion : public ComponentSearchEntry_multi {
     public:
-        explicit ComponentSearchEntryNone_Fusion(MultiIndex *smart_index) : ComponentSearchEntry_smart(smart_index) {}
+        explicit ComponentSearchEntryNone_Fusion(MultiIndex *smart_index) : ComponentSearchEntry_multi(smart_index) {}
 
-        void SearchEntryInner_smart(unsigned query, std::vector<MultiIndex::Neighbor> &pool, 
+        void SearchEntryInner_multi(unsigned query, std::vector<MultiIndex::Neighbor> &pool, 
                                     std::vector<int> &needCalField, std::vector<int> &needIndeces, 
                                     std::vector<unsigned> &checkEps, boost::dynamic_bitset<> &flags, 
                                     TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
     };
 
-    class ComponentSearchEntryCentroid_smart : public ComponentSearchEntry_smart {
+    class ComponentSearchEntryCentroid_multi : public ComponentSearchEntry_multi {
     public:
-        explicit ComponentSearchEntryCentroid_smart(MultiIndex *smart_index) : ComponentSearchEntry_smart(smart_index) {}
+        explicit ComponentSearchEntryCentroid_multi(MultiIndex *smart_index) : ComponentSearchEntry_multi(smart_index) {}
 
-        void SearchEntryInner_smart(unsigned query, std::vector<MultiIndex::Neighbor> &pool, 
+        void SearchEntryInner_multi(unsigned query, std::vector<MultiIndex::Neighbor> &pool, 
                                     std::vector<int> &needCalField, std::vector<int> &needIndeces, 
                                     std::vector<unsigned> &checkEps, boost::dynamic_bitset<> &flags, 
                                     TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
@@ -516,27 +536,27 @@ namespace xmt {
 
     // ===== search route ===== 
     //                  ---> search/component_search_route.cpp
-    class ComponentSearchRoute_smart : public Component_smart {
+    class ComponentSearchRoute_multi : public Component_multi {
     public:
-        explicit ComponentSearchRoute_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentSearchRoute_multi(MultiIndex *smart_index) : Component_multi(smart_index) {}
 
-        virtual void RouteInner_dist_smart(unsigned query, std::vector<MultiIndex::Neighbor> &pool, std::vector<unsigned> &res, std::vector<float> &dist_res, 
+        virtual void RouteInner_dist_multi(unsigned query, std::vector<MultiIndex::Neighbor> &pool, std::vector<unsigned> &res, std::vector<float> &dist_res, 
                                             std::vector<int> &needCalField, std::vector<int> &needIndeces, boost::dynamic_bitset<> &flags, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) = 0;
     };
 
-    class ComponentSearchRouteGreedy_smart : public ComponentSearchRoute_smart {
+    class ComponentSearchRouteGreedy_multi : public ComponentSearchRoute_multi {
     public:
-        explicit ComponentSearchRouteGreedy_smart(MultiIndex *smart_index) : ComponentSearchRoute_smart(smart_index) {}
+        explicit ComponentSearchRouteGreedy_multi(MultiIndex *smart_index) : ComponentSearchRoute_multi(smart_index) {}
 
-        void RouteInner_dist_smart(unsigned query, std::vector<MultiIndex::Neighbor> &pool, std::vector<unsigned> &res, std::vector<float> &dist_res, 
+        void RouteInner_dist_multi(unsigned query, std::vector<MultiIndex::Neighbor> &pool, std::vector<unsigned> &res, std::vector<float> &dist_res, 
                                     std::vector<int> &needCalField, std::vector<int> &needIndeces, boost::dynamic_bitset<> &flags, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
     };
 
-    class ComponentSearchRouteHNSW_Fusion : public ComponentSearchRoute_smart {
+    class ComponentSearchRouteHNSW_Fusion : public ComponentSearchRoute_multi {
     public:
-        explicit ComponentSearchRouteHNSW_Fusion(MultiIndex *smart_index) : ComponentSearchRoute_smart(smart_index) {}
+        explicit ComponentSearchRouteHNSW_Fusion(MultiIndex *smart_index) : ComponentSearchRoute_multi(smart_index) {}
 
-        void RouteInner_dist_smart(unsigned query, std::vector<MultiIndex::Neighbor> &pool, std::vector<unsigned> &res, std::vector<float> &dist_res, 
+        void RouteInner_dist_multi(unsigned query, std::vector<MultiIndex::Neighbor> &pool, std::vector<unsigned> &res, std::vector<float> &dist_res, 
                                     std::vector<int> &needCalField, std::vector<int> &needIndeces, boost::dynamic_bitset<> &flags, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN) override;
     private:
         void SearchAtLayer(unsigned qnode, MultiIndex::HnswNode *enterpoint, int level,
@@ -553,61 +573,61 @@ namespace xmt {
     
     // ===== search flow ===== 
     //                  ---> search/component_search_flow.cpp
-    class ComponentSearchFlow_smart : public Component_smart {
+    class ComponentSearchFlow_multi : public Component_multi {
     public:
-        explicit ComponentSearchFlow_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentSearchFlow_multi(MultiIndex *smart_index) : Component_multi(smart_index) {}
     };
 
-    class ComponentSearchFlowLoadWeight_smart : public ComponentSearchFlow_smart {
+    class ComponentSearchFlowLoadWeight_multi : public ComponentSearchFlow_multi {
     public:
-        explicit ComponentSearchFlowLoadWeight_smart(MultiIndex *smart_index) : ComponentSearchFlow_smart(smart_index) {}
+        explicit ComponentSearchFlowLoadWeight_multi(MultiIndex *smart_index) : ComponentSearchFlow_multi(smart_index) {}
         
-        void FlowInner_WeightOnce_smart_FallbackIntersect(unsigned K, unsigned L, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
+        void FlowInner_WeightOnce_multi_FallbackIntersect(unsigned K, unsigned L, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b, 
                                     float &recall, float&latency, float &hop, float &distCount, 
                                     TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
-        void FlowInner_WeightOnce_smart_intersect(unsigned K, unsigned L, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
+        void FlowInner_WeightOnce_multi_intersect(unsigned K, unsigned L, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b, 
                                     float &recall, float&latency, float &hop, float &distCount, 
                                     TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
-        void FlowInner_WeightOnce_smart_exactRepre(unsigned K, unsigned L, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
+        void FlowInner_WeightOnce_multi_exactRepre(unsigned K, unsigned L, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b, 
                                     float &recall, float&latency, float &hop, float &distCount, 
                                     TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
-        void FlowInner_WeightOnce_smart_allIndex(unsigned K, unsigned L, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
+        void FlowInner_WeightOnce_multi_allIndex(unsigned K, unsigned L, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b, 
                                     float &recall, float&latency, float &hop, float &distCount, 
                                     TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
-        void FlowInner_WeightOnce_smart_FallbackIntersect_forDiff_wi(unsigned K, unsigned L, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
+        void FlowInner_WeightOnce_multi_FallbackIntersect_forDiff_wi(unsigned K, unsigned L, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b, 
                                     float &recall, float&latency, float &hop, float &distCount, 
                                     TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
         
 
 
-        void FlowInner_WeightOnceControL_smart_FallbackIntersect(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
+        void FlowInner_WeightOnceControL_multi_FallbackIntersect(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b, 
                                                 std::vector<float> &recall_list, std::vector<float> &latency_list,
                                                 std::vector<float> &hop_list, std::vector<float> &distCount_list,
                                                 TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
-        void FlowInner_WeightOnceControL_smart_intersect(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
+        void FlowInner_WeightOnceControL_multi_intersect(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b, 
                                                 std::vector<float> &recall_list, std::vector<float> &latency_list,
                                                 std::vector<float> &hop_list, std::vector<float> &distCount_list,
                                                 TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
-        void FlowInner_WeightOnceControL_smart_exactRepre(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
+        void FlowInner_WeightOnceControL_multi_exactRepre(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b, 
                                                 std::vector<float> &recall_list, std::vector<float> &latency_list,
                                                 std::vector<float> &hop_list, std::vector<float> &distCount_list,
                                                 TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
-        void FlowInner_WeightOnceControL_smart_allIndex(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
+        void FlowInner_WeightOnceControL_multi_allIndex(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b, 
                                                 std::vector<float> &recall_list, std::vector<float> &latency_list,
                                                 std::vector<float> &hop_list, std::vector<float> &distCount_list,
                                                 TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
-        void FlowInner_WeightOnceControL_smart_FallbackIntersect_forDiff_wi(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b, 
+        void FlowInner_WeightOnceControL_multi_FallbackIntersect_forDiff_wi(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b, 
                                                 std::vector<float> &recall_list, std::vector<float> &latency_list,
                                                 std::vector<float> &hop_list, std::vector<float> &distCount_list,
                                                 TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
 
     private:
-        void prepareForSearch_smart_SetNeedCalField(unsigned query,std::vector<int> &needCalField, std::vector<int> &needIndeces, std::vector<unsigned> &checkEps);
-        void prepareForSearch_smart_SavedAGS_FallbackIntersect(unsigned query,std::vector<int> &needCalField, std::vector<int> &needIndeces, std::vector<unsigned> &checkEps);
-        void prepareForSearch_smart_intersect(unsigned query,std::vector<int> &needCalField, std::vector<int> &needIndeces, std::vector<unsigned> &checkEps);
-        void prepareForSearch_smart_exactRepre(unsigned query,std::vector<int> &needCalField, std::vector<int> &needIndeces, std::vector<unsigned> &checkEps);
-        void prepareForSearch_smart_allIndex(unsigned query,std::vector<int> &needCalField, std::vector<int> &needIndeces, std::vector<unsigned> &checkEps);
+        void prepareForSearch_multi_SetNeedCalField(unsigned query,std::vector<int> &needCalField, std::vector<int> &needIndeces, std::vector<unsigned> &checkEps);
+        void prepareForSearch_multi_SavedAGS_FallbackIntersect(unsigned query,std::vector<int> &needCalField, std::vector<int> &needIndeces, std::vector<unsigned> &checkEps);
+        void prepareForSearch_multi_intersect(unsigned query,std::vector<int> &needCalField, std::vector<int> &needIndeces, std::vector<unsigned> &checkEps);
+        void prepareForSearch_multi_exactRepre(unsigned query,std::vector<int> &needCalField, std::vector<int> &needIndeces, std::vector<unsigned> &checkEps);
+        void prepareForSearch_multi_allIndex(unsigned query,std::vector<int> &needCalField, std::vector<int> &needIndeces, std::vector<unsigned> &checkEps);
     };
 
 
@@ -619,12 +639,12 @@ namespace xmt {
 
     // ===== ground-truth ===== 
     //                  ---> search/component_GT.cpp
-    class ComponentGroundTruth_smart : public Component_smart {
+    class ComponentGroundTruth_multi : public Component_multi {
     public:
-        explicit ComponentGroundTruth_smart(MultiIndex *smart_index) : Component_smart(smart_index) {}
+        explicit ComponentGroundTruth_multi(MultiIndex *smart_index) : Component_multi(smart_index) {}
 
-        void GroundInner_smart(unsigned K, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
-        void GroundInner_smart_load(unsigned w, unsigned K, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+        void GroundInner_multi(unsigned K, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+        void GroundInner_multi_load(unsigned w, unsigned K, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
     };
 }
 #endif //XMT_COMPONENT_H

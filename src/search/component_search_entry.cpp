@@ -7,12 +7,12 @@
 
 namespace xmt {
 
-    void ComponentSearchEntryNone_Fusion::SearchEntryInner_smart(unsigned query, std::vector<MultiIndex::Neighbor> &pool,
+    void ComponentSearchEntryNone_Fusion::SearchEntryInner_multi(unsigned query, std::vector<MultiIndex::Neighbor> &pool,
                                                                  std::vector<int> &needCalField, std::vector<int> &needIndeces,
                                                                  std::vector<unsigned> &checkEps, boost::dynamic_bitset<> &flags,
                                                                  TYPE dist_type) {};
 
-    void ComponentSearchEntryCentroid_smart::SearchEntryInner_smart(unsigned int query, std::vector<MultiIndex::Neighbor> &pool,
+    void ComponentSearchEntryCentroid_multi::SearchEntryInner_multi(unsigned int query, std::vector<MultiIndex::Neighbor> &pool,
                                                                     std::vector<int> &needCalField, std::vector<int> &needIndeces,
                                                                     std::vector<unsigned> &checkEps, boost::dynamic_bitset<> &flags, TYPE dist_type)
     {
@@ -31,7 +31,7 @@ namespace xmt {
             {
                 continue;
             }
-            float dist = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), query,
+            float dist = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), query,
                                                                       smart_index->getBaseDataList(), id,
                                                                       smart_index->getBaseDimList(), needCalField,
                                                                       weight, dist_type);

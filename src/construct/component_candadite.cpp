@@ -8,7 +8,7 @@ namespace xmt {
     // ----------------------------------------------------------------------------------------------------
     // PolyGraph, Vamana-series
     // ----------------------------------------------------------------------------------------------------
-    void ComponentCandidateAGS_smart::CandidateInner_smart_4group_STAR_allIndex(
+    void ComponentCandidateAGS_multi::CandidateInner_multi_4group_STAR_allIndex(
         const unsigned query, const unsigned enter, int group, boost::dynamic_bitset<> flags,
         std::vector<MultiIndex::SimpleNeighbor> &result, std::vector<std::mutex> &locks, TYPE dist_type)
     {
@@ -57,7 +57,7 @@ namespace xmt {
         for (unsigned i = 0; i < init_ids.size(); i++)
         {
             unsigned id = init_ids[i];
-            float dist = smart_index->getDist()->compare_smart_weight(smart_index->getBaseDataList(), query,
+            float dist = smart_index->getDist()->compare_multi_weight(smart_index->getBaseDataList(), query,
                                                                       smart_index->getBaseDataList(), id,
                                                                       smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                       smart_index->getGroupRepreList()[group], dist_type);
@@ -93,7 +93,7 @@ namespace xmt {
                             continue;
                         flags[id] = true;
 
-                        float dist = smart_index->getDist()->compare_smart_weight(smart_index->getBaseDataList(), query,
+                        float dist = smart_index->getDist()->compare_multi_weight(smart_index->getBaseDataList(), query,
                                                                                   smart_index->getBaseDataList(), id,
                                                                                   smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                                   smart_index->getGroupRepreList()[group], dist_type);
@@ -127,7 +127,7 @@ namespace xmt {
                     continue;
                 flags[id] = true;
 
-                float dist = smart_index->getDist()->compare_smart_weight(smart_index->getBaseDataList(), query,
+                float dist = smart_index->getDist()->compare_multi_weight(smart_index->getBaseDataList(), query,
                                                                           smart_index->getBaseDataList(), id,
                                                                           smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                           smart_index->getGroupRepreList()[group], dist_type);
@@ -145,7 +145,7 @@ namespace xmt {
     // ----------------------------------------------------------------------------------------------------
     // Oracle
     // ----------------------------------------------------------------------------------------------------
-    void ComponentCandidateAGS_smart::CandidateInner_smart_4group_STAR(
+    void ComponentCandidateAGS_multi::CandidateInner_multi_4group_STAR(
         const unsigned query, const unsigned enter, int group, boost::dynamic_bitset<> flags,
         std::vector<MultiIndex::SimpleNeighbor> &result, std::vector<std::mutex> &locks, TYPE dist_type)
     {
@@ -196,7 +196,7 @@ namespace xmt {
         for (unsigned i = 0; i < init_ids.size(); i++)
         {
             unsigned id = init_ids[i];
-            float dist = smart_index->getDist()->compare_smart_weight(smart_index->getBaseDataList(), query,
+            float dist = smart_index->getDist()->compare_multi_weight(smart_index->getBaseDataList(), query,
                                                                       smart_index->getBaseDataList(), id,
                                                                       smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                       smart_index->getGroupRepreList()[group], dist_type);
@@ -232,7 +232,7 @@ namespace xmt {
                             continue;
                         flags[id] = true;
 
-                        float dist = smart_index->getDist()->compare_smart_weight(smart_index->getBaseDataList(), query,
+                        float dist = smart_index->getDist()->compare_multi_weight(smart_index->getBaseDataList(), query,
                                                                                   smart_index->getBaseDataList(), id,
                                                                                   smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                                   smart_index->getGroupRepreList()[group], dist_type);
@@ -265,7 +265,7 @@ namespace xmt {
                     continue;
                 flags[id] = true;
 
-                float dist = smart_index->getDist()->compare_smart_weight(smart_index->getBaseDataList(), query,
+                float dist = smart_index->getDist()->compare_multi_weight(smart_index->getBaseDataList(), query,
                                                                           smart_index->getBaseDataList(), id,
                                                                           smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                           smart_index->getGroupRepreList()[group], dist_type);

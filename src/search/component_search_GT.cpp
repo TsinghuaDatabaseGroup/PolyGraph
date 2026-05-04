@@ -7,7 +7,7 @@
 // ======================================
 
 namespace xmt {
-    void ComponentGroundTruth_smart::GroundInner_smart(unsigned K, TYPE dist_type)
+    void ComponentGroundTruth_multi::GroundInner_multi(unsigned K, TYPE dist_type)
     {
         // ## 1. search to get ground-truths
         std::vector<std::vector<unsigned>> res_list;
@@ -48,7 +48,7 @@ namespace xmt {
         smart_index->reSetGroundData(ground, K);
     }
 
-    void ComponentGroundTruth_smart::GroundInner_smart_load(unsigned w, unsigned K, TYPE dist_type)
+    void ComponentGroundTruth_multi::GroundInner_multi_load(unsigned w, unsigned K, TYPE dist_type)
     {
         // ## 1. Read-Ground-truth from fiel to get ground-truths
         // ground_data
@@ -61,7 +61,7 @@ namespace xmt {
 
         if (ground_num != smart_index->getQueryLen() || ground_dim < K)
         {
-            GroundInner_smart(K, dist_type);
+            GroundInner_multi(K, dist_type);
         }
         else
         {

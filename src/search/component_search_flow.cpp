@@ -6,7 +6,7 @@
 // ======================================
 
 namespace xmt {
-    void ComponentSearchFlowLoadWeight_smart::prepareForSearch_smart_exactRepre(unsigned query, std::vector<int> &needCalField, std::vector<int> &needIndeces,
+    void ComponentSearchFlowLoadWeight_multi::prepareForSearch_multi_exactRepre(unsigned query, std::vector<int> &needCalField, std::vector<int> &needIndeces,
                                                                                 std::vector<unsigned> &checkEps)
     {
         std::vector<float> weight = smart_index->getSearchWeight_q(query);
@@ -76,7 +76,7 @@ namespace xmt {
         }
     }
 
-    void ComponentSearchFlowLoadWeight_smart::prepareForSearch_smart_SavedAGS_FallbackIntersect(unsigned query, std::vector<int> &needCalField, std::vector<int> &needIndeces,
+    void ComponentSearchFlowLoadWeight_multi::prepareForSearch_multi_SavedAGS_FallbackIntersect(unsigned query, std::vector<int> &needCalField, std::vector<int> &needIndeces,
                                                                      std::vector<unsigned> &checkEps)
     {
         std::vector<float> weight = smart_index->getSearchWeight_q(query);
@@ -119,14 +119,14 @@ namespace xmt {
         }
         else {
             // FallBack to Intersect
-            prepareForSearch_smart_intersect(query, needCalField, needIndeces, checkEps);
+            prepareForSearch_multi_intersect(query, needCalField, needIndeces, checkEps);
         }
 
         // FallBack to Intersect
-        if (needIndeces.size() == 0) { prepareForSearch_smart_intersect(query, needCalField, needIndeces, checkEps); }
+        if (needIndeces.size() == 0) { prepareForSearch_multi_intersect(query, needCalField, needIndeces, checkEps); }
     }
 
-    void ComponentSearchFlowLoadWeight_smart::prepareForSearch_smart_intersect(unsigned query, std::vector<int> &needCalField, std::vector<int> &needIndeces,
+    void ComponentSearchFlowLoadWeight_multi::prepareForSearch_multi_intersect(unsigned query, std::vector<int> &needCalField, std::vector<int> &needIndeces,
                                                                      std::vector<unsigned> &checkEps)
     {
         std::vector<float> weight = smart_index->getSearchWeight_q(query);
@@ -165,7 +165,7 @@ namespace xmt {
         }
     }
 
-    void ComponentSearchFlowLoadWeight_smart::prepareForSearch_smart_SetNeedCalField(unsigned query, std::vector<int> &needCalField, std::vector<int> &needIndeces,
+    void ComponentSearchFlowLoadWeight_multi::prepareForSearch_multi_SetNeedCalField(unsigned query, std::vector<int> &needCalField, std::vector<int> &needIndeces,
                                                                      std::vector<unsigned> &checkEps)
     {
         std::vector<float> weight = smart_index->getSearchWeight_q(query);
@@ -179,7 +179,7 @@ namespace xmt {
         }
     }
 
-    void ComponentSearchFlowLoadWeight_smart::prepareForSearch_smart_allIndex(unsigned query, std::vector<int> &needCalField, std::vector<int> &needIndeces,
+    void ComponentSearchFlowLoadWeight_multi::prepareForSearch_multi_allIndex(unsigned query, std::vector<int> &needCalField, std::vector<int> &needIndeces,
                                                                                 std::vector<unsigned> &checkEps)
     {
         std::vector<float> weight = smart_index->getSearchWeight_q(query);
@@ -214,7 +214,7 @@ namespace xmt {
         }
     }
 
-    void ComponentSearchFlowLoadWeight_smart::FlowInner_WeightOnce_smart_FallbackIntersect(unsigned K, unsigned L, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b,
+    void ComponentSearchFlowLoadWeight_multi::FlowInner_WeightOnce_multi_FallbackIntersect(unsigned K, unsigned L, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b,
                                                                          float &recall, float &latency, float &hop, float &distCount, TYPE dist_type)
     {
         // ## 0. preliminary: parameters & summary
@@ -240,7 +240,7 @@ namespace xmt {
         // 如果构建时候定下的rela_thresh和查询时候想用的query_rela_thresh不一样，则根据bash_log中信息，选定一下使用哪个group: 如此书写仅为了方便WAGS的parameter-test
         if (smart_index->getSearchRelaSimThresh() != smart_index->getRelaThresh()) {
             std::cout << "❗️ ❗️ [ Warning ]: This are only allowed for doing prarmeterst test of c in WAGS， by pretending that the activation table we prepared is based on the current parameter values c = " << smart_index->getSearchRelaSimThresh() << ".❗️ ❗️ " << std::endl;
-            std::cout << "__ [ NeedIndeces ] are get according to log information in (FlowInner_WeightOnce_smart_FallbackIntersect) __" << std::endl;
+            std::cout << "__ [ NeedIndeces ] are get according to log information in (FlowInner_WeightOnce_multi_FallbackIntersect) __" << std::endl;
 
             std::string bash_path = "../include/python_file/bash.log_now";
             smart_index->preSetNeedIndeces_FallbackIntersect(smart_index->getSearchWeight_q(0), bash_path); 
@@ -253,10 +253,10 @@ namespace xmt {
             {
                 std::vector<MultiIndex::Neighbor> pool;
                 boost::dynamic_bitset<> flags{smart_index->getBaseLen(), 0};
-                prepareForSearch_smart_SetNeedCalField(i, needCalField, needIndeces, checkEps); 
+                prepareForSearch_multi_SetNeedCalField(i, needCalField, needIndeces, checkEps); 
 
                 auto s2 = std::chrono::high_resolution_clock::now();
-                a->SearchEntryInner_smart(i, pool, needCalField, needIndeces, checkEps, flags, dist_type);
+                a->SearchEntryInner_multi(i, pool, needCalField, needIndeces, checkEps, flags, dist_type);
                 auto e2 = std::chrono::high_resolution_clock::now();
                 diff1 += e2 - s2;
 
@@ -270,7 +270,7 @@ namespace xmt {
                 }
                 
                 s2 = std::chrono::high_resolution_clock::now();
-                b->RouteInner_dist_smart(i, pool, res_list[i], dist_res_list[i], needCalField, needIndeces, flags, dist_type);
+                b->RouteInner_dist_multi(i, pool, res_list[i], dist_res_list[i], needCalField, needIndeces, flags, dist_type);
                 e2 = std::chrono::high_resolution_clock::now();
                 diff2 += e2 - s2;
             }
@@ -283,10 +283,10 @@ namespace xmt {
             {
                 std::vector<MultiIndex::Neighbor> pool;
                 boost::dynamic_bitset<> flags{smart_index->getBaseLen(), 0};
-                prepareForSearch_smart_SavedAGS_FallbackIntersect(i, needCalField, needIndeces, checkEps); // 2026.03.25: 尝试savedAGS + Fallback-Intersect
+                prepareForSearch_multi_SavedAGS_FallbackIntersect(i, needCalField, needIndeces, checkEps); // 2026.03.25: 尝试savedAGS + Fallback-Intersect
 
                 auto s2 = std::chrono::high_resolution_clock::now();
-                a->SearchEntryInner_smart(i, pool, needCalField, needIndeces, checkEps, flags, dist_type);
+                a->SearchEntryInner_multi(i, pool, needCalField, needIndeces, checkEps, flags, dist_type);
                 auto e2 = std::chrono::high_resolution_clock::now();
                 diff1 += e2 - s2;
 
@@ -300,7 +300,7 @@ namespace xmt {
                 }
                 
                 s2 = std::chrono::high_resolution_clock::now();
-                b->RouteInner_dist_smart(i, pool, res_list[i], dist_res_list[i], needCalField, needIndeces, flags, dist_type);
+                b->RouteInner_dist_multi(i, pool, res_list[i], dist_res_list[i], needCalField, needIndeces, flags, dist_type);
                 e2 = std::chrono::high_resolution_clock::now();
                 diff2 += e2 - s2;
             }
@@ -336,10 +336,10 @@ namespace xmt {
                 {
                     std::vector<int> needIndeces, needCalField;
                     std::vector<unsigned> checkEps;
-                    prepareForSearch_smart_intersect(i, needCalField, needIndeces, checkEps);
+                    prepareForSearch_multi_intersect(i, needCalField, needIndeces, checkEps);
                     for (unsigned j = 0; j < res_list[i].size(); j++)
                     {
-                        float search_k_dist = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), i,
+                        float search_k_dist = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), i,
                                                                                            smart_index->getBaseDataList(), res_list[i][j],
                                                                                            smart_index->getBaseDimList(), needCalField,
                                                                                            smart_index->getSearchWeight_q(i), dist_type);
@@ -357,13 +357,13 @@ namespace xmt {
                 if (dist_res_list[i].size() == 0) continue;
                 std::vector<int> needIndeces, needCalField;
                 std::vector<unsigned> checkEps;
-                prepareForSearch_smart_intersect(i, needCalField, needIndeces, checkEps);
-                float k_dist = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), i,
+                prepareForSearch_multi_intersect(i, needCalField, needIndeces, checkEps);
+                float k_dist = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), i,
                                                                             smart_index->getBaseDataList(), smart_index->getGroundData()[i * smart_index->getGroundDim() + K-1],
                                                                             smart_index->getBaseDimList(), needCalField,
                                                                             smart_index->getSearchWeight_q(i), dist_type);
                 for (unsigned j = 0; j < dist_res_list[i].size(); j++) {
-                    dist_res_list[i][j] = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), i,
+                    dist_res_list[i][j] = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), i,
                                                                             smart_index->getBaseDataList(), res_list[i][j],
                                                                             smart_index->getBaseDimList(), needCalField,
                                                                             smart_index->getSearchWeight_q(i), dist_type);
@@ -474,7 +474,7 @@ namespace xmt {
 
     };
 
-    void ComponentSearchFlowLoadWeight_smart::FlowInner_WeightOnce_smart_FallbackIntersect_forDiff_wi(unsigned K, unsigned L, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b,
+    void ComponentSearchFlowLoadWeight_multi::FlowInner_WeightOnce_multi_FallbackIntersect_forDiff_wi(unsigned K, unsigned L, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b,
                                                                          float &recall, float &latency, float &hop, float &distCount, TYPE dist_type)
     {
         // ## 0. preliminary: parameters & summary
@@ -501,7 +501,7 @@ namespace xmt {
         // 如果构建时候定下的rela_thresh和查询时候想用的query_rela_thresh不一样，则根据bash_log中信息，选定一下使用哪个group: 如此书写仅为了方便WAGS的parameter-test
         if (smart_index->getSearchRelaSimThresh() != smart_index->getRelaThresh()) {
             std::cout << "❗️ ❗️ [ Warning ]: This are only allowed for doing prarmeterst test of c in WAGS， by pretending that the activation table we prepared is based on the current parameter values c = " << smart_index->getSearchRelaSimThresh() << ".❗️ ❗️ " << std::endl;
-            std::cout << "__ [ NeedIndeces ] are get according to log information in (FlowInner_WeightOnce_smart_FallbackIntersect) __" << std::endl;
+            std::cout << "__ [ NeedIndeces ] are get according to log information in (FlowInner_WeightOnce_multi_FallbackIntersect) __" << std::endl;
 
             std::string bash_path = "../include/python_file/bash.log_now";
 
@@ -514,10 +514,10 @@ namespace xmt {
                 smart_index->preSetNeedIndeces_FallbackIntersect(smart_index->getSearchWeight_q(i), bash_path);
                 s1 = std::chrono::high_resolution_clock::now();
                 needIndeces = smart_index->getNeedIndeces();
-                prepareForSearch_smart_SetNeedCalField(i, needCalField, needIndeces, checkEps); 
+                prepareForSearch_multi_SetNeedCalField(i, needCalField, needIndeces, checkEps); 
 
                 auto s2 = std::chrono::high_resolution_clock::now();
-                a->SearchEntryInner_smart(i, pool, needCalField, needIndeces, checkEps, flags, dist_type);
+                a->SearchEntryInner_multi(i, pool, needCalField, needIndeces, checkEps, flags, dist_type);
                 auto e2 = std::chrono::high_resolution_clock::now();
                 diff1 += e2 - s2;
 
@@ -531,7 +531,7 @@ namespace xmt {
                 }
                 
                 s2 = std::chrono::high_resolution_clock::now();
-                b->RouteInner_dist_smart(i, pool, res_list[i], dist_res_list[i], needCalField, needIndeces, flags, dist_type);
+                b->RouteInner_dist_multi(i, pool, res_list[i], dist_res_list[i], needCalField, needIndeces, flags, dist_type);
                 e2 = std::chrono::high_resolution_clock::now();
                 diff2 += e2 - s2;
 
@@ -548,10 +548,10 @@ namespace xmt {
             {
                 std::vector<MultiIndex::Neighbor> pool;
                 boost::dynamic_bitset<> flags{smart_index->getBaseLen(), 0};
-                prepareForSearch_smart_SavedAGS_FallbackIntersect(i, needCalField, needIndeces, checkEps); // 2026.03.25: 尝试savedAGS + Fallback-Intersect
+                prepareForSearch_multi_SavedAGS_FallbackIntersect(i, needCalField, needIndeces, checkEps); // 2026.03.25: 尝试savedAGS + Fallback-Intersect
 
                 auto s2 = std::chrono::high_resolution_clock::now();
-                a->SearchEntryInner_smart(i, pool, needCalField, needIndeces, checkEps, flags, dist_type);
+                a->SearchEntryInner_multi(i, pool, needCalField, needIndeces, checkEps, flags, dist_type);
                 auto e2 = std::chrono::high_resolution_clock::now();
                 diff1 += e2 - s2;
 
@@ -565,7 +565,7 @@ namespace xmt {
                 }
                 
                 s2 = std::chrono::high_resolution_clock::now();
-                b->RouteInner_dist_smart(i, pool, res_list[i], dist_res_list[i], needCalField, needIndeces, flags, dist_type);
+                b->RouteInner_dist_multi(i, pool, res_list[i], dist_res_list[i], needCalField, needIndeces, flags, dist_type);
                 e2 = std::chrono::high_resolution_clock::now();
                 diff2 += e2 - s2;
             }
@@ -600,10 +600,10 @@ namespace xmt {
                 {
                     std::vector<int> needIndeces, needCalField;
                     std::vector<unsigned> checkEps;
-                    prepareForSearch_smart_intersect(i, needCalField, needIndeces, checkEps);
+                    prepareForSearch_multi_intersect(i, needCalField, needIndeces, checkEps);
                     for (unsigned j = 0; j < res_list[i].size(); j++)
                     {
-                        float search_k_dist = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), i,
+                        float search_k_dist = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), i,
                                                                                            smart_index->getBaseDataList(), res_list[i][j],
                                                                                            smart_index->getBaseDimList(), needCalField,
                                                                                            smart_index->getSearchWeight_q(i), dist_type);
@@ -621,13 +621,13 @@ namespace xmt {
                 if (dist_res_list[i].size() == 0) continue;
                 std::vector<int> needIndeces, needCalField;
                 std::vector<unsigned> checkEps;
-                prepareForSearch_smart_intersect(i, needCalField, needIndeces, checkEps);
-                float k_dist = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), i,
+                prepareForSearch_multi_intersect(i, needCalField, needIndeces, checkEps);
+                float k_dist = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), i,
                                                                             smart_index->getBaseDataList(), smart_index->getGroundData()[i * smart_index->getGroundDim() + K-1],
                                                                             smart_index->getBaseDimList(), needCalField,
                                                                             smart_index->getSearchWeight_q(i), dist_type);
                 for (unsigned j = 0; j < dist_res_list[i].size(); j++) {
-                    dist_res_list[i][j] = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), i,
+                    dist_res_list[i][j] = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), i,
                                                                             smart_index->getBaseDataList(), res_list[i][j],
                                                                             smart_index->getBaseDimList(), needCalField,
                                                                             smart_index->getSearchWeight_q(i), dist_type);
@@ -738,7 +738,7 @@ namespace xmt {
 
     };
 
-    void ComponentSearchFlowLoadWeight_smart::FlowInner_WeightOnce_smart_intersect(unsigned K, unsigned L, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b,
+    void ComponentSearchFlowLoadWeight_multi::FlowInner_WeightOnce_multi_intersect(unsigned K, unsigned L, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b,
                                                                          float &recall, float &latency, float &hop, float &distCount, TYPE dist_type)
     {
         std::cout << "__weight_type == LOAD_WEIGHT__" << std::endl; 
@@ -770,10 +770,10 @@ namespace xmt {
         {
             std::vector<MultiIndex::Neighbor> pool;
             boost::dynamic_bitset<> flags{smart_index->getBaseLen(), 0};
-            prepareForSearch_smart_intersect(i, needCalField, needIndeces, checkEps);
+            prepareForSearch_multi_intersect(i, needCalField, needIndeces, checkEps);
 
             auto s2 = std::chrono::high_resolution_clock::now();
-            a->SearchEntryInner_smart(i, pool, needCalField, needIndeces, checkEps, flags, dist_type);
+            a->SearchEntryInner_multi(i, pool, needCalField, needIndeces, checkEps, flags, dist_type);
             auto e2 = std::chrono::high_resolution_clock::now();
             diff1 += e2 - s2;
 
@@ -787,7 +787,7 @@ namespace xmt {
             }
             
             s2 = std::chrono::high_resolution_clock::now();
-            b->RouteInner_dist_smart(i, pool, res_list[i], dist_res_list[i], needCalField, needIndeces, flags, dist_type);
+            b->RouteInner_dist_multi(i, pool, res_list[i], dist_res_list[i], needCalField, needIndeces, flags, dist_type);
             e2 = std::chrono::high_resolution_clock::now();
             diff2 += e2 - s2;
         }
@@ -821,11 +821,11 @@ namespace xmt {
                 {
                     std::vector<int> needIndeces, needCalField;
                     std::vector<unsigned> checkEps;
-                    // prepareForSearch_smart_intersect(i, needIndeces, needCalField, checkEps);
-                    prepareForSearch_smart_intersect(i, needCalField, needIndeces, checkEps);
+                    // prepareForSearch_multi_intersect(i, needIndeces, needCalField, checkEps);
+                    prepareForSearch_multi_intersect(i, needCalField, needIndeces, checkEps);
                     for (unsigned j = 0; j < res_list[i].size(); j++)
                     {
-                        float search_k_dist = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), i,
+                        float search_k_dist = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), i,
                                                                                            smart_index->getBaseDataList(), res_list[i][j],
                                                                                            smart_index->getBaseDimList(), needCalField,
                                                                                            smart_index->getSearchWeight_q(i), dist_type);
@@ -842,13 +842,13 @@ namespace xmt {
                 if (dist_res_list[i].size() == 0) continue;
                 std::vector<int> needIndeces, needCalField;
                 std::vector<unsigned> checkEps;
-                prepareForSearch_smart_intersect(i, needCalField, needIndeces, checkEps);
-                float k_dist = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), i,
+                prepareForSearch_multi_intersect(i, needCalField, needIndeces, checkEps);
+                float k_dist = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), i,
                                                                             smart_index->getBaseDataList(), smart_index->getGroundData()[i * smart_index->getGroundDim() + K-1],
                                                                             smart_index->getBaseDimList(), needCalField,
                                                                             smart_index->getSearchWeight_q(i), dist_type);
                 for (unsigned j = 0; j < dist_res_list[i].size(); j++) {
-                    dist_res_list[i][j] = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), i,
+                    dist_res_list[i][j] = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), i,
                                                                             smart_index->getBaseDataList(), res_list[i][j],
                                                                             smart_index->getBaseDimList(), needCalField,
                                                                             smart_index->getSearchWeight_q(i), dist_type);
@@ -958,7 +958,7 @@ namespace xmt {
         std::cout << "search_time:" << std::to_string(latency) << std::endl;
     };
 
-    void ComponentSearchFlowLoadWeight_smart::FlowInner_WeightOnce_smart_exactRepre(unsigned K, unsigned L, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b,
+    void ComponentSearchFlowLoadWeight_multi::FlowInner_WeightOnce_multi_exactRepre(unsigned K, unsigned L, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b,
                                                                                     float &recall, float &latency, float &hop, float &distCount, TYPE dist_type)
     {
         std::cout << "__weight_type == LOAD_WEIGHT__" << std::endl;
@@ -987,15 +987,15 @@ namespace xmt {
             std::vector<unsigned> checkEps;
             std::vector<MultiIndex::Neighbor> pool;
             boost::dynamic_bitset<> flags{smart_index->getBaseLen(), 0};
-            prepareForSearch_smart_exactRepre(i, needCalField, needIndeces, checkEps);
+            prepareForSearch_multi_exactRepre(i, needCalField, needIndeces, checkEps);
 
             auto s2 = std::chrono::high_resolution_clock::now();
-            a->SearchEntryInner_smart(i, pool, needCalField, needIndeces, checkEps, flags, dist_type);
+            a->SearchEntryInner_multi(i, pool, needCalField, needIndeces, checkEps, flags, dist_type);
             auto e2 = std::chrono::high_resolution_clock::now();
             diff1 += e2 - s2;
 
             s2 = std::chrono::high_resolution_clock::now();
-            b->RouteInner_dist_smart(i, pool, res_list[i], dist_res_list[i], needCalField, needIndeces, flags, dist_type);
+            b->RouteInner_dist_multi(i, pool, res_list[i], dist_res_list[i], needCalField, needIndeces, flags, dist_type);
             e2 = std::chrono::high_resolution_clock::now();
             diff2 += e2 - s2;
         }
@@ -1029,11 +1029,11 @@ namespace xmt {
                 {
                     std::vector<int> needIndeces, needCalField;
                     std::vector<unsigned> checkEps;
-                    // prepareForSearch_smart_intersect(i, needIndeces, needCalField, checkEps);
-                    prepareForSearch_smart_intersect(i, needCalField, needIndeces, checkEps);
+                    // prepareForSearch_multi_intersect(i, needIndeces, needCalField, checkEps);
+                    prepareForSearch_multi_intersect(i, needCalField, needIndeces, checkEps);
                     for (unsigned j = 0; j < res_list[i].size(); j++)
                     {
-                        float search_k_dist = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), i,
+                        float search_k_dist = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), i,
                                                                                            smart_index->getBaseDataList(), res_list[i][j],
                                                                                            smart_index->getBaseDimList(), needCalField,
                                                                                            smart_index->getSearchWeight_q(i), dist_type);
@@ -1050,13 +1050,13 @@ namespace xmt {
                 if (dist_res_list[i].size() == 0) continue;
                 std::vector<int> needIndeces, needCalField;
                 std::vector<unsigned> checkEps;
-                prepareForSearch_smart_intersect(i, needCalField, needIndeces, checkEps);
-                float k_dist = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), i,
+                prepareForSearch_multi_intersect(i, needCalField, needIndeces, checkEps);
+                float k_dist = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), i,
                                                                             smart_index->getBaseDataList(), smart_index->getGroundData()[i * smart_index->getGroundDim() + K-1],
                                                                             smart_index->getBaseDimList(), needCalField,
                                                                             smart_index->getSearchWeight_q(i), dist_type);
                 for (unsigned j = 0; j < dist_res_list[i].size(); j++) {
-                    dist_res_list[i][j] = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), i,
+                    dist_res_list[i][j] = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), i,
                                                                             smart_index->getBaseDataList(), res_list[i][j],
                                                                             smart_index->getBaseDimList(), needCalField,
                                                                             smart_index->getSearchWeight_q(i), dist_type);
@@ -1166,7 +1166,7 @@ namespace xmt {
         std::cout << "search_time:" << std::to_string(latency) << std::endl;
     };
 
-    void ComponentSearchFlowLoadWeight_smart::FlowInner_WeightOnce_smart_allIndex(unsigned K, unsigned L, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b,
+    void ComponentSearchFlowLoadWeight_multi::FlowInner_WeightOnce_multi_allIndex(unsigned K, unsigned L, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b,
                                                                          float &recall, float &latency, float &hop, float &distCount, TYPE dist_type)
     {
         std::cout << "__weight_type == LOAD_WEIGHT__" << std::endl;
@@ -1195,15 +1195,15 @@ namespace xmt {
             std::vector<unsigned> &checkEps = smart_index->each_ep_;
             std::vector<MultiIndex::Neighbor> pool;
             boost::dynamic_bitset<> flags{smart_index->getBaseLen(), 0};
-            prepareForSearch_smart_allIndex(i, needCalField, needIndeces, checkEps);
+            prepareForSearch_multi_allIndex(i, needCalField, needIndeces, checkEps);
 
             auto s2 = std::chrono::high_resolution_clock::now();
-            a->SearchEntryInner_smart(i, pool, needCalField, needIndeces, checkEps, flags, dist_type);
+            a->SearchEntryInner_multi(i, pool, needCalField, needIndeces, checkEps, flags, dist_type);
             auto e2 = std::chrono::high_resolution_clock::now();
             diff1 += e2 - s2;
 
             s2 = std::chrono::high_resolution_clock::now();
-            b->RouteInner_dist_smart(i, pool, res_list[i], dist_res_list[i], needCalField, needIndeces, flags, dist_type);
+            b->RouteInner_dist_multi(i, pool, res_list[i], dist_res_list[i], needCalField, needIndeces, flags, dist_type);
 
             e2 = std::chrono::high_resolution_clock::now();
             diff2 += e2 - s2;
@@ -1238,10 +1238,10 @@ namespace xmt {
                 {
                     std::vector<int> needIndeces, needCalField;
                     std::vector<unsigned> checkEps;
-                    prepareForSearch_smart_intersect(i, needCalField, needIndeces, checkEps);
+                    prepareForSearch_multi_intersect(i, needCalField, needIndeces, checkEps);
                     for (unsigned j = 0; j < res_list[i].size(); j++)
                     {
-                        float search_k_dist = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), i,
+                        float search_k_dist = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), i,
                                                                                            smart_index->getBaseDataList(), res_list[i][j],
                                                                                            smart_index->getBaseDimList(), needCalField,
                                                                                            smart_index->getSearchWeight_q(i), dist_type);
@@ -1258,13 +1258,13 @@ namespace xmt {
                 if (dist_res_list[i].size() == 0) continue;
                 std::vector<int> needIndeces, needCalField;
                 std::vector<unsigned> checkEps;
-                prepareForSearch_smart_intersect(i, needCalField, needIndeces, checkEps);
-                float k_dist = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), i,
+                prepareForSearch_multi_intersect(i, needCalField, needIndeces, checkEps);
+                float k_dist = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), i,
                                                                             smart_index->getBaseDataList(), smart_index->getGroundData()[i * smart_index->getGroundDim() + K-1],
                                                                             smart_index->getBaseDimList(), needCalField,
                                                                             smart_index->getSearchWeight_q(i), dist_type);
                 for (unsigned j = 0; j < dist_res_list[i].size(); j++) {
-                    dist_res_list[i][j] = smart_index->getDist()->compare_smart_weight(smart_index->getQueryDataList(), i,
+                    dist_res_list[i][j] = smart_index->getDist()->compare_multi_weight(smart_index->getQueryDataList(), i,
                                                                             smart_index->getBaseDataList(), res_list[i][j],
                                                                             smart_index->getBaseDimList(), needCalField,
                                                                             smart_index->getSearchWeight_q(i), dist_type);
@@ -1374,7 +1374,7 @@ namespace xmt {
         std::cout << "search_time:" << std::to_string(latency) << std::endl;
     };
 
-    void ComponentSearchFlowLoadWeight_smart::FlowInner_WeightOnceControL_smart_FallbackIntersect(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b,
+    void ComponentSearchFlowLoadWeight_multi::FlowInner_WeightOnceControL_multi_FallbackIntersect(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b,
                                                                                 std::vector<float> &recall_list, std::vector<float> &latency_list,
                                                                                 std::vector<float> &hop_list, std::vector<float> &distCount_list,
                                                                                 TYPE dist_type)
@@ -1383,11 +1383,11 @@ namespace xmt {
         for (unsigned ll = 0; ll < LRate.size(); ll++)
         {
             L = LRate[ll] * K;
-            FlowInner_WeightOnce_smart_FallbackIntersect(K, L, a, b, recall_list[ll], latency_list[ll], hop_list[ll], distCount_list[ll], dist_type);
+            FlowInner_WeightOnce_multi_FallbackIntersect(K, L, a, b, recall_list[ll], latency_list[ll], hop_list[ll], distCount_list[ll], dist_type);
         }
     };
 
-    void ComponentSearchFlowLoadWeight_smart::FlowInner_WeightOnceControL_smart_FallbackIntersect_forDiff_wi(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b,
+    void ComponentSearchFlowLoadWeight_multi::FlowInner_WeightOnceControL_multi_FallbackIntersect_forDiff_wi(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b,
                                                                                 std::vector<float> &recall_list, std::vector<float> &latency_list,
                                                                                 std::vector<float> &hop_list, std::vector<float> &distCount_list,
                                                                                 TYPE dist_type)
@@ -1396,11 +1396,11 @@ namespace xmt {
         for (unsigned ll = 0; ll < LRate.size(); ll++)
         {
             L = LRate[ll] * K;
-            FlowInner_WeightOnce_smart_FallbackIntersect_forDiff_wi(K, L, a, b, recall_list[ll], latency_list[ll], hop_list[ll], distCount_list[ll], dist_type);
+            FlowInner_WeightOnce_multi_FallbackIntersect_forDiff_wi(K, L, a, b, recall_list[ll], latency_list[ll], hop_list[ll], distCount_list[ll], dist_type);
         }
     };
 
-    void ComponentSearchFlowLoadWeight_smart::FlowInner_WeightOnceControL_smart_intersect(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b,
+    void ComponentSearchFlowLoadWeight_multi::FlowInner_WeightOnceControL_multi_intersect(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b,
                                                                                 std::vector<float> &recall_list, std::vector<float> &latency_list,
                                                                                 std::vector<float> &hop_list, std::vector<float> &distCount_list,
                                                                                 TYPE dist_type)
@@ -1409,11 +1409,11 @@ namespace xmt {
         for (unsigned ll = 0; ll < LRate.size(); ll++)
         {
             L = LRate[ll] * K;
-            FlowInner_WeightOnce_smart_intersect(K, L, a, b, recall_list[ll], latency_list[ll], hop_list[ll], distCount_list[ll], dist_type);
+            FlowInner_WeightOnce_multi_intersect(K, L, a, b, recall_list[ll], latency_list[ll], hop_list[ll], distCount_list[ll], dist_type);
         }
     };
 
-    void ComponentSearchFlowLoadWeight_smart::FlowInner_WeightOnceControL_smart_exactRepre(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b,
+    void ComponentSearchFlowLoadWeight_multi::FlowInner_WeightOnceControL_multi_exactRepre(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b,
                                                                                            std::vector<float> &recall_list, std::vector<float> &latency_list,
                                                                                            std::vector<float> &hop_list, std::vector<float> &distCount_list,
                                                                                            TYPE dist_type)
@@ -1422,11 +1422,11 @@ namespace xmt {
         for (unsigned ll = 0; ll < LRate.size(); ll++)
         {
             L = LRate[ll] * K;
-            FlowInner_WeightOnce_smart_exactRepre(K, L, a, b, recall_list[ll], latency_list[ll], hop_list[ll], distCount_list[ll], dist_type);
+            FlowInner_WeightOnce_multi_exactRepre(K, L, a, b, recall_list[ll], latency_list[ll], hop_list[ll], distCount_list[ll], dist_type);
         }
     };
 
-    void ComponentSearchFlowLoadWeight_smart::FlowInner_WeightOnceControL_smart_allIndex(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_smart *a, ComponentSearchRoute_smart *b,
+    void ComponentSearchFlowLoadWeight_multi::FlowInner_WeightOnceControL_multi_allIndex(unsigned K, std::vector<unsigned> &LRate, ComponentSearchEntry_multi *a, ComponentSearchRoute_multi *b,
                                                                                 std::vector<float> &recall_list, std::vector<float> &latency_list,
                                                                                 std::vector<float> &hop_list, std::vector<float> &distCount_list,
                                                                                 TYPE dist_type)
@@ -1435,7 +1435,7 @@ namespace xmt {
         for (unsigned ll = 0; ll < LRate.size(); ll++)
         {
             L = LRate[ll] * K;
-            FlowInner_WeightOnce_smart_allIndex(K, L, a, b, recall_list[ll], latency_list[ll], hop_list[ll], distCount_list[ll], dist_type);
+            FlowInner_WeightOnce_multi_allIndex(K, L, a, b, recall_list[ll], latency_list[ll], hop_list[ll], distCount_list[ll], dist_type);
         }
     };
 }

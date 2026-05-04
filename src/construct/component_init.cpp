@@ -12,10 +12,10 @@ namespace xmt {
     // ----------------------------------------------------------------------------------------------------
 
     /** 2025.06.20
-     * ComponentPreliminary_smart::SeperateInner_smart_GroupEquNoTotal()
+     * ComponentPreliminary_multi::SeperateInner_multi_GroupEquNoTotal()
      *      For "vamana_equNoTotal": related group = itself
      */
-    void ComponentPreliminary_smart::SeperateInner_smart_GroupEquNoTotal(Parameters &parameters)
+    void ComponentPreliminary_multi::SeperateInner_multi_GroupEquNoTotal(Parameters &parameters)
     {
         // ## --------- 对应每组传入representative vector进行indexing -----------------------------------------
         std::vector<std::vector<int>> groupList;      // 用于存储哪些 field 不为0 (即 proto 中非0 field 索引)
@@ -68,10 +68,10 @@ namespace xmt {
     }
 
     /** 2025.06.20
-     * ComponentPreliminary_smart::SeperateInner_smart_GroupFusion()
+     * ComponentPreliminary_multi::SeperateInner_multi_GroupFusion()
      *      For "vamana_fusion": related group = itself
      */
-    void ComponentPreliminary_smart::SeperateInner_smart_GroupFusion(Parameters &parameters)
+    void ComponentPreliminary_multi::SeperateInner_multi_GroupFusion(Parameters &parameters)
     {
         std::vector<std::vector<int>> groupList, relaList;
         std::vector<int> tmp, tmpRela = {0};
@@ -101,10 +101,10 @@ namespace xmt {
     }
 
     /** 2026.01.24
-     * ComponentPreliminary_smart::SeperateInner_smart_GroupAllWeight()
+     * ComponentPreliminary_multi::SeperateInner_multi_GroupAllWeight()
      *      For "vamana_equNoTotal": related group = itself
      */
-    void ComponentPreliminary_smart::SeperateInner_smart_GroupAllWeight(Parameters &parameters)
+    void ComponentPreliminary_multi::SeperateInner_multi_GroupAllWeight(Parameters &parameters)
     {
         // ## --------- 对应每组传入representative vector进行indexing -----------------------------------------
         std::vector<std::vector<int>> groupList;      // 用于存储哪些 field 不为0 (即 proto 中非0 field 索引)
@@ -213,11 +213,11 @@ namespace xmt {
     }
 
     /** 2025.05.06
-     * ComponentPreliminary_smart::SeperateInner_smart_ClusterGroup()
+     * ComponentPreliminary_multi::SeperateInner_multi_ClusterGroup()
      *      1. 划分field分组。在后续程序中，每一个分组会对应一个graph；
      *      2. 根据group数，resize各种GraphList
      */
-    void ComponentPreliminary_smart::SeperateInner_smart_ClusterGroup(Parameters &parameters)
+    void ComponentPreliminary_multi::SeperateInner_multi_ClusterGroup(Parameters &parameters)
     {
         std::vector<std::vector<int>> groupList;      // 用于存储哪些 field 不为0 (即 proto 中非0 field 索引)
         std::vector<std::vector<int>> relaList;       // 每组需要 reference 的其他组
@@ -308,12 +308,12 @@ namespace xmt {
     }
 
     /** 
-     * ComponentPreliminary_smart::PrepareParameter_smart_Equal()
+     * ComponentPreliminary_multi::PrepareParameter_multi_Equal()
      *      给每个group分配L_refine，R_refine。
      *      分配方式：平均分L_refine，R_refine； = L_refine/numGroup
      *      传入alpha2
      */
-    void ComponentPreliminary_smart::PrepareParameter_smart_Equal(Parameters &parameters)
+    void ComponentPreliminary_multi::PrepareParameter_multi_Equal(Parameters &parameters)
     {
         unsigned L = parameters.get<unsigned>("L_refine"), R = parameters.get<unsigned>("R_refine");
         std::vector<unsigned> param(smart_index->getGroupNum());
@@ -351,7 +351,7 @@ namespace xmt {
     // -------------------------------------------------------
     // For PolyGraph and Vamana-series: init()
     // -------------------------------------------------------
-    void ComponentInitRand_smart::SetConfigs_smart(int group)
+    void ComponentInitRand_multi::SetConfigs_multi(int group)
     {
         smart_index->R = smart_index->getRRefineList()[group];
         smart_index->L = smart_index->getLRefineList()[group];
@@ -359,7 +359,7 @@ namespace xmt {
         std::cout << "smart_index->R: " << smart_index->R << std::endl;
     }
 
-    void ComponentInitRand_smart::InitInner_smart(TYPE dist_type)
+    void ComponentInitRand_multi::InitInner_multi(TYPE dist_type)
     {
         unsigned R_refine = 0, L_refine = 0;
         for (int i = 0; i < smart_index->getGroupNum(); i++) {
@@ -389,16 +389,16 @@ namespace xmt {
                 std::cout << f << ", ";
             }
             std::cout << std::endl;
-            ComponentInitRand_smart::InitInner_smart_4group(group, rng, initON, dist_type);
+            ComponentInitRand_multi::InitInner_multi_4group(group, rng, initON, dist_type);
             std::cout << "__END INIT(4SMART) : RAND for group " << group << "__" << std::endl;
         }
 
         std::vector<std::vector<unsigned>>().swap(initON);
     }
 
-    void ComponentInitRand_smart::InitInner_smart_4group(int group, std::mt19937 &rng, std::vector<std::vector<unsigned>> &initON, TYPE dist_type)
+    void ComponentInitRand_multi::InitInner_multi_4group(int group, std::mt19937 &rng, std::vector<std::vector<unsigned>> &initON, TYPE dist_type)
     {
-        SetConfigs_smart(group);
+        SetConfigs_multi(group);
         std::vector<int> groupElement = smart_index->getGroupList()[group];
 
         smart_index->graph_.resize(smart_index->getBaseLen());
@@ -430,7 +430,7 @@ namespace xmt {
                     id = rand() % smart_index->getBaseLen();
                 }
 
-                float dist = smart_index->getDist()->compare_smart_weight(smart_index->getBaseDataList(), i,
+                float dist = smart_index->getDist()->compare_multi_weight(smart_index->getBaseDataList(), i,
                                                                           smart_index->getBaseDataList(), id,
                                                                           smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                           smart_index->getGroupRepreList()[group], dist_type);
@@ -469,7 +469,7 @@ namespace xmt {
     // For HNSW_Fusion: init() as construction
     // -------------------------------------------------------
     // -- build
-    void ComponentInitHNSW_Fusion::InitInner_smart(TYPE dist_type)
+    void ComponentInitHNSW_Fusion::InitInner_multi(TYPE dist_type)
     {
         SetConfigs();
 
@@ -562,7 +562,7 @@ namespace xmt {
         if (cur_level < max_level_copy)
         {
             MultiIndex::HnswNode *cur_node = enterpoint;
-            float d = smart_index->getDist()->compare_smart(smart_index->getBaseDataList(), qnode->GetId(),
+            float d = smart_index->getDist()->compare_multi(smart_index->getBaseDataList(), qnode->GetId(),
                                                             smart_index->getBaseDataList(), cur_node->GetId(),
                                                             smart_index->getBaseDimList(), need_calcu,
                                                             TYPE::DIST_EUCLIDEAN);
@@ -578,7 +578,7 @@ namespace xmt {
 
                     for (auto iter = neighbors.begin(); iter != neighbors.end(); ++iter)
                     {
-                        d = smart_index->getDist()->compare_smart(smart_index->getBaseDataList(), qnode->GetId(),
+                        d = smart_index->getDist()->compare_multi(smart_index->getBaseDataList(), qnode->GetId(),
                                                                   smart_index->getBaseDataList(), (*iter)->GetId(),
                                                                   smart_index->getBaseDimList(), need_calcu,
                                                                   TYPE::DIST_EUCLIDEAN);
@@ -596,7 +596,7 @@ namespace xmt {
         }
 
         // PRUNE
-        ComponentPrune_smart *a = new ComponentPruneHeuristic_smart(smart_index);
+        ComponentPrune_multi *a = new ComponentPruneHeuristic_multi(smart_index);
 
         for (auto i = std::min(max_level_copy, cur_level); i >= 0; --i)
         {
@@ -631,7 +631,7 @@ namespace xmt {
         }
 
         std::priority_queue<MultiIndex::CloserFirst> candidates;
-        float d = smart_index->getDist()->compare_smart(smart_index->getBaseDataList(), qnode->GetId(),
+        float d = smart_index->getDist()->compare_multi(smart_index->getBaseDataList(), qnode->GetId(),
                                                         smart_index->getBaseDataList(), enterpoint->GetId(),
                                                         smart_index->getBaseDimList(), need_calcu,
                                                         TYPE::DIST_EUCLIDEAN);
@@ -659,7 +659,7 @@ namespace xmt {
                 if (visited_list->NotVisited(id))
                 {
                     visited_list->MarkAsVisited(id);
-                    d = smart_index->getDist()->compare_smart(smart_index->getBaseDataList(), qnode->GetId(),
+                    d = smart_index->getDist()->compare_multi(smart_index->getBaseDataList(), qnode->GetId(),
                                                               smart_index->getBaseDataList(), neighbor->GetId(),
                                                               smart_index->getBaseDimList(), need_calcu,
                                                               TYPE::DIST_EUCLIDEAN);
@@ -694,7 +694,7 @@ namespace xmt {
         std::priority_queue<MultiIndex::FurtherFirst> tempres;
         for (const auto &neighbor : neighbors)
         {
-            float tmp = smart_index->getDist()->compare_smart(smart_index->getBaseDataList(), source->GetId(),
+            float tmp = smart_index->getDist()->compare_multi(smart_index->getBaseDataList(), source->GetId(),
                                                               smart_index->getBaseDataList(), neighbor->GetId(),
                                                               smart_index->getBaseDimList(), need_calcu,
                                                               TYPE::DIST_EUCLIDEAN);
@@ -702,7 +702,7 @@ namespace xmt {
         }
 
         // PRUNE
-        ComponentPrune_smart *a = new ComponentPruneHeuristic_smart(smart_index);
+        ComponentPrune_multi *a = new ComponentPruneHeuristic_multi(smart_index);
         a->Hnsw2Neighbor_Fusion(source->GetId(), tempres.size() - 1, tempres, dist_type);
 
         neighbors.clear();
@@ -727,7 +727,7 @@ namespace xmt {
     // ----------------------------------------------------------------------------------------------------
     // initialization -- entry-point selection
     // ----------------------------------------------------------------------------------------------------
-    void ComponentRefineEntryCentroid_smart::EntryInner_smart()
+    void ComponentRefineEntryCentroid_multi::EntryInner_multi()
     {
         std::cout << "__START ENTRY_INNER: Centroid__" << std::endl;
         center_.resize(smart_index->getFieldNum());
@@ -755,7 +755,7 @@ namespace xmt {
         std::vector<unsigned> ep_list_(smart_index->getFieldNum());
         for (unsigned g = 0; g < smart_index->getGroupNum(); g++)
         {
-            EntryInner_smart_4group(g);
+            EntryInner_multi_4group(g);
         }
         auto e1 = std::chrono::high_resolution_clock::now();
 
@@ -772,10 +772,10 @@ namespace xmt {
                   << std::endl;
     }
 
-    void ComponentRefineEntryCentroid_smart::EntryInner_smart_4group(int group)
+    void ComponentRefineEntryCentroid_multi::EntryInner_multi_4group(int group)
     {
         MultiIndex::Neighbor nn;
-        get_exact_neighbor_smart_4group(group, nn);
+        get_exact_neighbor_multi_4group(group, nn);
         smart_index->each_ep_[group] = nn.id;
 
         std::cout << "--------------------------------------" << std::endl;
@@ -783,14 +783,14 @@ namespace xmt {
         std::cout << "--------------------------------------" << std::endl;
     }
 
-    void ComponentRefineEntryCentroid_smart::get_exact_neighbor_smart_4group(int group, MultiIndex::Neighbor &nn, TYPE dist_type)
+    void ComponentRefineEntryCentroid_multi::get_exact_neighbor_multi_4group(int group, MultiIndex::Neighbor &nn, TYPE dist_type)
     {
         nn.distance = MAXFLOAT;
 
-        smart_index->each_ep_[group] = rand() % smart_index->getBaseLen(); // random initialize navigating point
+        // smart_index->each_ep_[group] = rand() % smart_index->getBaseLen(); // random initialize navigating point
         for (unsigned i = 0; i < smart_index->getBaseLen(); i++)
         {
-            float dist = smart_index->getDist()->compare_smart_weight(center_, 0,
+            float dist = smart_index->getDist()->compare_multi_weight(center_, 0,
                                                                       smart_index->getBaseDataList(), i,
                                                                       smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                       smart_index->getGroupRepreList()[group], dist_type);

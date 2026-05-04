@@ -5,7 +5,7 @@
 // graph connectivity enforcer
 // ======================================
 namespace xmt {
-    void ComponentRelaConnectEnforcer::ConnectEnforcerInner_smart(TYPE dist_type)
+    void ComponentRelaConnectEnforcer::ConnectEnforcerInner_multi(TYPE dist_type)
     {
         std::set<unsigned> isolated_ids;
         for (int g = 0; g < smart_index->getGroupNum(); g++)
@@ -213,7 +213,7 @@ namespace xmt {
             unsigned ep = smart_index->each_ep_[g];
             while (ep == query)
                 ep = rand() % smart_index->getBaseLen();
-            float dist = smart_index->getDist()->compare_smart_weight(smart_index->getBaseDataList(), query,
+            float dist = smart_index->getDist()->compare_multi_weight(smart_index->getBaseDataList(), query,
                                                                       smart_index->getBaseDataList(), ep,
                                                                       smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                       smart_index->getGroupRepreList()[group], dist_type);
@@ -260,7 +260,7 @@ namespace xmt {
             unsigned id = init_ids[i];
             if (id >= smart_index->getBaseLen())
                 continue;
-            float dist = smart_index->getDist()->compare_smart_weight(smart_index->getBaseDataList(), query,
+            float dist = smart_index->getDist()->compare_multi_weight(smart_index->getBaseDataList(), query,
                                                                       smart_index->getBaseDataList(), id,
                                                                       smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                       smart_index->getGroupRepreList()[group], dist_type);
@@ -297,7 +297,7 @@ namespace xmt {
                             continue;
 
                         cal_flags[id] = 1;
-                        float dist = smart_index->getDist()->compare_smart_weight(smart_index->getBaseDataList(), query,
+                        float dist = smart_index->getDist()->compare_multi_weight(smart_index->getBaseDataList(), query,
                                                                                   smart_index->getBaseDataList(), id,
                                                                                   smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                                   smart_index->getGroupRepreList()[group], dist_type);
@@ -354,7 +354,7 @@ namespace xmt {
             {
                 ep = rand() % smart_index->getBaseLen();
             }
-            float dist = smart_index->getDist()->compare_smart_weight(smart_index->getBaseDataList(), query,
+            float dist = smart_index->getDist()->compare_multi_weight(smart_index->getBaseDataList(), query,
                                                                       smart_index->getBaseDataList(), ep,
                                                                       smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                       smart_index->getGroupRepreList()[group], dist_type);
@@ -397,7 +397,7 @@ namespace xmt {
                 unsigned id = init_ids[i];
                 if (id >= smart_index->getBaseLen())
                     continue;
-                float dist = smart_index->getDist()->compare_smart_weight(smart_index->getBaseDataList(), query,
+                float dist = smart_index->getDist()->compare_multi_weight(smart_index->getBaseDataList(), query,
                                                                           smart_index->getBaseDataList(), id,
                                                                           smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                           smart_index->getGroupRepreList()[group], dist_type);
@@ -434,7 +434,7 @@ namespace xmt {
                                 continue;
 
                             cal_flags[id] = 1;
-                            float dist = smart_index->getDist()->compare_smart_weight(smart_index->getBaseDataList(), query,
+                            float dist = smart_index->getDist()->compare_multi_weight(smart_index->getBaseDataList(), query,
                                                                                       smart_index->getBaseDataList(), id,
                                                                                       smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                                       smart_index->getGroupRepreList()[group], dist_type);

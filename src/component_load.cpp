@@ -49,14 +49,14 @@ namespace xmt {
      * @param ground_file *_groundtruth.ivecs
      * @param parameters
      */
-    void ComponentLoad_smart::LoadInner_smart(Parameters &parameters)
+    void ComponentLoad_multi::LoadInner_multi(Parameters &parameters)
     {
         // path for various datasets
         std::vector<std::string> base_path_list;
         std::vector<std::string> query_path_list;
         std::vector<std::string> graph_path_list;
         std::string txt_path = parameters.get<std::string>("txt_path");
-        ComponentLoad_smart::set_path_from_txt(txt_path, base_path_list, query_path_list, true);
+        ComponentLoad_multi::set_path_from_txt(txt_path, base_path_list, query_path_list, true);
         // [base_path_list] check
         std::cout << "### [base_path_list] check ### " << std::endl;
         for (int i = 0; i < base_path_list.size(); i++)
@@ -126,7 +126,7 @@ namespace xmt {
 
 
     /**
-     * ComponentLoad_smart::set_path_from_txt():
+     * ComponentLoad_multi::set_path_from_txt():
      *      根据“txt_path”对应的txt文件分配base_path_list, query_path_list, graph_path_list
      *      txt_path格式为：
      *              base_path
@@ -135,7 +135,7 @@ namespace xmt {
      * @param base_path_list(&) list of all base-data path
      * @param query_path_list(&) list of all query-data path
      */
-    void ComponentLoad_smart::set_path_from_txt(std::string txt_path,
+    void ComponentLoad_multi::set_path_from_txt(std::string txt_path,
                                                 std::vector<std::string> &base_path_list,
                                                 std::vector<std::string> &query_path_list,
                                                 bool show_summary)
@@ -200,7 +200,7 @@ namespace xmt {
         if (show_summary)
         {
             // [base_path_list] check
-            std::cout << "### [base_path_list] check in ComponentLoad_smart::set_path_from_txt(), before load ### " << std::endl;
+            std::cout << "### [base_path_list] check in ComponentLoad_multi::set_path_from_txt(), before load ### " << std::endl;
             for (int i = 0; i < base_path_list.size(); i++)
             {
                 std::cout << base_path_list[i] << std::endl;
@@ -209,7 +209,7 @@ namespace xmt {
                     << std::endl;
 
             // [query_path_list] check
-            std::cout << "### [query_path_list] check in ComponentLoad_smart::set_path_from_txt(), before load ### " << std::endl;
+            std::cout << "### [query_path_list] check in ComponentLoad_multi::set_path_from_txt(), before load ### " << std::endl;
             for (int i = 0; i < query_path_list.size(); i++)
             {
                 std::cout << query_path_list[i] << std::endl;

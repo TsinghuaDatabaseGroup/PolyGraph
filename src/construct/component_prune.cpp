@@ -10,7 +10,7 @@ namespace xmt {
     // ----------------------------------------------------------------------------------------------------
     // PolyGraph
     // ----------------------------------------------------------------------------------------------------
-    void ComponentPrunePolyGraph_smart::PruneInner_smart_4group_withOthers(unsigned query, int group, std::vector<MultiIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks, TYPE dist_type)
+    void ComponentPrunePolyGraph_multi::PruneInner_multi_4group_withOthers(unsigned query, int group, std::vector<MultiIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks, TYPE dist_type)
     {
         std::vector<MultiIndex::SimpleNeighbor> picked;
         std::vector<MultiIndex::SimpleNeighbor> other_selected;
@@ -32,7 +32,7 @@ namespace xmt {
                 if (had_ON_before.find(id) == had_ON_before.end())
                 {
                     had_ON_before.emplace(id);
-                    float dist = smart_index->getDist()->compare_smart_weight(smart_index->getBaseDataList(), query,
+                    float dist = smart_index->getDist()->compare_multi_weight(smart_index->getBaseDataList(), query,
                                                                               smart_index->getBaseDataList(), id,
                                                                               smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                               smart_index->getGroupRepreList()[group], dist_type);
@@ -67,7 +67,7 @@ namespace xmt {
                 // ---- 与自己field中picked对比
                 for (size_t j = 0; j < picked.size(); j++)
                 {
-                    float dist = smart_index->getDist()->compare_smart_weight(smart_index->getBaseDataList(), picked[j].id,
+                    float dist = smart_index->getDist()->compare_multi_weight(smart_index->getBaseDataList(), picked[j].id,
                                                                               smart_index->getBaseDataList(), this_id,
                                                                               smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                               smart_index->getGroupRepreList()[group], dist_type);
@@ -83,7 +83,7 @@ namespace xmt {
                 {
                     for (size_t j = 0; j < other_selected.size(); j++)
                     {
-                        float dist = smart_index->getDist()->compare_smart_weight(smart_index->getBaseDataList(), other_selected[j].id,
+                        float dist = smart_index->getDist()->compare_multi_weight(smart_index->getBaseDataList(), other_selected[j].id,
                                                                                   smart_index->getBaseDataList(), this_id,
                                                                                   smart_index->getBaseDimList(), smart_index->getGroupList()[group],
                                                                                   smart_index->getGroupRepreList()[group], dist_type);
@@ -123,20 +123,12 @@ namespace xmt {
         }
     }
 
-    // void ComponentPrunePolyGraph_smart::PruneInner_Fusion(unsigned q, unsigned range,/// boost::dynamic_bitset<> flags,
-    //                                                    std::vector<MultiIndex::SimpleNeighbor> &pool, MultiIndex::SimpleNeighbor *cut_graph_,
-    //                                                    TYPE dist_type) {};
-
 
 
     // ----------------------------------------------------------------------------------------------------
     // HNSW_Fusion
     // ----------------------------------------------------------------------------------------------------
-    // void ComponentPruneHeuristic_smart::PruneInner_smart_4group_withOthers(unsigned query, int group, // boost::dynamic_bitset<> flags,
-    //                                                                        std::vector<MultiIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks,
-    //                                                                        TYPE dist_type) {};
-
-    void ComponentPruneHeuristic_smart::PruneInner_Fusion(unsigned query, unsigned int range, // boost::dynamic_bitset<> flags,
+    void ComponentPruneHeuristic_multi::PruneInner_Fusion(unsigned query, unsigned int range, // boost::dynamic_bitset<> flags,
                                                           std::vector<MultiIndex::SimpleNeighbor> &pool, MultiIndex::SimpleNeighbor *cut_graph_,
                                                           TYPE dist_type)
     {
@@ -155,7 +147,7 @@ namespace xmt {
                 float cur_dist = pool[i].distance;
                 for (size_t j = 0; j < picked.size(); j++)
                 {
-                    float dist = smart_index->getDist()->compare_smart(smart_index->getBaseDataList(), picked[j].id,
+                    float dist = smart_index->getDist()->compare_multi(smart_index->getBaseDataList(), picked[j].id,
                                                                        smart_index->getBaseDataList(), pool[i].id,
                                                                        smart_index->getBaseDimList(), need_calcu,
                                                                        TYPE::DIST_EUCLIDEAN);
@@ -202,7 +194,68 @@ namespace xmt {
 
 
     // ----------------------------------------------------------------------------------------------------
-    // Vamana-series ⚠️，还没写
+    // Vamana-series
     // ----------------------------------------------------------------------------------------------------
+    void ComponentPruneVamana_multi::PruneInner_multi_4group_withOthers(unsigned query, int group, std::vector<MultiIndex::SimpleNeighbor> &pool, std::vector<std::mutex> &locks, TYPE dist_type)
+    {
+        std::vector<MultiIndex::SimpleNeighbor> picked;
+        std::set<unsigned> had_ON_this;
 
+        // ## 1. 确定最终prune后的元素：picked
+        unsigned this_id;
+        for (int i = 0; i < pool.size(); i++)
+        {
+            this_id = pool[i].id;
+            if (this_id == query)
+                continue;
+            // -- had_ON_this 中已经有了，说明出现重复，这个可以跳过了
+            if (had_ON_this.find(this_id) != had_ON_this.end())
+            {
+                continue;
+            }
+
+            bool skip = false;
+            float cur_dist = pool[i].distance;
+            {
+                // ---- 与自己field中picked对比
+                for (size_t j = 0; j < picked.size(); j++)
+                {
+                    float dist = smart_index->getDist()->compare_multi_weight(smart_index->getBaseDataList(), picked[j].id,
+                                                                              smart_index->getBaseDataList(), this_id,
+                                                                              smart_index->getBaseDimList(), smart_index->getGroupList()[group],
+                                                                              smart_index->getGroupRepreList()[group], dist_type);
+                    if (smart_index->alpha * dist <= cur_dist) 
+                    {
+                        skip = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!skip)
+            {
+                picked.push_back(pool[i]);
+                had_ON_this.emplace(this_id);
+            }
+
+            if (picked.size() == smart_index->R)
+            {
+                break;
+            }
+        }
+
+        // ## 2. 根据picked对应修改group-th graph
+        MultiIndex::LockGuard guard(locks[query]);
+        auto &graph_q = smart_index->getFinalGraph(group)[query];
+        {
+            graph_q.resize(std::min(smart_index->R, (unsigned)picked.size()));
+            for (size_t t = 0; t < std::min(smart_index->R, (unsigned)picked.size()); t++)
+            {
+                graph_q[t].id = picked[t].id;
+                graph_q[t].distance = picked[t].distance;
+            }
+
+            std::vector<MultiIndex::SimpleNeighbor>().swap(picked);
+        }
+    }
 }
