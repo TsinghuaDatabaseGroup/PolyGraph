@@ -113,13 +113,13 @@ The repository also includes several built-in baselines used in the paper.
 ./main <INDEX_NAME> <DATASET> all_recall_search <k>
 ```
 
-| Command name        | Paper name      |
-| ------------------- | --------------- |
-| `hnsw_fusion`       | `HNSW_Fusion`   |
-| `vamana_fusion`     | `Vamana_Fusion` |
-| `vamana_equNoTotal` | `Vamana_Union`  |
-| `vamana_allWeight`  | `Vamana_Poly`   |
-| `vamana_oracle`     | `Oracle_Vamana` |
+| Command name `<INDEX_NAME>`  | Paper name      |
+| ---------------------------- | --------------- |
+| `hnsw_fusion`                | `HNSW_Fusion`   |
+| `vamana_fusion`              | `Vamana_Fusion` |
+| `vamana_equNoTotal`          | `Vamana_Union`  |
+| `vamana_allWeight`           | `Vamana_Poly`   |
+| `vamana_oracle`              | `Oracle_Vamana` |
 
 DEG and HJG are external baselines and should be run using their official repositories.
 

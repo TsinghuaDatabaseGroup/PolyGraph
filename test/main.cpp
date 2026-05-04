@@ -129,22 +129,7 @@ int main(int totalArgc, char **argv)
         if (exc_type == "search" || exc_type == "ground_truth"
             || exc_type == "all_recall_search" || exc_type == "all_recall_search_intersect" || exc_type == "all_recall_search_allIndex"
             || exc_type == "recall_search" || exc_type == "recall_search_intersect" || exc_type == "recall_search_allIndex" 
-
-            // // --[New(但先保留), START]: 感觉这个可以不用：
-            // || exc_type == "all_recall_search_corr"
-            // // --[New(但先保留), END]: 感觉这个可以不用：
-
-
-            // // -- 老版本内容 【START】--
-            // || exc_type == "search_querySelectRepre"
-            // || exc_type == "all_recall_search" || exc_type == "dynamic_better_all_recall_search" || exc_type == "naive_better_all_recall_search"
-            // || exc_type == "all_recall_search_querySelectRepre" || exc_type == "dynamic_better_all_recall_search_querySelectRepre" || exc_type == "naive_better_all_recall_search_querySelectRepre"
-            // || exc_type == "all_recall_search_exact_repre" 
-            // || exc_type == "DB_beforeVersion_all_recall_search"  || exc_type == "DB_beforeVersionSameStep_all_recall_search"
-            // || exc_type == "DB_TryV1_all_recall_search" || exc_type == "DB_TryV1_stat_all_recall_search" || exc_type == "DB_SpecifySitu_TryV1_stat_all_recall_search" || exc_type == "DB_Flame_SpecifySitu_TryV1_all_recall_search"
-            // || exc_type == "DB_TryV1AlignedSameStep_all_recall_search" || exc_type == "DB_TryV1AlignedSameStep_stat_all_recall_search" || exc_type == "DB_SpecifySitu_TryV1AlignedSameStep_stat_all_recall_search" || exc_type == "DB_Flame_SpecifySitu_TryV1AlignedSameStep_all_recall_search"
-            // || exc_type == "all_recall_search_querySelectRepreTwoStage" || exc_type == "all_recall_search_allIndex"
-            // // -- 老版本内容 【END】--
+            || exc_type == "get_ground_truth" || exc_type == "get_ground_truth_one_to_one"
         )
         {
             K = (unsigned)atoi(argv[4]);
@@ -154,7 +139,7 @@ int main(int totalArgc, char **argv)
         }
         else
         {
-            std::cout << "./main PolyGraph dataset search [K_search] [dist_type]" << std::endl;
+            std::cout << "./main PolyGraph dataset search [K_search]" << std::endl;
             exit(-1);
         }
     }
@@ -164,28 +149,11 @@ int main(int totalArgc, char **argv)
         || exc_type == "search" || exc_type == "ground_truth"
         || exc_type == "all_recall_search" || exc_type == "all_recall_search_intersect" || exc_type == "all_recall_search_allIndex"
         || exc_type == "recall_search" || exc_type == "recall_search_intersect" || exc_type == "recall_search_allIndex"
-
-        
-        // // --[New(但先保留), START]: 感觉这个可以不用：
-        // || exc_type == "build_equSpace" || exc_type == "build_equNoTotal" 
-        // || exc_type == "check" || exc_type == "check_graph"
-        // || exc_type == "check_delta_NN_dist" || exc_type == "check_graph_edge_redundancy"
-        // || exc_type == "all_recall_search_corr"
-        // // --[New(但先保留), END]: 感觉这个可以不用：
-
-
-        // // -- 老版本内容 【START】--
-        // || exc_type == "cluster_build" // 原本的build不要了，改成原本的cluster build的内容
-        // || exc_type == "build_equSpace_v2" || exc_type == "build_equNoTotal_v2" 
-        // || exc_type == "build_smart_v1" || exc_type == "build_smart_v2" || exc_type == "check" || exc_type == "check_graph" || exc_type == "buildTest"
-        // || exc_type == "build_NewImportType" || exc_type == "cluster_build_NewImportType"
-        // || exc_type == "diff_repre_build"
-        // // -- 老版本内容 【END】--
+        || exc_type == "get_ground_truth" || exc_type == "get_ground_truth_one_to_one"
     )
     {
         set_para(alg, dataset, parameters);
         std::cout << "__ exc_type is: " << exc_type << " __" << std::endl;
-
     }
     else
     {

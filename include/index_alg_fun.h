@@ -92,7 +92,7 @@ void PolyGraph(xmt::Parameters &parameters) {
         smart_builder -> load_search_weight();
 
         smart_builder -> search(xmt::TYPE::SEARCH_ENTRY_CENTROID, xmt::TYPE::ROUTER_GREEDY, 
-                                xmt::TYPE::L_SEARCH_ASSIGN_FALLBACKINTERSECT, xmt::TYPE::LOAD_WEIGHT,
+                                xmt::TYPE::L_SEARCH_ASSIGN_FALLBACKINTERSECT, xmt::TYPE::LOADED_WEIGHT,
                                 dist_type);
     }
     // ---（qi, wi) ---
@@ -110,10 +110,10 @@ void PolyGraph(xmt::Parameters &parameters) {
         smart_builder -> load_search_weight();
 
         smart_builder -> search(xmt::TYPE::SEARCH_ENTRY_CENTROID, xmt::TYPE::ROUTER_GREEDY, 
-                                xmt::TYPE::L_RECALL_SEARCH_CONTROL_FALLBACKINTERSECT, xmt::TYPE::LOAD_WEIGHT,
+                                xmt::TYPE::L_RECALL_SEARCH_CONTROL_FALLBACKINTERSECT, xmt::TYPE::LOADED_WEIGHT,
                                 dist_type);
     }
-    // ---（qi, W) ---
+    // --- (Q, wi) ---
     else if (parameters.get<std::string>("exc_type") == "all_recall_search") {   // all_recall_search_querySelectRepre_FallbackIntersect (various fixed L)
         smart_builder -> load(parameters);
     
@@ -131,7 +131,7 @@ void PolyGraph(xmt::Parameters &parameters) {
                                 xmt::TYPE::L_RECALL_SEARCH_CONTROL_FALLBACKINTERSECT, xmt::TYPE::LOADED_ALL_WEIGHT,
                                 dist_type);
     }
-    // ---（qi, W) ---
+    // --- (Q, wi) ---
     else if (parameters.get<std::string>("exc_type") == "all_recall_search_intersect") {   // all_recall_search_intersect (various fixed L)
         smart_builder -> load(parameters);
     
@@ -149,7 +149,7 @@ void PolyGraph(xmt::Parameters &parameters) {
                                 xmt::TYPE::L_RECALL_SEARCH_CONTROL_INTERSECT, xmt::TYPE::LOADED_ALL_WEIGHT,
                                 dist_type);
     }
-    // ---（qi, W) ---
+    // --- (Q, wi) ---
     else if (parameters.get<std::string>("exc_type") == "all_recall_search_allIndex") {   // all_recall_search_allIndex (various fixed L)
         smart_builder -> load(parameters);
     
@@ -166,6 +166,22 @@ void PolyGraph(xmt::Parameters &parameters) {
         smart_builder -> search(xmt::TYPE::SEARCH_ENTRY_CENTROID, xmt::TYPE::ROUTER_GREEDY, 
                                 xmt::TYPE::L_RECALL_SEARCH_CONTROL_ALL_INDEX, xmt::TYPE::LOADED_ALL_WEIGHT,
                                 dist_type);
+    }
+    // --- (Q, wi) ---
+    else if (parameters.get<std::string>("exc_type") == "get_ground_truth") {   // get_ground_truth
+        smart_builder -> load(parameters);
+
+        smart_builder -> load_search_weight();
+
+        smart_builder -> get_ground_truth(xmt::TYPE::LOADED_ALL_WEIGHT, dist_type);
+    }
+    // (qi, wi)
+    else if (parameters.get<std::string>("exc_type") == "get_ground_truth_one_to_one") {   // get_ground_truth_all_one_to_one
+        smart_builder -> load(parameters);
+
+        smart_builder -> load_search_weight();
+
+        smart_builder -> get_ground_truth(xmt::TYPE::LOADED_WEIGHT, dist_type);
     }
     else {
         std::cout << "Alg name error: " << parameters.get<std::string>("alg") << std::endl;
@@ -272,7 +288,7 @@ void vamana_baseline_index_group(xmt::Parameters &parameters) {
         smart_builder -> load_search_weight();
 
         smart_builder -> search(xmt::TYPE::SEARCH_ENTRY_CENTROID, xmt::TYPE::ROUTER_GREEDY, 
-                                xmt::TYPE::L_SEARCH_ASSIGN_INTERSECT, xmt::TYPE::LOAD_WEIGHT,
+                                xmt::TYPE::L_SEARCH_ASSIGN_INTERSECT, xmt::TYPE::LOADED_WEIGHT,
                                 dist_type);
     }
     // ---（qi, wi) ---
@@ -290,10 +306,10 @@ void vamana_baseline_index_group(xmt::Parameters &parameters) {
         smart_builder -> load_search_weight();
 
         smart_builder -> search(xmt::TYPE::SEARCH_ENTRY_CENTROID, xmt::TYPE::ROUTER_GREEDY, 
-                                xmt::TYPE::L_RECALL_SEARCH_CONTROL_INTERSECT, xmt::TYPE::LOAD_WEIGHT,
+                                xmt::TYPE::L_RECALL_SEARCH_CONTROL_INTERSECT, xmt::TYPE::LOADED_WEIGHT,
                                 dist_type);
     }
-    // ---（qi, W) ---
+    // --- (Q, wi) ---
     else if (parameters.get<std::string>("alg") == "vamana_oracle" && parameters.get<std::string>("exc_type") == "all_recall_search") {   // all_recall_search_exact_repre (various fixed L)
         smart_builder -> load(parameters);
     
@@ -312,7 +328,7 @@ void vamana_baseline_index_group(xmt::Parameters &parameters) {
                                 xmt::TYPE::L_RECALL_SEARCH_CONTROL_EXACT_REPRE, xmt::TYPE::LOADED_ALL_WEIGHT,
                                 dist_type);
     }
-    // ---（qi, W) ---
+    // --- (Q, wi) ---
     else if (parameters.get<std::string>("exc_type") == "all_recall_search") {   // all_recall_search_intersect (various fixed L)
         smart_builder -> load(parameters);
     
@@ -401,7 +417,7 @@ void HNSW_FUSION(xmt::Parameters &parameters) {
         smart_builder -> load_search_weight();
 
         smart_builder -> search(xmt::TYPE::SEARCH_ENTRY_NONE_FUSION, xmt::TYPE::ROUTER_HNSW_FUSION,
-                                xmt::TYPE::L_SEARCH_ASSIGN_ALL_INDEX, xmt::TYPE::LOAD_WEIGHT,
+                                xmt::TYPE::L_SEARCH_ASSIGN_ALL_INDEX, xmt::TYPE::LOADED_WEIGHT,
                                 dist_type);
     }
     // ---（qi, wi) ---
@@ -413,10 +429,10 @@ void HNSW_FUSION(xmt::Parameters &parameters) {
         smart_builder -> load_search_weight();
 
         smart_builder -> search(xmt::TYPE::SEARCH_ENTRY_NONE_FUSION, xmt::TYPE::ROUTER_HNSW_FUSION, 
-                                xmt::TYPE::L_RECALL_SEARCH_CONTROL_ALL_INDEX, xmt::TYPE::LOAD_WEIGHT,
+                                xmt::TYPE::L_RECALL_SEARCH_CONTROL_ALL_INDEX, xmt::TYPE::LOADED_WEIGHT,
                                 dist_type); 
     }
-    // ---（qi, W) ---
+    // --- (Q, wi) ---
     else if (parameters.get<std::string>("exc_type") == "all_recall_search") {   // all_recall_search (various fixed L)
         smart_builder -> load(parameters);
     

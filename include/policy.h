@@ -48,7 +48,7 @@ namespace xmt {
 
 
         // --- How to get Query Weights:
-        LOAD_WEIGHT, 
+        LOADED_WEIGHT, 
         ALL_WEIGHT, LOADED_ALL_WEIGHT, 
     };
 }

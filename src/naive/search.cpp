@@ -64,7 +64,7 @@ void SearchFor_v1_weight(std::vector<float*> &base_data_list, std::vector<float*
 };
 
 // for bench multi-vector query, with given weight(每个query可以对应不一样的weight)；给MultiIndex使用 
-void ground_truth_diffWeight(std::vector<float*> base_data_list, std::vector<float*> query_data_list, std::vector<std::vector<float>> &weight_list,
+void ground_truth_diffWeight(std::vector<float*> base_data_list, std::vector<float*> query_data_list, std::vector<std::vector<float>> weight_list,
                 unsigned int num, unsigned int num_query, std::vector<unsigned int> dim_list, 
                 std::vector<std::vector<unsigned>> &res, std::vector<std::vector<float>> &dist_res,
                 xmt::TYPE dist_type, unsigned K, bool hint) {

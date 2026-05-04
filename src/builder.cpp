@@ -96,7 +96,17 @@ namespace xmt
             file >> numComb;
             if (numComb == 0)
             {
-                std::cout << "___【 Warning! 】: " << weight_path << "; No weight provided! Set weight empty to Degrade to use xmt::TYPE::ALL_WEIGHT ___" << std::endl;
+                std::cout << "___【 Warning! 】: " << weight_path << "; No weight provided! Set weight to use xmt::TYPE::ALL_WEIGHT ___" << std::endl;
+                std::vector<float> weight(smart_final_index_->getFieldNum());
+                // ### 生成所有可能的weight组合，对每种weight进行search
+                for (int w = 1; w < (1 << smart_final_index_->getFieldNum()); ++w)
+                {   
+                    for (size_t j = 0; j < smart_final_index_->getFieldNum(); ++j)
+                    {
+                        weight[j] = (w & (1 << j)) ? 1.0f : 0.0f; // 第 j 位
+                    }
+                    allWeight.emplace_back(weight);
+                }
                 getFinalIndex()->setSearchWeight(allWeight);
             }
             else {
@@ -810,16 +820,18 @@ namespace xmt
      * offline search
      * @param entry_type
      * @param route_type
+     * @param L_type
+     * @param weight_type
      * @return
      */
     MultiIndexBuilder *MultiIndexBuilder::search(TYPE entry_type, TYPE route_type, TYPE L_type, TYPE weight_type, TYPE dist_type)
     {
         std::cout << "__SEARCH__" << std::endl;
 
-        unsigned K = 10;
+        unsigned K = 20;
         if (smart_final_index_->getParam().exist("K_search") == false)
         {
-            std::cout << "#### K_search(ka-ann) no exist. I am using the default K_search = 10..." << std::endl;
+            std::cout << "#### K_search(ka-ann) no exist. I am using the default K_search = 20..." << std::endl;
             smart_final_index_->getParam().set<unsigned>("K_search", K);
         }
         else
@@ -878,7 +890,7 @@ namespace xmt
         ComponentSearchFlowLoadWeight_smart *c = new ComponentSearchFlowLoadWeight_smart(smart_final_index_);
 
         std::vector<std::vector<float>> recall_matrix, latency_matrix, hop_matrix, distCount_matrix, usedDimCount_matrix, DCHTCount_matrix;
-        if (weight_type == LOAD_WEIGHT)
+        if (weight_type == LOADED_WEIGHT)
         {
             std::cout << "__SEARCH FLOW(using weight) : LOAD WEIGHT(ONCE)__" << std::endl;
             std::cout << "__GROUND TRUTH : LOAD WEIGHT(ONCE)__" << std::endl;
@@ -1381,6 +1393,117 @@ namespace xmt
         std::cout << "__SEARCH FINISH__" << std::endl;
 
         return this;
+    };
+
+    /**
+     * offline search
+     * @param weight_type
+     * @return
+     */
+    MultiIndexBuilder *MultiIndexBuilder::get_ground_truth(TYPE weight_type, TYPE dist_type)
+    {
+        std::cout << "__GET_GROUND_TRUTH__" << std::endl;
+        s = std::chrono::high_resolution_clock::now();
+
+
+        unsigned K = 20;
+        if (smart_final_index_->getParam().exist("K_search") == false)
+        {
+            std::cout << "#### K_search(ka-ann) no exist. I am using the default K_search = 20..." << std::endl;
+            smart_final_index_->getParam().set<unsigned>("K_search", K);
+        }
+        else
+        {
+            std::cout << "#### K_search(ka-ann) = " << smart_final_index_->getParam().get<unsigned>("K_search") << std::endl;
+            K = smart_final_index_->getParam().get<unsigned>("K_search");
+        }
+
+        // GROUND TRUTH
+        ComponentGroundTruth_smart *g = new ComponentGroundTruth_smart(smart_final_index_);
+
+        if (weight_type == LOADED_WEIGHT)
+        {
+            std::cout << "__GROUND TRUTH : LOAD WEIGHT {(qi, wi)} __" << std::endl;
+            std::cout << "__with (qi, wi) of size: " << smart_final_index_->getSearchWeight().size() << " .... (assert |SearchWorkload| = " << smart_final_index_->getSearchWeight().size() <<  " == " << smart_final_index_->getQueryLen() << " = numQuery __" << std::endl;
+            assert(smart_final_index_->getSearchWeight().size() == smart_final_index_->getQueryLen());
+            g->GroundInner_smart(K, dist_type);
+
+            // -- ground_data_path & outputing ivecs --
+            std::string base_dir = "../dataset/Ground-truth/" + smart_final_index_->getParam().get<std::string>("dataset") + "/" + "OneToOne/";
+            std::string ground_path = base_dir + "(qi,wi)-output.ivecs";
+            if (!create_dir_if_not_exists(base_dir)) {
+                exit(-1);
+            }
+            save_ivecs(ground_path, smart_final_index_->getGroundData(), smart_final_index_->getQueryLen(), K);
+        }
+        else if (weight_type == LOADED_ALL_WEIGHT)
+        {
+            std::cout << "__GROUND TRUTH : LOAD WEIGHT (Q, wi)__" << std::endl;
+            std::vector<float> weight(smart_final_index_->getFieldNum());
+            std::vector<std::vector<float>> allWeight = smart_final_index_->getSearchWeight();
+            unsigned numComb =  allWeight.size();
+
+            // ### 生成所有可能的weight组合，对每种weight进行search
+            for (int i = 0; i < numComb; ++i)
+            {   
+                for (size_t j = 0; j < smart_final_index_->getFieldNum(); ++j)
+                {
+                    weight[j] = allWeight[i][j]; // 第 j 位
+                }
+                std::vector<std::vector<float>> search_weight(smart_final_index_->getQueryLen(), weight);
+                smart_final_index_->setSearchWeight(search_weight);
+                std::cout << "__GROUND TRUTH : ALL_WEIGHT " << (i+1) << " / " << numComb << " : ";
+                
+
+                for (float w : weight)
+                {
+                    std::cout << w << " ";
+                }
+                std::cout << " __" << std::endl;
+
+                g->GroundInner_smart(K, dist_type);
+                
+                // -- ground_data_path & outputing ivecs --
+                std::string base_dir = "../dataset/Ground-truth/" + smart_final_index_->getParam().get<std::string>("dataset") + "/";
+                std::string ground_path = base_dir + std::to_string((i+1)) + "-output.ivecs";
+                if (!create_dir_if_not_exists(base_dir)) {
+                exit(-1);
+            }
+                save_ivecs(ground_path, smart_final_index_->getGroundData(), smart_final_index_->getQueryLen(), K);
+            }
+        }
+        else
+        {
+            std::cerr << "__GROUND_TRUTH: WRONG TYPE__" << std::endl;
+            exit(-1);
+        }
+
+        e = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> load_info_time = e - s;
+        std::cout << "^^^^^^ get_ground_truth() time is " << load_info_time.count() << " ^^^^^^" << std::endl;
+        std::cout << "__SEARCH FINISH__\n\n\n" << std::endl;
+
+        return this;
     }
+
+    // // --- From component_load.cpp，用于存ground truth ---- 
+    // void inline save_ivecs(const std::string &filename, const std::vector<std::vector<unsigned>> &show) {
+    //     std::ofstream out(filename, std::ios::binary);
+    //     if (!out.is_open()) {
+    //         std::cerr << "Error opening file for writing: " << filename << std::endl;
+    //         exit(-1);
+    //     }
+
+    //     // unsigned dim = show[0].size();
+    //     // out.write(reinterpret_cast<const char *>(&dim), sizeof(unsigned)); // 写入维度信息
+    //     for (const auto &vec : show) {
+    //         unsigned dim = vec.size();
+    //         out.write(reinterpret_cast<const char *>(&dim), sizeof(unsigned)); // 写入维度信息
+    //         out.write(reinterpret_cast<const char *>(vec.data()), dim * sizeof(unsigned)); // 写入向量数据
+    //     }
+
+    //     out.close();
+    //     std::cout << "Successfully saved to " << filename << std::endl;
+    // }
 
 }

@@ -603,7 +603,7 @@ namespace xmt {
             search_weight_ = std::move(search_weight);
         }
 
-        std::vector<std::vector<float>> &getSearchWeight() {
+        std::vector<std::vector<float>> getSearchWeight() {
             return search_weight_;
         }
 
