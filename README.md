@@ -32,7 +32,7 @@ PolyGraph reads each multi-vector dataset through a path-info file. Each path-in
 
 Base and query vectors should be stored in `fvecs` format, and ground-truth files should be stored in `ivecs` format. Please refer to the [YAEL file-format description](http://yael.gforge.inria.fr/file_format.html) for details about `fvecs` and `ivecs`.
 
-PolyGraph uses a default query workload that contains all `2^m - 1` non-empty field-participation patterns for a dataset with `m` fields. In the implementation, active fields are assigned equal positive weights, which is rank-equivalent to the normalized workload $\mathcal{W}_{\mathrm{default}}$ used in the paper. The ground-truth file for the $i$-th weight configuration in $\mathcal{W}_{\mathrm{default}}$ should be stored as:
+PolyGraph uses a default query workload that contains all `2^m - 1` non-empty field-participation patterns for a dataset with `m` fields. In the implementation, active fields are assigned equal positive weights, which is rank-equivalent to the normalized workload $`\mathcal{W}_{\mathrm{default}}`$ used in the paper. The ground-truth file for the $i$-th weight configuration in $`\mathcal{W}_{\mathrm{default}}`$ should be stored as:
 
 ```text
 dataset/Ground-truth/<DATASET>/<i>-output.ivecs
