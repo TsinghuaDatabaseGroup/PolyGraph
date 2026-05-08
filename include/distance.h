@@ -24,7 +24,7 @@ struct Timer
     void toc()
     {
         auto end = std::chrono::high_resolution_clock::now();
-        total += std::chrono::duration<float, std::micro>(end - start).count(); // 微秒
+        total += std::chrono::duration<float, std::micro>(end - start).count();
     }
 };
 
@@ -318,8 +318,6 @@ namespace xmt
                 }
                 else if (dist_type == TYPE::DIST_EUCLIDEAN)
                 {
-                    // float dist = 0.0;
-                    // float diff0, diff1, diff2, diff3;
                     float dist = 0.0;
                     float diff0, diff1, diff2, diff3;
                     const float *last = a + dim;

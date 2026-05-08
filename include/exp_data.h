@@ -148,7 +148,7 @@ void set_data_path_PARAM(std::string dataset, xmt::Parameters &parameters)
     }
     else if (dataset == "QA" || dataset == "QA2") // 4-fields
     {
-        txt_path = "../dataset/path_info_LMSYSType2Norm_4field_100W.txt";
+        txt_path = "../dataset/path_info_LMSYSNorm_4field_100W.txt";
         weight_path = "../dataset/useWeight/useWeightEachQuery_4fields_QA.txt";
     }
     else if (dataset == "Wiki") // 6-fields

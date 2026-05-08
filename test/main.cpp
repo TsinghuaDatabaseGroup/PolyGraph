@@ -237,8 +237,7 @@ int main(int totalArgc, char **argv)
         bool override = true;
 
         // -- python路径
-        std::string python_path = "../include/python_file/cluster_Now_distSimThresh_NoOrderRedecide_withCacheAligned_v2.py"; // xmt, 2025.12.04: 去掉重选顺序，直接使用representative选择出来的顺序。
-
+        std::string python_path = "../include/python_file/cluster_Now_distSimThresh_NoOrderRedecide_withCacheAligned_v2.py"; 
         std::vector<std::string> extra_args;
         extra_args.emplace_back("--search_corr_thresh");
         extra_args.emplace_back(std::to_string(search_rela_sim_thresh));

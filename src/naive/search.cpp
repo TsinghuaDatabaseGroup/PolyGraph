@@ -72,6 +72,8 @@ void ground_truth_diffWeight(std::vector<float*> base_data_list, std::vector<flo
     res.resize(num_query);
     dist_res.clear();
     dist_res.resize(num_query);
+
+    std::cout << "___ Getting Ground Truth by 'ground_truth_diffWeight()'___" << std::endl;
     
     // do search for each query
     auto s1 = std::chrono::high_resolution_clock::now();

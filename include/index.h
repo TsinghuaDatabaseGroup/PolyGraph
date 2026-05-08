@@ -603,6 +603,25 @@ namespace xmt {
             search_weight_ = std::move(search_weight);
         }
 
+        void setSearchDefaultWeight() {
+            use_default_weight_ = true;
+            search_weight_.clear();
+            std::vector<float> weight(getFieldNum());
+            // ### 生成所有可能的weight组合，对每种weight进行search
+            for (int w = 1; w < (1 << getFieldNum()); ++w)
+            {   
+                for (size_t j = 0; j < getFieldNum(); ++j)
+                {
+                    weight[j] = (w & (1 << j)) ? 1.0f : 0.0f; // 第 j 位
+                }
+                search_weight_.emplace_back(weight);
+            }
+        }
+
+        bool whetherDefaultWeight(){
+            return use_default_weight_;
+        }
+
         std::vector<std::vector<float>> getSearchWeight() {
             return search_weight_;
         }
@@ -1624,8 +1643,6 @@ namespace xmt {
         }
 
         int i = 0;
-        // bool debug = false;
-
     private:
         std::vector<float*> base_data_list_, query_data_list_;
         unsigned *ground_data_;
@@ -1633,6 +1650,7 @@ namespace xmt {
         unsigned base_total_dim_, ground_dim_;
         std::vector<unsigned> base_dim_list_, query_dim_list_;
         std::vector<std::vector<float>> search_weight_;
+        bool use_default_weight_ = false;
 
         Parameters param_;
         std::vector<unsigned> L_refine_list_, R_refine_list_;

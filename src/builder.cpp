@@ -96,18 +96,8 @@ namespace xmt
             file >> numComb;
             if (numComb == 0)
             {
-                std::cout << "___【 Warning! 】: " << weight_path << "; No weight provided! Set weight to use xmt::TYPE::ALL_WEIGHT ___" << std::endl;
-                std::vector<float> weight(smart_final_index_->getFieldNum());
-                // ### 生成所有可能的weight组合，对每种weight进行search
-                for (int w = 1; w < (1 << smart_final_index_->getFieldNum()); ++w)
-                {   
-                    for (size_t j = 0; j < smart_final_index_->getFieldNum(); ++j)
-                    {
-                        weight[j] = (w & (1 << j)) ? 1.0f : 0.0f; // 第 j 位
-                    }
-                    allWeight.emplace_back(weight);
-                }
-                getFinalIndex()->setSearchWeight(allWeight);
+                std::cout << "___【 Experiments in the paper! 】: " << weight_path << "; Use default weight workload! Set weight to use xmt::TYPE::ALL_WEIGHT ___" << std::endl;
+                getFinalIndex()->setSearchDefaultWeight();
             }
             else {
                 for (unsigned i = 0; i < numComb; i++)
@@ -125,8 +115,8 @@ namespace xmt
         }
         else
         {
-            std::cout << "___【 Warning! 】: " << weight_path << "does't exist! Degrade to use xmt::TYPE::ALL_WEIGHT ___" << std::endl;
-            getFinalIndex()->setSearchWeight(allWeight);
+            std::cout << "___【 Experiments in the paper! 】: " << weight_path << "does't exist; Use default weight workload! Set to use xmt::TYPE::ALL_WEIGHT ___" << std::endl;
+            getFinalIndex()->setSearchDefaultWeight();
         }
         auto e1 = std::chrono::high_resolution_clock::now();
         std::cout << "==============================================" << std::endl;
@@ -254,7 +244,7 @@ namespace xmt
         return this;
     }
 
-    /** XMT, 2025.04.17
+    /**
      * build init graph
      * @param type init type
      * @return pointer of builder
@@ -1118,7 +1108,7 @@ namespace xmt
                 std::vector<std::vector<float>> search_weight(smart_final_index_->getQueryLen(), weight);
                 smart_final_index_->setSearchWeight(search_weight);
 
-                std::cout << "__GROUND TRUTH : ALL_WEIGHT " << w << " / " << ((1 << smart_final_index_->getFieldNum()) - 1) << " __" << std::endl;
+                std::cout << "__GROUND TRUTH at pos 1 : ALL_WEIGHT " << w << " / " << ((1 << smart_final_index_->getFieldNum()) - 1) << " __" << std::endl;
                 g->GroundInner_multi_load(w, K, dist_type);
 
                 if (L_type == L_SEARCH_ASSIGN_FALLBACKINTERSECT)
@@ -1173,9 +1163,9 @@ namespace xmt
             std::chrono::duration<double> addition_diff{0};
             int field_num = smart_final_index_->getFieldNum();
 
-            if (allWeight.size() == 0)
+            if (smart_final_index_->whetherDefaultWeight())
             {
-                std::cout << "___【 Warning! 】: No weight provided! Degrade to use xmt::TYPE::ALL_WEIGHT ___" << std::endl;
+                std::cout << "___【 Experiments in the paper! 】: use xmt::TYPE::ALL_WEIGHT ___" << std::endl;
                 search(entry_type, route_type, L_type, xmt::TYPE::ALL_WEIGHT, dist_type);
                 return this;
             }
@@ -1460,8 +1450,8 @@ namespace xmt
                 std::string base_dir = "../dataset/Ground-truth/" + smart_final_index_->getParam().get<std::string>("dataset") + "/";
                 std::string ground_path = base_dir + std::to_string((i+1)) + "-output.ivecs";
                 if (!create_dir_if_not_exists(base_dir)) {
-                exit(-1);
-            }
+                    exit(-1);
+                }
                 save_ivecs(ground_path, smart_final_index_->getGroundData(), smart_final_index_->getQueryLen(), K);
             }
         }

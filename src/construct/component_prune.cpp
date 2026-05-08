@@ -200,6 +200,7 @@ namespace xmt {
     {
         std::vector<MultiIndex::SimpleNeighbor> picked;
         std::set<unsigned> had_ON_this;
+        std::sort(pool.begin(), pool.end());
 
         // ## 1. 确定最终prune后的元素：picked
         unsigned this_id;

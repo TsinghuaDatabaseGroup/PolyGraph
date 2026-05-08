@@ -11,7 +11,7 @@ namespace xmt {
     // initialization -- preliminary
     // ----------------------------------------------------------------------------------------------------
 
-    /** 2025.06.20
+    /**
      * ComponentPreliminary_multi::SeperateInner_multi_GroupEquNoTotal()
      *      For "vamana_equNoTotal": related group = itself
      */
@@ -67,7 +67,7 @@ namespace xmt {
         smart_index->each_ep_.resize(smart_index->getGroupNum());
     }
 
-    /** 2025.06.20
+    /**
      * ComponentPreliminary_multi::SeperateInner_multi_GroupFusion()
      *      For "vamana_fusion": related group = itself
      */
@@ -100,10 +100,6 @@ namespace xmt {
         smart_index->each_ep_.resize(smart_index->getGroupNum());
     }
 
-    /** 2026.01.24
-     * ComponentPreliminary_multi::SeperateInner_multi_GroupAllWeight()
-     *      For "vamana_equNoTotal": related group = itself
-     */
     void ComponentPreliminary_multi::SeperateInner_multi_GroupAllWeight(Parameters &parameters)
     {
         // ## --------- 对应每组传入representative vector进行indexing -----------------------------------------
@@ -204,18 +200,15 @@ namespace xmt {
         smart_index->setRelaCheckList(relaList);
         // ------------------------------------------------------------------------------------------
 
-        // ## resize Graph Lists space
         smart_index->getFinalGraphList().resize(smart_index->getGroupNum());
         smart_index->getLoadGraphList().resize(smart_index->getGroupNum());
         smart_index->getExactGraphList().resize(smart_index->getGroupNum());
-        // ## resize other parameter space (related to Group Num)
         smart_index->each_ep_.resize(smart_index->getGroupNum());
     }
 
-    /** 2025.05.06
+    /**
      * ComponentPreliminary_multi::SeperateInner_multi_ClusterGroup()
-     *      1. 划分field分组。在后续程序中，每一个分组会对应一个graph；
-     *      2. 根据group数，resize各种GraphList
+     *      For PolyGraph
      */
     void ComponentPreliminary_multi::SeperateInner_multi_ClusterGroup(Parameters &parameters)
     {
@@ -299,11 +292,9 @@ namespace xmt {
         smart_index->setGroupRepreList(group_protos);
         smart_index->setRelaCheckList(relaList);
 
-        // ## resize Graph Lists space
         smart_index->getFinalGraphList().resize(smart_index->getGroupNum());
         smart_index->getLoadGraphList().resize(smart_index->getGroupNum());
         smart_index->getExactGraphList().resize(smart_index->getGroupNum());
-        // ## resize other parameter space (related to Group Num)
         smart_index->each_ep_.resize(smart_index->getGroupNum());
     }
 
@@ -382,7 +373,7 @@ namespace xmt {
         // #pragma omp parallel for
         for (int group = 0; group < smart_index->getGroupNum(); group++)
         {
-            std::cout << "__START INIT(4SMART) : RAND for group " << group << "__" << std::endl;
+            std::cout << "__START INIT : RAND for group " << group << "__" << std::endl;
             std::cout << "  with group element: ";
             for (auto f : smart_index->getGroupList()[group])
             {
@@ -390,7 +381,7 @@ namespace xmt {
             }
             std::cout << std::endl;
             ComponentInitRand_multi::InitInner_multi_4group(group, rng, initON, dist_type);
-            std::cout << "__END INIT(4SMART) : RAND for group " << group << "__" << std::endl;
+            std::cout << "__END INIT : RAND for group " << group << "__" << std::endl;
         }
 
         std::vector<std::vector<unsigned>>().swap(initON);

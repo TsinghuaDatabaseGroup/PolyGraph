@@ -248,7 +248,6 @@ namespace xmt {
 
 
             // ### 1. search
-            // #pragma omp parallel for
             for (unsigned i = 0; i < smart_index->getQueryLen(); i++)
             {
                 std::vector<MultiIndex::Neighbor> pool;
@@ -278,12 +277,11 @@ namespace xmt {
         else {
             std::cout << "__ [ NeedIndeces ] are set according to index (AGS-FallbackIntersect) __" << std::endl;
             // ### 1. search
-            // #pragma omp parallel for
             for (unsigned i = 0; i < smart_index->getQueryLen(); i++)
             {
                 std::vector<MultiIndex::Neighbor> pool;
                 boost::dynamic_bitset<> flags{smart_index->getBaseLen(), 0};
-                prepareForSearch_multi_SavedAGS_FallbackIntersect(i, needCalField, needIndeces, checkEps); // 2026.03.25: 尝试savedAGS + Fallback-Intersect
+                prepareForSearch_multi_SavedAGS_FallbackIntersect(i, needCalField, needIndeces, checkEps);
 
                 auto s2 = std::chrono::high_resolution_clock::now();
                 a->SearchEntryInner_multi(i, pool, needCalField, needIndeces, checkEps, flags, dist_type);
@@ -506,7 +504,6 @@ namespace xmt {
             std::string bash_path = "../include/python_file/bash.log_now";
 
             // ### 1. search
-            // #pragma omp parallel for
             for (unsigned i = 0; i < smart_index->getQueryLen(); i++)
             {
                 std::vector<MultiIndex::Neighbor> pool;
@@ -543,12 +540,11 @@ namespace xmt {
             std::cout << "__ [ NeedIndeces ] are set according to index (AGS-FallbackIntersect) __" << std::endl;
             s1 = std::chrono::high_resolution_clock::now();
             // ### 1. search
-            // #pragma omp parallel for
             for (unsigned i = 0; i < smart_index->getQueryLen(); i++)
             {
                 std::vector<MultiIndex::Neighbor> pool;
                 boost::dynamic_bitset<> flags{smart_index->getBaseLen(), 0};
-                prepareForSearch_multi_SavedAGS_FallbackIntersect(i, needCalField, needIndeces, checkEps); // 2026.03.25: 尝试savedAGS + Fallback-Intersect
+                prepareForSearch_multi_SavedAGS_FallbackIntersect(i, needCalField, needIndeces, checkEps); 
 
                 auto s2 = std::chrono::high_resolution_clock::now();
                 a->SearchEntryInner_multi(i, pool, needCalField, needIndeces, checkEps, flags, dist_type);
@@ -575,13 +571,11 @@ namespace xmt {
         std::cout << "search time: " << diff.count() << "\n";
         std::cout << "SearchEntryInner time: " << diff1.count() << "\n";
         std::cout << "RouteInner_dist time: " << diff2.count() << "\n";
-        // std::cout << "neg_time time: " << neg_time.count() << "\n";
 
         std::cout << "----[Average (per query) ---------------" << std::endl;
         std::cout << "average search time: " << (diff.count() / 100.0) << "\n";
         std::cout << "average SearchEntryInner time: " << (diff1.count() / 100.0) << "\n";
         std::cout << "average RouteInner_dist time: " << (diff2.count() / 100.0) << "\n";
-        // std::cout << "average neg_time time: " << (neg_time.count() / 100.0) << "\n";
         std::cout << "-------------------" << std::endl;
 
         std::cout << "HopCount: " << smart_index->getHopCount() << std::endl;
@@ -765,7 +759,6 @@ namespace xmt {
         std::vector<unsigned> &checkEps = smart_index->each_ep_;
 
         // ### 1. search
-        // #pragma omp parallel for
         for (unsigned i = 0; i < smart_index->getQueryLen(); i++)
         {
             std::vector<MultiIndex::Neighbor> pool;
@@ -980,7 +973,6 @@ namespace xmt {
         std::chrono::duration<double> diff1 = s1 - s1, diff2 = s1 - s1, neg_time = s1 - s1;
 
         // ### 1. search
-        // #pragma omp parallel for
         for (unsigned i = 0; i < smart_index->getQueryLen(); i++)
         {
             std::vector<int> needIndeces, needCalField;
@@ -1188,7 +1180,6 @@ namespace xmt {
         std::chrono::duration<double> diff1 = s1 - s1, diff2 = s1 - s1, neg_time = s1 - s1;
 
         // ### 1. search
-        // #pragma omp parallel for
         for (unsigned i = 0; i < smart_index->getQueryLen(); i++)
         {
             std::vector<int> needIndeces, needCalField;

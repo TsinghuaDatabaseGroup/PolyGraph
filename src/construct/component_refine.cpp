@@ -36,10 +36,6 @@ namespace xmt {
             auto *a = new ComponentRefineEntryCentroid_multi(smart_index);
             a->EntryInner_multi();
         }
-        else
-        {
-            alpha = smart_index->getAlphaNow();
-        }
 
         // REFINE
         smart_index->addRefineRound();
@@ -54,7 +50,7 @@ namespace xmt {
             }
             std::cout << std::endl;
             RefineInner_multi_4group(group, alpha, true, dist_type);
-            std::cout << "__END REFINE-" << smart_index->getRefineRound() << ": for group " << group << " with this-round-alpha = " << alpha << "__\n\n"
+            std::cout << "__END REFINE-" << smart_index->getRefineRound() << ": for group " << group << "__\n\n"
                       << std::endl;
         }
         std::cout << "\n=========================================================" << std::endl;
@@ -65,7 +61,6 @@ namespace xmt {
     void ComponentRefineSmart::RefineInner_multi_4group(int group, float alpha, bool hint, TYPE dist_type)
     {
         auto s = std::chrono::high_resolution_clock::now();
-        std::cout << "__START REFINE for group " << group << "__" << std::endl;
 
         SetConfigs_multi(group, alpha);
 
@@ -79,7 +74,6 @@ namespace xmt {
 
         auto e = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> load_info_time = e - s;
-        std::cout << "__FINISH REFINE for group " << group << "__" << std::endl;
         std::cout << "^^^^^^ 【 Refine for group " << group << " 】: time is " << load_info_time.count() << " ^^^^^^ \n"
                   << std::endl;
         if (hint)
@@ -96,8 +90,6 @@ namespace xmt {
     void ComponentRefineSmart::Link_multi_4group(int group, TYPE dist_type)
     {
         std::vector<std::mutex> locks(smart_index->getBaseLen());
-
-        std::cout << "alpha " << smart_index->alpha << std::endl;
 
         // CANDIDATE
         std::cout << "__CANDIDATE : AGS__" << std::endl;
@@ -161,12 +153,6 @@ namespace xmt {
             }
         }
 
-        std::vector<int> orignNum; // ⚠️ 我感觉这个其实没用了
-        for (unsigned n = 0; n < smart_index->getBaseLen(); ++n)
-        {
-            orignNum.emplace_back(smart_index->getFinalGraph(group)[n].size());
-        }
-
         count_num = 0;
 #pragma omp parallel
         {
@@ -175,7 +161,7 @@ namespace xmt {
             for (unsigned n = 0; n < smart_index->getBaseLen(); ++n)
             {
                 auto s = std::chrono::high_resolution_clock::now();
-                InterInsert_multi_4group_insert(n, group, locks, orignNum, dist_type);
+                InterInsert_multi_4group_insert(n, group, locks, dist_type);
                 auto e = std::chrono::high_resolution_clock::now();
                 inter_insert_time_local += e - s;
                 
@@ -195,7 +181,6 @@ namespace xmt {
                 inter_time += inter_insert_time_local;
             }
         }
-        std::vector<int>().swap(orignNum);
        
         std::cout << "######################" << std::endl;
         std::cout << "# candidate_time: " << candidate_time.count() << std::endl;
@@ -208,8 +193,7 @@ namespace xmt {
         smart_index->alpha = smart_index->getParam().get<float>("alpha2");        
     }
 
-    void ComponentRefineSmart::InterInsert_multi_4group_insert(unsigned int n, int group, std::vector<std::mutex> &locks,
-                                                               std::vector<int> &orignNum, TYPE dist_type)
+    void ComponentRefineSmart::InterInsert_multi_4group_insert(unsigned int n, int group, std::vector<std::mutex> &locks, TYPE dist_type)
     {
         std::unique_lock<std::mutex> guard_src(locks[n]);
         const auto src_pool = smart_index->getFinalGraph(group)[n];
@@ -329,7 +313,6 @@ namespace xmt {
     void ComponentRefineSmart_Oracle::RefineInner_multi_4group(int group, float alpha, bool hint, TYPE dist_type)
     {
         auto s = std::chrono::high_resolution_clock::now();
-        std::cout << "__START REFINE for group " << group << "__" << std::endl;
 
         SetConfigs_multi(group, alpha);
 
@@ -343,7 +326,6 @@ namespace xmt {
 
         auto e = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> load_info_time = e - s;
-        std::cout << "__FINISH REFINE for group " << group << "__" << std::endl;
         std::cout << "^^^^^^ 【 Refine for group " << group << " 】: time is " << load_info_time.count() << " ^^^^^^ \n"
                   << std::endl;
         if (hint)
@@ -364,12 +346,12 @@ namespace xmt {
         std::cout << "alpha " << smart_index->alpha << std::endl;
 
         // CANDIDATE
-        std::cout << "__CANDIDATE__" << std::endl;
+        std::cout << "__CANDIDATE: OracleVamana__" << std::endl;
         ComponentCandidate_multi *a = new ComponentCandidateAGS_multi(smart_index);
 
         // PRUNE
-        std::cout << "__PRUNE : PolyGraph__" << std::endl;
-        ComponentPrune_multi *b = new ComponentPrunePolyGraph_multi(smart_index);
+        std::cout << "__PRUNE: OracleVamana__" << std::endl;
+        ComponentPrune_multi *b = new ComponentPruneVamana_multi(smart_index);
 
         auto e = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> candidate_time(0.0), prune_time(0.0), inter_time(0.0), inter_insert_time(0.0), inter_prune_time(0.0);
@@ -425,12 +407,6 @@ namespace xmt {
             }
         }
 
-        std::vector<int> orignNum; // ⚠️ 我感觉这个其实没用了
-        for (unsigned n = 0; n < smart_index->getBaseLen(); ++n)
-        {
-            orignNum.emplace_back(smart_index->getFinalGraph(group)[n].size());
-        }
-
         count_num = 0;
 #pragma omp parallel
         {
@@ -439,7 +415,7 @@ namespace xmt {
             for (unsigned n = 0; n < smart_index->getBaseLen(); ++n)
             {
                 auto s = std::chrono::high_resolution_clock::now();
-                InterInsert_multi_4group_insert(n, group, locks, orignNum, dist_type);
+                InterInsert_multi_4group_insert(n, group, locks, dist_type);
                 auto e = std::chrono::high_resolution_clock::now();
                 inter_insert_time_local += e - s;
 
@@ -459,7 +435,6 @@ namespace xmt {
                 inter_time += inter_insert_time_local;
             }
         }
-        std::vector<int>().swap(orignNum);
 
         std::cout << "######################" << std::endl;
         std::cout << "# candidate_time: " << candidate_time.count() << std::endl;
@@ -472,8 +447,7 @@ namespace xmt {
         smart_index->alpha = smart_index->getParam().get<float>("alpha2");
     }
 
-    void ComponentRefineSmart_Oracle::InterInsert_multi_4group_insert(unsigned int n, int group, std::vector<std::mutex> &locks,
-                                                               std::vector<int> &orignNum, TYPE dist_type)
+    void ComponentRefineSmart_Oracle::InterInsert_multi_4group_insert(unsigned int n, int group, std::vector<std::mutex> &locks, TYPE dist_type)
     {
         std::unique_lock<std::mutex> guard_src(locks[n]);
         const auto src_pool = smart_index->getFinalGraph(group)[n];
@@ -509,28 +483,13 @@ namespace xmt {
                 {
                     auto temp_pool = smart_index->getFinalGraph(group)[des];
                     guard.unlock(); 
-                    ComponentPrune_multi *b = new ComponentPrunePolyGraph_multi(smart_index);
+                    // ComponentPrune_multi *b = new ComponentPrunePolyGraph_multi(smart_index);
+                    ComponentPrune_multi *b = new ComponentPruneVamana_multi(smart_index);
                     b->PruneInner_multi_4group_withOthers(des, group, temp_pool, locks, dist_type);
                 }
             }
         }
     }
-
-    // void ComponentRefineSmart_Oracle::InterInsert_multi_4group_prune(unsigned int n, int group, std::vector<std::mutex> &locks,
-    //                                                           TYPE dist_type)
-    // {
-    //     std::unique_lock<std::mutex> guard(locks[n]);
-    //     std::vector<xmt::MultiIndex::SimpleNeighbor> pool = smart_index->getOutNeigh(group, n);
-    //     guard.unlock();
-    //     // ## (2) 只有超出R才会进行prune
-    //     if (pool.size() > smart_index->R)
-    //     {
-    //         ComponentPrune_multi *b = new ComponentPrunePolyGraph_multi(smart_index);
-    //         b->PruneInner_multi_4group_withOthers(n, group, pool, locks, dist_type);
-    //     }
-    // }
-
-
 
 
     // ----------------------------------------------------------------------------------------------------
@@ -573,15 +532,15 @@ namespace xmt {
         std::cout << "__Start REFINT ROUND" << smart_index->getRefineRound() << "__" << std::endl;
         for (int group = smart_index->getGroupNum() - 1; group >= 0; group--)
         {
-            std::cout << "__START REFINE-" << smart_index->getRefineRound() << ": ORACLE for group " << group << "__" << std::endl;
+            std::cout << "__START REFINE-" << smart_index->getRefineRound() << ": Vamana for group " << group << "__" << std::endl;
             std::cout << "  with group element: ";
             for (auto f : smart_index->getGroupList()[group])
             {
                 std::cout << f << ", ";
             }
             std::cout << std::endl;
-            RefineInner_multi_4group(group, alpha, true, dist_type); // ComponentRefineSmart::
-            std::cout << "__END REFINE-" << smart_index->getRefineRound() << ": ORACLE for group " << group << " with this-round-alpha = " << alpha << "__\n\n"
+            RefineInner_multi_4group(group, alpha, true, dist_type);
+            std::cout << "__END REFINE-" << smart_index->getRefineRound() << ": Vamana for group " << group << " with this-round-alpha = " << alpha << "__\n\n"
                       << std::endl;
         }
         std::cout << "\n=========================================================" << std::endl;
@@ -592,7 +551,6 @@ namespace xmt {
     void ComponentRefineVamana_multi::RefineInner_multi_4group(int group, float alpha, bool hint, TYPE dist_type)
     {
         auto s = std::chrono::high_resolution_clock::now();
-        std::cout << "__START REFINE for group " << group << "__" << std::endl;
 
         SetConfigs_multi(group, alpha);
 
@@ -606,9 +564,7 @@ namespace xmt {
 
         auto e = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> load_info_time = e - s;
-        std::cout << "__FINISH REFINE for group " << group << "__" << std::endl;
-        std::cout << "^^^^^^ 【 Refine for group " << group << " 】: time is " << load_info_time.count() << " ^^^^^^ \n"
-                  << std::endl;
+        std::cout << "^^^^^^ 【 Refine for group " << group << " 】: time is " << load_info_time.count() << " ^^^^^^ \n" << std::endl;
         if (hint)
         {
             // ## Show InitGraph Summary
@@ -627,7 +583,7 @@ namespace xmt {
         std::cout << "alpha " << smart_index->alpha << std::endl;
 
         // CANDIDATE
-        std::cout << "__CANDIDATE__" << std::endl;
+        std::cout << "__CANDIDATE: Vamana__" << std::endl;
         ComponentCandidate_multi *a = new ComponentCandidateAGS_multi(smart_index);
 
         // PRUNE
@@ -688,12 +644,6 @@ namespace xmt {
             }
         }
 
-        std::vector<int> orignNum; // ⚠️ 我感觉这个其实没用了
-        for (unsigned n = 0; n < smart_index->getBaseLen(); ++n)
-        {
-            orignNum.emplace_back(smart_index->getFinalGraph(group)[n].size());
-        }
-
         count_num = 0;
 #pragma omp parallel
         {
@@ -702,7 +652,7 @@ namespace xmt {
             for (unsigned n = 0; n < smart_index->getBaseLen(); ++n)
             {
                 auto s = std::chrono::high_resolution_clock::now();
-                InterInsert_multi_4group_insert(n, group, locks, orignNum, dist_type);
+                InterInsert_multi_4group_insert(n, group, locks, dist_type);
                 auto e = std::chrono::high_resolution_clock::now();
                 inter_insert_time_local += e - s;
 
@@ -722,7 +672,6 @@ namespace xmt {
                 inter_time += inter_insert_time_local;
             }
         }
-        std::vector<int>().swap(orignNum);
 
         std::cout << "######################" << std::endl;
         std::cout << "# candidate_time: " << candidate_time.count() << std::endl;
@@ -735,8 +684,7 @@ namespace xmt {
         smart_index->alpha = smart_index->getParam().get<float>("alpha2");
     }
 
-    void ComponentRefineVamana_multi::InterInsert_multi_4group_insert(unsigned int n, int group, std::vector<std::mutex> &locks,
-                                                               std::vector<int> &orignNum, TYPE dist_type)
+    void ComponentRefineVamana_multi::InterInsert_multi_4group_insert(unsigned int n, int group, std::vector<std::mutex> &locks, TYPE dist_type)
     {
         std::unique_lock<std::mutex> guard_src(locks[n]);
         const auto src_pool = smart_index->getFinalGraph(group)[n];
@@ -778,19 +726,4 @@ namespace xmt {
             }
         }
     }
-
-    // void ComponentRefineVamana_multi::InterInsert_multi_4group_prune(unsigned int n, int group, std::vector<std::mutex> &locks,
-    //                                                           TYPE dist_type)
-    // {
-    //     std::unique_lock<std::mutex> guard(locks[n]);
-    //     std::vector<xmt::MultiIndex::SimpleNeighbor> pool = smart_index->getOutNeigh(group, n);
-    //     guard.unlock();
-    //     // ## (2) 只有超出R才会进行prune
-    //     if (pool.size() > smart_index->R)
-    //     {
-    //         ComponentPrune_multi *b = new ComponentPruneVamana_multi(smart_index);
-    //         b->PruneInner_multi_4group_withOthers(n, group, pool, locks, dist_type);
-    //     }
-    // }
-
 }

@@ -37,9 +37,6 @@ namespace xmt {
     
             MultiIndexBuilder *search(TYPE entry_type, TYPE route_type, TYPE L_type, TYPE weight_type, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
     
-            // MultiIndexBuilder *search_weight(TYPE entry_type, TYPE route_type, TYPE L_type, std::vector<std::vector<float>> &recall_result,
-            //                             std::vector<std::vector<float>> &latency_result, std::string neigh_save_name = "NULL", TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
-
             MultiIndexBuilder *get_ground_truth(TYPE weight_type, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
     
             MultiIndex *getFinalIndex() {

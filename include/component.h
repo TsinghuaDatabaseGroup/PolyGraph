@@ -292,11 +292,7 @@ namespace xmt {
 
         void Link_multi_4group(int group, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
-        void InterInsert_multi_4group_insert(unsigned n, int group, std::vector<std::mutex> &locks,
-                                             std::vector<int> &orignNum,TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
-
-        // void InterInsert_multi_4group_prune(unsigned n, int group, std::vector<std::mutex> &locks,
-        //                               TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+        void InterInsert_multi_4group_insert(unsigned n, int group, std::vector<std::mutex> &locks, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
     };
 
     class ComponentRefineVamana_multi : public ComponentRefine_multi {
@@ -312,11 +308,7 @@ namespace xmt {
 
         void Link_multi_4group(int group, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
-        void InterInsert_multi_4group_insert(unsigned n, int group, std::vector<std::mutex> &locks,
-                                             std::vector<int> &orignNum,TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
-
-        // void InterInsert_multi_4group_prune(unsigned n, int group, std::vector<std::mutex> &locks,
-        //                               TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+        void InterInsert_multi_4group_insert(unsigned n, int group, std::vector<std::mutex> &locks, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
     };
 
     class ComponentRefineSmart_Oracle : public ComponentRefine_multi {
@@ -332,11 +324,7 @@ namespace xmt {
 
         void Link_multi_4group(int group, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
 
-        void InterInsert_multi_4group_insert(unsigned n, int group, std::vector<std::mutex> &locks,
-                                             std::vector<int> &orignNum,TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
-
-        // void InterInsert_multi_4group_prune(unsigned n, int group, std::vector<std::mutex> &locks,
-        //                               TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
+        void InterInsert_multi_4group_insert(unsigned n, int group, std::vector<std::mutex> &locks, TYPE dist_type = xmt::TYPE::DIST_EUCLIDEAN);
     };
 
     

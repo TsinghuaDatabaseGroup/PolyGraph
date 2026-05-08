@@ -7,8 +7,6 @@
 #include <builder.h>
 #include <exp_data.h>
 
-// std::vector<unsigned> k_args({5, 10, 20, 50, 100});
-
 
 
 void PolyGraph(xmt::Parameters &parameters) {
@@ -114,7 +112,7 @@ void PolyGraph(xmt::Parameters &parameters) {
                                 dist_type);
     }
     // --- (Q, wi) ---
-    else if (parameters.get<std::string>("exc_type") == "all_recall_search") {   // all_recall_search_querySelectRepre_FallbackIntersect (various fixed L)
+    else if (parameters.get<std::string>("exc_type") == "all_recall_search") {   // all_recall_search_FallbackIntersect (various fixed L)
         smart_builder -> load(parameters);
     
         smart_builder -> load_graph(xmt::TYPE::INDEX_SMART, &graph_file[0]);
@@ -198,7 +196,7 @@ void PolyGraph(xmt::Parameters &parameters) {
 
 
 
-/** 2025.06.20
+/**
  * vamana_baseline_index_group:
  *      vamana_equSpace; vamana_equNoTotal; vamana_fusion 都用这个
  */
@@ -369,7 +367,7 @@ void vamana_baseline_index_group(xmt::Parameters &parameters) {
 
 
 
-/** 2025.06.11
+/**
  * 使用MultiIndexBuilder版本的HNSW_FUSION
  */
 void HNSW_FUSION(xmt::Parameters &parameters) {
