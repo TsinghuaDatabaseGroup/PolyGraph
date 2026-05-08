@@ -1,0 +1,5 @@
+../dataset/VectorFiles/ImageText/CC1M_image_base_stand.fvecs
+../dataset/VectorFiles/ImageText/CC1M_image_query_stand.fvecs
+
+../dataset/VectorFiles/ImageText/CC1M_text_base_stand.fvecs
+../dataset/VectorFiles/ImageText/CC1M_text_query_stand.fvecs

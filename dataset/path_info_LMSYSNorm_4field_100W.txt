@@ -1,0 +1,11 @@
+../dataset/VectorFiles/QA2/baseUnique_1M_answer_emb1_dim384.fvecs
+../dataset/VectorFiles/QA2/queryNorm_100_assistant_answer_embedding1_dim384.fvecs
+
+../dataset/VectorFiles/QA2/baseUnique_1M_answer_emb2_dim512.fvecs
+../dataset/VectorFiles/QA2/queryNorm_100_assistant_answer_embedding2_dim512.fvecs
+
+../dataset/VectorFiles/QA2/baseUnique_1M_question_emb1_dim384.fvecs
+../dataset/VectorFiles/QA2/queryNorm_100_user_question_embedding1_dim384.fvecs
+
+../dataset/VectorFiles/QA2/baseUnique_1M_question_emb2_dim512.fvecs
+../dataset/VectorFiles/QA2/queryNorm_100_user_question_embedding2_dim512.fvecs

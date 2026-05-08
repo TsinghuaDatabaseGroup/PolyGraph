@@ -1,0 +1,17 @@
+../dataset/VectorFiles/Wiki/name_embedding_withoutPCA_Normalized_base100W.fvecs
+../dataset/VectorFiles/Wiki/name_embedding_withoutPCA_Normalized_query100.fvecs
+
+../dataset/VectorFiles/Wiki/version_embedding_withoutPCA_Normalized_base100W.fvecs
+../dataset/VectorFiles/Wiki/version_embedding_withoutPCA_Normalized_query100.fvecs
+
+../dataset/VectorFiles/Wiki/event_embedding_withoutPCA_Normalized_base100W.fvecs
+../dataset/VectorFiles/Wiki/event_embedding_withoutPCA_Normalized_query100.fvecs
+
+../dataset/VectorFiles/Wiki/description_embedding_withoutPCA_Normalized_base100W.fvecs
+../dataset/VectorFiles/Wiki/description_embedding_withoutPCA_Normalized_query100.fvecs
+
+../dataset/VectorFiles/Wiki/sections_embedding_withoutPCA_Normalized_base100W.fvecs
+../dataset/VectorFiles/Wiki/sections_embedding_withoutPCA_Normalized_query100.fvecs
+
+../dataset/VectorFiles/Wiki/abstract_embedding_withoutPCA_Normalized_base100W.fvecs
+../dataset/VectorFiles/Wiki/abstract_embedding_withoutPCA_Normalized_query100.fvecs
