@@ -11,7 +11,7 @@ PolyGraph is the official implementation of:
 
 ## Datasets
 
-Each dataset can be derived from the following public data sources.
+The original data sources used in the paper are listed below. For convenience, we also provide the processed dataset files, including base vectors, query vectors, and ground-truth files, at [this cloud link](https://cloud.tsinghua.edu.cn/d/ada43502b60f406690e9/).
 
 | Dataset name `<DATASET>` | Paper dataset   | Source | Number of fields | Path-info file |
 | ------------------------ | --------------- | ------ | ---------------: | -------------- |
@@ -80,20 +80,18 @@ cmake ..
 make -j
 ```
 
-The executable is generated as `build/main`.
+### Build a PolyGraph index with $\tau=0.95$ and $c=0.5$
 
-### Quick Start of PolyGraph
-
-Run the following commands from the `build/` directory.
-
-#### Build a PolyGraph index with $\tau=0.95$ and $c=0.5$
+Then, you can run the following instructions for build graph index.
 
 ```bash
 cd PolyGraph/build
 ./main PolyGraph <DATASET> build -total_sim_thresh 0.95 -rela_sim_thresh 0.5
 ```
 
-#### Evaluate PolyGraph at Recall@20 with WAGS ($c=0.5$)
+### Evaluate PolyGraph at Recall@20 with WAGS ($c=0.5$)
+
+After building the index, run the following command to evaluate PolyGraph under the default query workload. If a corresponding `useWeight/useWeightEachQuery_[...].txt` file exists, set its first line to `0` to enable the default workload. The `all_recall_search` command then evaluates all non-empty field-participation patterns and reports the recall-latency performance following the experimental setting in the paper. The output logs include query latency, Recall@20, average query path length, and the average number of distance evaluations.
 
 ```bash
 cd PolyGraph/build
