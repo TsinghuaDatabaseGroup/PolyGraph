@@ -11,34 +11,19 @@ PolyGraph is the official implementation of:
 
 ## Datasets
 
-The original data sources used in the paper are listed below. For convenience, we also provide the processed dataset files, including base vectors, query vectors, and ground-truth files, at [this cloud link](https://cloud.tsinghua.edu.cn/d/ada43502b60f406690e9/).
+The paper evaluates PolyGraph on four real-world million-scale multi-vector datasets. We provide processed base vectors, query vectors, path-info files, and ground-truth files separately because the generated embedding files are large.
 
-| Dataset name `<DATASET>` | Paper dataset   | Source | Number of fields | Path-info file |
-| ------------------------ | --------------- | ------ | ---------------: | -------------- |
-| `ImageText` | Image-Text | [Conceptual Captions](https://github.com/google-research-datasets/conceptual-captions) | 2 | `dataset/path_info_CC1MNorm_2field_100W.txt` |
-| `QA2` | Question-Answer | [LMSYS-Chat-1M](https://huggingface.co/datasets/lmsys/lmsys-chat-1m) | 4 | `dataset/path_info_LMSYSNorm_4field_100W.txt` |
-| `Wiki` | Wikipedia | [Wikipedia Structured Contents](https://www.kaggle.com/datasets/wikimedia-foundation/wikipedia-structured-contents/data) | 6 | `dataset/path_info_EnwikiNorm_6field_100W.txt` |
-| `Protein` | Protein | [UniProt](https://www.uniprot.org/) | 8 | `dataset/path_info_ProteinNorm_8field_100W.txt` |
+Please refer to:
 
-PolyGraph reads each multi-vector dataset through a path-info file. Each path-info file contains one block per field. In the $i$-th block, the first and second lines specify the paths to the base vectors and query vectors of the $i$-th field, respectively. A two-field example is shown below:
+- [`dataset/VectorFiles/README.md`](dataset/VectorFiles/README.md) for dataset sources, downloads, and path-info files.
+- [`dataset/Ground-truth/README.md`](dataset/Ground-truth/README.md) for ground-truth files and the default query workload.
 
-```text
-/path/to/field_1_base.fvecs
-/path/to/field_1_query.fvecs
-
-/path/to/field_2_base.fvecs
-/path/to/field_2_query.fvecs
-```
-
-Base and query vectors should be stored in `fvecs` format, and ground-truth files should be stored in `ivecs` format. Please refer to the [YAEL file-format description](http://yael.gforge.inria.fr/file_format.html) for details about `fvecs` and `ivecs`.
-
-PolyGraph uses a default query workload that contains all `2^m - 1` non-empty field-participation patterns for a dataset with `m` fields. In the implementation, active fields are assigned equal positive weights, which is rank-equivalent to the normalized workload $`\mathcal{W}_{\mathrm{default}}`$ used in the paper. The ground-truth file for the $i$-th weight configuration in $`\mathcal{W}_{\mathrm{default}}`$ should be stored as:
-
-```text
-dataset/Ground-truth/<DATASET>/<i>-output.ivecs
-```
-
-If the corresponding ground-truth file is not available, PolyGraph computes the exact results by brute force.
+| Dataset name `<DATASET>` | Paper dataset | Number of fields | Dimensions |
+| ------------------------ | ------------- | ---------------: | ---------- |
+| `ImageText` | Image-Text | 2 | `(768, 768)` |
+| `QA2` | Question-Answer | 4 | `(384, 512, 384, 512)` |
+| `Wiki` | Wikipedia | 6 | `(384, 384, 384, 384, 384, 384)` |
+| `Protein` | Protein | 8 | `(400, 128, 128, 128, 128, 128, 128, 320)` |
 
 ## Main Parameters
 
