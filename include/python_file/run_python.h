@@ -80,17 +80,11 @@ int run_python(
     unsigned max_group = 0,
     const std::string& script_path = "../include/python_file/cluster_Now_distSimThresh.py",
     std::string log_path = "../include/python_file/nohup_logs/bash.log",
-    const std::string& venv_python = "../pythonEnv_ForSI",
+    const std::string& venv_python = "../pythonEnv_ForPG",
     const std::string& txt_path = "../dataset/path_info.txt",
     const std::string& weight_path = "../dataset/path_info.txt",
     const std::vector<std::string>& extra_args = {}
 ) {
-    /**
-     * python需要处理的两种指令：
-     *      nohup /usr/bin/time -v python3 ../include/python_file/cluster_Now_distSimThresh-relaUseThresh-SyntheticStand.py --total_sim_thresh 0.95 --no-rela_use_intersect --rela_sim_thresh 0.5 --max_group 25 > ../include/python_file/nohup_logs/bash.log51022-clusterSyntheticStand-relaThresh_distSimThresh_0.95 2>&1 
-     *      nohup /usr/bin/time -v python3 ../include/python_file/cluster_Now_distSimThresh-relaUseThresh-SyntheticStand.py --total_sim_thresh 0.95 --rela_use_intersect --max_group 25 > ../include/python_file/nohup_logs/bash.log51022-clusterSyntheticStand-useIntersect_distSimThresh_0.95 2>&1 &
-     */
-    
     std::cout << "___ RUN PYTHON ___" << std::endl;
     std::cout << "-- python file at: " << script_path << std::endl;
 

@@ -9,76 +9,6 @@
 #include "python_file/run_python.h"
 #include "exp_data.h"
 
-
-
-// ============ /*  Commands that can be used:  */ =====================================================
-// // -- [Different "DATASET" name] --
-// ImageText
-// QA2
-// Wiki
-// Protein
-
-// // -- [ "INDEX_NAME" of Baselines/Oracle ] --
-// hnsw_fusion
-// vamana_fusion
-// vamana_equNoTotal
-// vamana_allWeight
-// vamana_oracle
-
-// // -- [PolyGraph] --
-// ./main PolyGraph [DATASET] build -rela_use_intersect 0 -total_sim_thresh 0.95 -rela_sim_thresh 0.5
-// ./main PolyGraph [DATASET] all_recall_search 20 -search_rela_sim_thresh 0.5 --> FallbackIntersect
-// ./main PolyGraph [DATASET] all_recall_search_allIndex 20
-// ./main PolyGraph [DATASET] all_recall_search_intersect 20
-
-// // -- [Baselines] --
-// ./main [INDEX_NAME] [DATASET] build
-// ./main [INDEX_NAME] [DATASET] all_recall_search [k]
-
-// 可添加其他调节超参数的输入
-// -L R
-// -L_refine L
-// -R_refine R
-// ============ /*  Commands that can be used, END */ =====================================================
-
-// // ⚠️： 需要创建python的虚拟环境
-// 1. 创建虚拟环境
-// cd /home/mengtong/MyWork/PolyGraph
-// python3 -m venv ./pythonEnv_ForSI
-// source ./pythonEnv_ForSI/bin/activate
-// python -m pip install --upgrade pip setuptools wheel
-
-// 2. 安装你的脚本需要的包
-// 2.1 建议保存 requirements.txt
-// 2.1.1 为了以后重建环境方便，可以创建：
-// cat > /home/mengtong/MyWork/PolyGraph/include/python_file/requirements.txt << 'EOF'
-// numpy
-// scipy
-// scikit-learn
-// matplotlib
-// joblib
-// tqdm
-// EOF
-// 2.2 根据requirements.txt安装脚本需要的包
-// 2.2.1 以后如果环境坏了，直接：
-// source /home/mengtong/MyWork/PolyGraph/pythonEnv/bin/activate
-// pip install -r /home/mengtong/MyWork/PolyGraph/include/python_file/requirements.txt
-// 2.2.2 验证是否安装成功：
-// ./pythonEnv_ForSI/bin/python3 -c "import numpy, scipy, sklearn, matplotlib, joblib, tqdm; print('Python env OK')"
-
-
-// // -- 在miniconda中安装boost --
-// // 1. 首先打开我的conda环境：base
-// conda activate base
-// // 2. 向conda中安装boost：
-// source /home/mengtong/miniconda3/etc/profile.d/conda.sh
-// conda activate base
-// conda install -c conda-forge boost-cpp
-// // 3. 检查是否安装成功
-// find $CONDA_PREFIX -name dynamic_bitset.hpp 2>/dev/null | head
-
-
-// float ObjectOverall::singleDistUB = floatMax; // 初始化静态成员变量
 std::regex paraName("-(\\w+)");
 
 int main(int totalArgc, char **argv)
@@ -108,8 +38,6 @@ int main(int totalArgc, char **argv)
     xmt::Parameters parameters;
     parameters.set<std::string>("dataset_root", dataset_root);
     parameters.set<std::string>("index_path", index_path);
-    // XMT修改：应为spark10有40个CPU kernels，把n_threads提高到30
-    // parameters.set<unsigned>("n_threads", 8);
     parameters.set<unsigned>("n_threads", 30);
     parameters.set<std::string>("dist_type", dist_type);
     parameters.set<std::string>("graph_file", graph_file);
@@ -162,8 +90,6 @@ int main(int totalArgc, char **argv)
     }
 
     // --- change hyperparameters according to cmd -------
-    // | 对于 build，判断是否有传入&定义 -alpha2, -L, -L_refine, -R ，等超参数；如果有，则根据传入数值进行hyper parameter修改。
-    // -------------------------------------------------
     float total_sim_thresh = 0.95, rela_sim_thresh = 0.5, search_rela_sim_thresh = 0.5;
     unsigned max_group = 0;
     bool rela_use_intersect = true;
@@ -232,7 +158,6 @@ int main(int totalArgc, char **argv)
 
 
     // ====== 2. run_python(): Do Representative Weight Selection =================================
-    // if (exc_type == "cluster_build") {
     if (alg == "PolyGraph" && exc_type == "build") {
         bool override = true;
 
@@ -247,7 +172,7 @@ int main(int totalArgc, char **argv)
             override, rela_use_intersect, total_sim_thresh, rela_sim_thresh, max_group,
             python_path,
             "../include/python_file/nohup_logs/bash.log", // 这次python的运行过程信息存储路径的前缀；后会加详细时间（应该是比c++中展示的时间略小且约等于）
-            "../pythonEnv_ForSI/bin/python3", //venv_python
+            "../pythonEnv_ForPG/bin/python3", //venv_python
             parameters.get<std::string>("txt_path"), // path_info.txt
             parameters.get<std::string>("weight_path"), // useWeightEachQuery.txt
             extra_args
