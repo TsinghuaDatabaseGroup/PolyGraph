@@ -152,16 +152,3 @@ The repository also includes several built-in baselines used in the paper.
 | `vamana_oracle`              | `Oracle_Vamana` |
 
 DEG and HJG are external baselines and should be run using their official repositories.
-
-## Citation
-
-If you use PolyGraph in your research, please cite:
-
-```bibtex
-@article{xu2026polygraph,
-  title   = {PolyGraph: An Efficient Multi-Vector Index for Approximate Nearest-Neighbor Search on Multi-Vector Data},
-  author  = {Xu, Mengtong and Pan, James and Li, Guoliang},
-  journal = {Proceedings of the VLDB Endowment},
-  year    = {2026}
-}
-```
